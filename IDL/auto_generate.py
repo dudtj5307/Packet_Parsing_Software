@@ -4,7 +4,7 @@ import mmap
 import hashlib
 
 # C 타입과 Python struct 모듈 포맷 코드 매핑 (필요에 따라 추가)
-TYPE_MAPPING = {
+KNOWN_TYPE_MAP = {
     'char'          : 'c',
     'uchar'         : 'B',
     'unsigned char' : 'B',
@@ -18,6 +18,11 @@ TYPE_MAPPING = {
     'unsigned int' : 'I',
 }
 
+# struct 정의: 'struct <구조체이름> { ... }'
+struct_pattern = re.compile(r'struct\s+(\w+)\s*\{([^}]+)}', re.MULTILINE | re.DOTALL)
+# 필드 패턴: ex) "uchar valid,       // 100~200"
+field_pattern = re.compile(r'\s*(\w+)\s+(\w+)\s*(?:;?\s*(//.*))?')
+
 
 def calculate_hash(filepath, algorithm='sha256'):
     hash_func = hashlib.new(algorithm)
@@ -28,98 +33,142 @@ def calculate_hash(filepath, algorithm='sha256'):
     return hash_func.hexdigest()
 
 
-def idl_changed(idl_path, output_path):
-    with open(output_path, 'r', encoding='utf-8') as f:
-        first_line = f.readline().strip()
+class IDL_CODE_GENERATION():
+    def __init__(self):
+        self.idl_path = ""
+        self.idl_name = ""
 
-    # Read hash-value from the First Line
-    if ':' in first_line:
-        stored_hash = first_line.split(':', 1)[1].strip()
-    else:
-        print("No hash-value found : {output_path}")
-        return True
+        self.output_path = ""
+        self.output_name = ""
 
-    # 현재 IDL 파일의 해시 값 계산
-    current_hash = calculate_hash(idl_path)
+        # Saving all the structs
+        self.KNOWN_TYPE_MAP = KNOWN_TYPE_MAP
+        self.IDL_TYPE_MAP   = {}
 
-    return stored_hash != current_hash
+    def set(self, idl_path):
+        # IDL path for parsing & code generation
+        self.idl_path = idl_path
+
+        # Output path
+        idl_folder, self.idl_name = os.path.split(idl_path)
+        self.output_name = f"parse_{self.idl_name.split('.')[0]}.py"
+        self.output_path = os.path.join(idl_folder, self.output_name)
+        self.IDL_TYPE_MAP = {}
+
+    def idl_changed(self):
+        with open(self.output_path, 'r', encoding='utf-8') as f:
+            first_line = f.readline().strip()
+        # Read stored hash-value from '{output_path}'
+        if ':' in first_line:
+            stored_hash = first_line.split(':', 1)[1].strip()
+        else:
+            print("No hash-value found : {output_path}")
+            return True
+        # Calculate current hash-value from '{idl_path}'
+        current_hash = calculate_hash(self.idl_path)
+        return stored_hash != current_hash
+
+    def parse_idl_file(self):
+        with open(self.idl_path, 'r') as f:
+            content = f.read()
+        # Parse all structs in IDL file
+        for struct_match in struct_pattern.finditer(content):
+            struct_name = struct_match.group(1)
+            struct_body = struct_match.group(2)
+            fields = []
+            # 각 줄마다 필드 파싱 (빈 줄은 건너뜀)
+            for line in struct_body.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                # 끝에 붙은 콤마 제거
+                line = line.rstrip(',')
+                field_match = field_pattern.match(line)
+                if field_match:
+                    ctype = field_match.group(1)
+                    field_name = field_match.group(2)
+                    comment = field_match.group(3) if field_match.group(3) else ""
+                    fields.append((ctype, field_name, comment))
+
+            self.IDL_TYPE_MAP[struct_name] = fields
+
+    # Recursive fmt function for nested structure
+    def get_fmt_recursive(self, struct_name):
+        fields = self.IDL_TYPE_MAP.get(struct_name, [])
+        fmt = ""
+        for ctype, field_name, comment in fields:
+            if ctype in self.KNOWN_TYPE_MAP:
+                fmt += self.KNOWN_TYPE_MAP[ctype]
+            elif ctype in self.IDL_TYPE_MAP:
+                fmt += self.get_fmt_recursive(ctype)     # Recursive
+            else:
+                print(f"Warning: Struct({struct_name})-Field({field_name}) Unknown type: {ctype}")
+        return fmt
+
+    def get_dict_recursive(self, struct_name, indent, index):
+        lines = []
+        current_index = index
+        for ctype, field_name, comment in self.IDL_TYPE_MAP[struct_name]:
+            if ctype in self.KNOWN_TYPE_MAP:
+                lines.append(f"{indent}'{field_name}': data[{current_index}],")
+                current_index += 1
+            elif ctype in self.IDL_TYPE_MAP:
+                nested_lines, next_index = self.get_dict_recursive(ctype, indent + "    ", current_index)
+                lines.append(f"{indent}'{field_name}': {{")
+                lines.extend(nested_lines)
+                lines.append(f"{indent}}},")
+                current_index = next_index
+            else:
+                lines.append(f"{indent}# Unknown type {ctype} for field {field_name}")
+        return lines, current_index
+
+    def generate_parse_function(self, struct_name):
 
 
-def generate_parse_function(struct_name, fields):
-    """ fields: [(ctype, field_name, comment), ...] """
+        # fields = self.IDL_TYPE_MAP.get(struct_name, [])
+        # range_comments = {name: comment.strip() for ctype, name, comment in fields if comment}
+        fmt = self.get_fmt_recursive(struct_name)
+        dict_lines, _ = self.get_dict_recursive(struct_name, "    ", 0)
 
-    # 각 필드의 타입을 매핑하여 struct 포맷 문자열 생성
-    fmt = ''.join([TYPE_MAPPING.get(ctype, '') for ctype, _, _ in fields])
-    # 주석은 별도로 저장할 수 있도록 dict 형태로도 추출 (여기서는 출력하지 않음)
-    # range_comments = {name: comment.strip() for ctype, name, comment in fields if comment}
+        func_lines = list()
+        func_lines.append(f"# Parse {struct_name} data")
+        func_lines.append(f"def parse_{struct_name}(data):")
+        func_lines.append(f"    fmt = '{fmt}'")
+        func_lines.append("    data = struct.unpack(fmt, data)")
+        func_lines.append("    result = {")
+        func_lines.extend(dict_lines)
+        func_lines.append("    }")
+        func_lines.append("    return result")
+        return "\n".join(func_lines)
 
-    func_lines = list()
-    func_lines.append(f"# Parse {struct_name} packet")
-    func_lines.append(f"def parse_{struct_name}(packet):")
-    func_lines.append(f"    fmt = '{fmt}'")
-    func_lines.append("    data = struct.unpack(fmt, packet)")
-    func_lines.append("    result = {")
-    for idx, (_, field_name, comment) in enumerate(fields):
-        if comment: comment = f"    # {comment.split('//')[1].strip()}"
-        func_lines.append(f"        '{field_name}' : data[{idx}],{comment}")
-    func_lines.append("    }")
-    func_lines.append("    return result")
-    return "\n".join(func_lines)
+    def generate_code(self):
+        generated_code = f"# {self.idl_name} : {calculate_hash(self.idl_path)}\n\n"
+        generated_code += "import struct\n\n"
+        # Auto-generate code by struct name
+        for struct_name in self.IDL_TYPE_MAP:
+            generated_code += self.generate_parse_function(struct_name) + "\n\n"
+
+        with open(self.output_path, 'w') as f:
+            f.write(generated_code)
+        print(f"* Auto-Generated : {self.output_name}")
 
 
-def generate_from_idl(idl_path):
-    # Output path
-    idl_folder, idl_name = os.path.split(idl_path)
-    base, _ = os.path.splitext(idl_name)
-    new_file_name = f"parse_{base}.py"
-    output_path = os.path.join(idl_folder, new_file_name)
-
-    if os.path.exists(output_path):
-        if not idl_changed(idl_path, output_path):
-            print(f"* Already Exists : {new_file_name}")
+    def run(self):
+        # Check if auto-generated code is up-to-date
+        if os.path.exists(self.output_path) and not self.idl_changed():
+            print(f"* Already Exists : {self.output_name}")
             # return
 
-    # Read IDL file
-    with open(idl_path, 'r') as f:
-        content = f.read()
+        self.parse_idl_file()
+        self.generate_code()
 
-    # struct 정의: 'struct <구조체이름> { ... }'
-    struct_pattern = re.compile(r'struct\s+(\w+)\s*\{([^}]+)\}', re.MULTILINE | re.DOTALL)
-    # 필드 패턴: ex) "uchar valid,       // 100~200"
-    field_pattern = re.compile(r'\s*(\w+)\s+(\w+)\s*(?:,?\s*(//.*))?')
-
-    generated_code = f"# {idl_name} : {calculate_hash(idl_path)}\n\n"
-    generated_code += "import struct\n\n"
-
-    for struct_match in struct_pattern.finditer(content):
-        struct_name = struct_match.group(1)
-        struct_body = struct_match.group(2)
-
-        fields = []
-        # 각 줄마다 필드 파싱 (빈 줄은 건너뜀)
-        for line in struct_body.splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            # 끝에 붙은 콤마 제거
-            line = line.rstrip(',')
-            field_match = field_pattern.match(line)
-            if field_match:
-                ctype = field_match.group(1)
-                field_name = field_match.group(2)
-                comment = field_match.group(3) if field_match.group(3) else ""
-                fields.append((ctype, field_name, comment))
-
-        # 구조체 하나당 파싱 함수 생성
-        func_code = generate_parse_function(struct_name, fields)
-        generated_code += func_code + "\n\n"
-
-    with open(output_path, 'w') as f:
-        f.write(generated_code)
-
-    print(f"* Auto-Generated : {new_file_name}")
+    def reset(self):
+        self.__init__()
 
 
 if __name__ == '__main__':
     idl_file_path = "EIE_Msg.idl"  # 분석할 IDL 파일 이름
-    generate_from_idl(idl_file_path)
+
+    code_generator = IDL_CODE_GENERATION()
+    code_generator.set(idl_file_path)
+    code_generator.run()
