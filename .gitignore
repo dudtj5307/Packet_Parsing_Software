@@ -1,0 +1,27 @@
+# Python Bytecode #
+__pycache__/
+*.pyc
+*.pyo
+
+# JetBrains IDE #
+.idea/
+
+# VS Code #
+.vscode/
+
+# File Type #
+*.conf
+*.pptx
+
+# RAW Folder #
+RAW/
+
+# IDL Folder #
+IDL/*.py
+
+# GUI Folder #
+GUI/res/backup/
+
+
+# CSV Folder #
+CSV/

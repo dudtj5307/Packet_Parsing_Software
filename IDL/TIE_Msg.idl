@@ -1,0 +1,26 @@
+struct TIE_0x443{
+uint	type1,  // 0~200
+ushort type2,
+uchar type3,
+int 	type4,
+short type5,
+char type6,
+}
+
+struct TIE_0x445{
+uint	type1,
+ushort type2,
+uchar type3,
+int 	type4,
+short type5,
+char type6,
+}
+
+struct TIE_0x455{
+uint	type1,
+ushort type2,
+uchar type3,
+int 	type4,
+short type5,
+char type6,
+}

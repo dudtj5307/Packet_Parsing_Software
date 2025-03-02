@@ -45,16 +45,6 @@ class IDL_CODE_GENERATION():
         self.KNOWN_TYPE_MAP = KNOWN_TYPE_MAP
         self.IDL_TYPE_MAP   = {}
 
-    def set(self, idl_path):
-        # IDL path for parsing & code generation
-        self.idl_path = idl_path
-
-        # Output path
-        idl_folder, self.idl_name = os.path.split(idl_path)
-        self.output_name = f"parse_{self.idl_name.split('.')[0]}.py"
-        self.output_path = os.path.join(idl_folder, self.output_name)
-        self.IDL_TYPE_MAP = {}
-
     def idl_changed(self):
         with open(self.output_path, 'r', encoding='utf-8') as f:
             first_line = f.readline().strip()
@@ -123,10 +113,11 @@ class IDL_CODE_GENERATION():
         return lines, current_index
 
     def generate_parse_function(self, struct_name):
-
-
+        # # Annotation
         # fields = self.IDL_TYPE_MAP.get(struct_name, [])
         # range_comments = {name: comment.strip() for ctype, name, comment in fields if comment}
+
+        # Recursive for Nested Structures
         fmt = self.get_fmt_recursive(struct_name)
         dict_lines, _ = self.get_dict_recursive(struct_name, "    ", 0)
 
@@ -152,12 +143,21 @@ class IDL_CODE_GENERATION():
             f.write(generated_code)
         print(f"* Auto-Generated : {self.output_name}")
 
+    def set(self, idl_path):
+        # IDL path for parsing & code generation
+        self.idl_path = idl_path
+
+        # Output path
+        idl_folder, self.idl_name = os.path.split(idl_path)
+        self.output_name = f"parse_{self.idl_name.split('.')[0]}.py"
+        self.output_path = os.path.join(idl_folder, self.output_name)
+        self.IDL_TYPE_MAP = {}
 
     def run(self):
         # Check if auto-generated code is up-to-date
         if os.path.exists(self.output_path) and not self.idl_changed():
             print(f"* Already Exists : {self.output_name}")
-            # return
+            # return    # To Be Restored
 
         self.parse_idl_file()
         self.generate_code()

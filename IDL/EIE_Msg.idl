@@ -1,0 +1,47 @@
+struct msgType {
+int a;
+}
+
+struct trkNo {
+msgType     type;
+    ushort  trkNo1;
+    ushort  trkNo2;
+    uint    trkNo3;
+    uint    trkNo4;
+}
+
+struct EIE_header {
+    trkNo   srcTN;
+    trkNo   dstTN;
+    uchar   msgType;
+}
+
+struct EIE_0x301{
+EIE_header  header;
+uint	type1;  // 0~200
+ushort type2;
+uchar type3;
+int 	type4;
+short type5;
+char type6;
+}
+
+struct EIE_0x302{
+EIE_header  header;
+uint	type1;
+ushort type2;
+uchar type3;
+int 	type4;
+short type5;
+char type6;
+}
+
+struct EIE_0x303{
+EIE_header  header;
+uint	type1;
+ushort type2;
+uchar type3;
+int 	type4;
+short type5;
+char type6;
+}
