@@ -26,7 +26,7 @@ def open_settings(self):
     settings_window.grab_set()            # 설정 창이 닫히기 전까지 다른 창 클릭 불가
 
     # Icon directory
-    icon_path = os.path.join(sys._MEIPASS if getattr(sys, 'frozen', False) else os.getcwd(), 'GUI', 'res/button_settings.png')
+    icon_path = os.path.join(os.getcwd(), 'GUI', 'res/button_settings.png')
     icon = PhotoImage(file=icon_path)
     settings_window.iconphoto(True, icon)
 
@@ -40,6 +40,8 @@ def open_settings(self):
 
     self.iface_combobox1 = ttk.Combobox(frame1, textvariable=self.iface_selected, width=65, state="readonly")
     self.iface_combobox1.grid(row=0, column=1, padx=5, pady=10)
+
+    self.iface_combobox1.set(self.iface_selected)
 
     # Function Binding
     self.iface_combobox1.bind("<Button-1>", lambda event: update_iface_combobox(self, self.iface_combobox1))
@@ -94,6 +96,7 @@ def open_settings(self):
     self.adoc_ip_entry1.insert(0, self.config_data['adoc_ip1'])
     self.adoc_ip_entry2.insert(0, self.config_data['adoc_ip2'])
     self.adoc_ip_entry3.insert(0, self.config_data['adoc_ip3'])
+    self.adoc_ip_entry3.configure(state='readonly')
     self.wcc_ip_entry1.insert(0, self.config_data['wcc_ip1'])
     self.wcc_ip_entry2.insert(0, self.config_data['wcc_ip2'])
     self.wcc_ip_entry3.insert(0, self.config_data['wcc_ip3'])
@@ -117,55 +120,56 @@ def open_settings(self):
 
 
     # ------------------------------------ Frame 3 ------------------------------------- #
-    # OK Button
     frame3 = Frame(settings_window)
     frame3.grid(row=2, column=0, padx=15, pady=20, sticky='es')
 
-    self.ok_button = tk.Button(frame3, text="OK", width=6, height=1,
-                               command= lambda: (self.save_config_data(get_config(self)), settings_window.destroy()))
+    # OK Button
+    self.ok_button = tk.Button(frame3, text="OK", width=6, height=1, command= lambda: (self.save_config_data(get_config_data(self)), settings_window.destroy()))
     self.ok_button.grid(row=0, column=0, padx=5, pady=10, sticky='se')
-
     # Close Button
-    self.close_button = tk.Button(frame3, text="Close", width=6, height=1, command=settings_window.destroy)
+    self.close_button = tk.Button(frame3, text="Close", width=6, height=1, command=lambda: settings_window.destroy())
     self.close_button.grid(row=0, column=1, padx=5, pady=10, sticky='se')
-
     # Apply Button
-    self.apply_button = tk.Button(frame3, text="Apply", width=6, height=1,
-                                  command= lambda: self.save_config_data(get_config(self)))
+    self.apply_button = tk.Button(frame3, text="Apply", width=6, height=1, command= lambda: self.save_config_data(get_config_data(self)))
     self.apply_button.grid(row=0, column=2, padx=5, pady=10, sticky='se')
-
 
 # ComboBox List Expanded
 def update_iface_combobox(self, self_combox, event=None):
     # Update Network Interface
     self.iface_list = []
     for iface in get_windows_if_list():
-        if len(iface['ips']) == 0:              continue
-        if "loopback" in iface['name'].lower(): continue
+        if len(iface['ips']) == 0 or "loopback" in iface['name'].lower():
+            continue
+
         iface_name = f"{iface['name']}"
-        iface_description = f"{iface['name']} {iface['description']}"
+        iface_description = f"{iface['description']}"
         for ip in iface['ips']:
             if all(map(lambda x: x.isdecimal(), ip.split('.'))):
                 iface_ip = ip
-                self.iface_list.append([[iface_ip, iface_description], iface_name])
+                self.iface_list.append([iface_ip, iface_name, iface_description])
 
     # Update ComboBox List
-    self_combox['values'] = list(zip(*self.iface_list))[0]
-
+    self_combox['values'] = self.iface_list
 
 # ComboBox Item Selected
 def select_iface_combobox(self, event):
-    self_iface_combobox = self.iface_combobox1
-    selected_idx = self_iface_combobox.current()
-    self_iface_combobox.set(self_iface_combobox['values'][selected_idx])
-    self.iface_selected = self.iface_list[selected_idx][1]
+    selected_idx = self.iface_combobox1.current()
+    # self_iface_combobox.set(self_iface_combobox['values'][selected_idx])
+    self.iface_selected = self.iface_list[selected_idx]
+    self.iface_combobox1.set(self.iface_selected)
+    # Inserting this computer IP info
+    self.adoc_ip_entry3.configure(state=tk.NORMAL)
+    self.adoc_ip_entry3.delete(0, tk.END)
+    self.adoc_ip_entry3.insert(0, self.iface_selected[0].split('.')[-1])
+    self.adoc_ip_entry3.configure(state='readonly')
 
-    print(f"Interface Selected :", self.iface_list[selected_idx][0])
+    print(f"Interface Selected :", self.iface_list[selected_idx])
 
-def get_config(self):
+def get_config_data(self):
     # Default Configuration of GUI data
     config_data = {'adoc_ip1': self.adoc_ip_entry1.get(), 'adoc_ip2': self.adoc_ip_entry2.get(), 'adoc_ip3': self.adoc_ip_entry3.get(),
                    'wcc_ip1' : self.wcc_ip_entry1.get(),  'wcc_ip2' : self.wcc_ip_entry2.get(),  'wcc_ip3' : self.wcc_ip_entry3.get(),
                    'dlu_ip1' : self.dlu_ip_entry1.get(),  'dlu_ip2' : self.dlu_ip_entry2.get(),  'dlu_ip3' : self.dlu_ip_entry3.get(),
-                   'pcap_path': "", 'csv_path': "", }
+                   'pcap_path': "", 'csv_path': "",
+                   'iface_selected': self.iface_selected}
     return config_data

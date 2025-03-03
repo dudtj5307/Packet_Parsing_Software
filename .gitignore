@@ -22,6 +22,9 @@ IDL/*.py
 # GUI Folder #
 GUI/res/backup/
 
-
 # CSV Folder #
 CSV/
+
+# PyInstaller #
+build/
+dist/
