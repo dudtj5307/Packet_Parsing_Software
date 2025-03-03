@@ -7,7 +7,9 @@ import threading
 
 import tkinter as tk
 from tkinter import messagebox
+
 import scapy.all as scapy
+from scapy.arch import get_windows_if_list
 
 from GUI import gui_main, gui_settings
 from IDL.auto_generate import IDL_CODE_GENERATION
@@ -18,7 +20,7 @@ LAST_UPDATE, VERSION = "2025.03.03", "v0.0"
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 
-DEFAULT_CONFIG_DATA = {'iface_selected': "",
+DEFAULT_CONFIG_DATA = {'iface_selected': [" "," "," "],
                        'IP': {'adoc_ip1':  2, 'adoc_ip2':  3, 'adoc_ip3': "",
                               'wcc_ip1' :  8, 'wcc_ip2' : 10, 'wcc_ip3' : 13,
                               'dlu_ip1' : 27, 'dlu_ip2' : 28, 'dlu_ip3' : 30},
@@ -115,6 +117,11 @@ class PacketParser:
     def start_sniffing(self):
         if self.is_sniffing:
             return
+        if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
+            messagebox.showerror("Network Error", "Select a new Network Interface")
+            gui_settings.open_settings(self)
+            return
+
         # For pcap file name
         os.makedirs('RAW', exist_ok=True)
         date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')

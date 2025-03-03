@@ -84,10 +84,10 @@ def open_raw_file(self):
     file_num = len(file_path)
     if file_num == 1:
         self.raw_file_path = file_path[0]
-        self.raw_file_var.set(" "+os.path.split(self.raw_file_path)[1])
+        self.raw_file_var.set(" "+os.path.split(self.raw_file_path[0])[1])
     elif file_num >= 2:
         self.raw_file_path = file_path
-        self.raw_file_var.set(f" {file_num} Raw Files Selected")
+        self.raw_file_var.set(f" Selected {file_num} Raw Files")
 
 
 def open_csv_file(self):

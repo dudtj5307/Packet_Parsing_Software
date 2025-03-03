@@ -5,7 +5,7 @@ from scapy.arch import get_windows_if_list
 import tkinter as tk
 from tkinter import ttk, Frame, messagebox, PhotoImage, font
 
-DEFAULT_CONFIG_DATA = {'iface_selected': "",
+DEFAULT_CONFIG_DATA = {'iface_selected': [" "," "," "],
                        'IP': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3': "",
                               'wcc_ip1' :  "8", 'wcc_ip2' : "10", 'wcc_ip3' : "13",
                               'dlu_ip1' : "27", 'dlu_ip2' : "28", 'dlu_ip3' : "30"},
@@ -109,7 +109,7 @@ def open_settings(self):
         self.dlu_ip_entry3.insert(0, self.config_data['IP']['dlu_ip3'])
     except:
         settings_window.destroy()
-        messagebox.showerror("Error", f" Invalid File : setting.config \n Configuration Initialized ! ")
+        messagebox.showerror("Error", f" Invalid File : \'setting.config\' \n Configuration Initialized ! ")
         if os.path.exists("settings.conf"):
             os.remove("settings.conf")
         self.save_config_data(changes=DEFAULT_CONFIG_DATA)
