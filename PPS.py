@@ -6,16 +6,23 @@ import json
 import threading
 
 import tkinter as tk
+from tkinter import messagebox
 import scapy.all as scapy
 
 from GUI import gui_main, gui_settings
 from IDL.auto_generate import IDL_CODE_GENERATION
 
 
-LAST_UPDATE, VERSION = "2025.03.02", "v0.0"
+LAST_UPDATE, VERSION = "2025.03.03", "v0.0"
 
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
+
+DEFAULT_CONFIG_DATA = {'iface_selected': "",
+                       'IP': {'adoc_ip1':  2, 'adoc_ip2':  3, 'adoc_ip3': "",
+                              'wcc_ip1' :  8, 'wcc_ip2' : 10, 'wcc_ip3' : 13,
+                              'dlu_ip1' : 27, 'dlu_ip2' : 28, 'dlu_ip3' : 30},
+                       'raw_file_path': "", 'csv_file_path' : "",}
 
 class PacketParser:
     def __init__(self, root):
@@ -38,18 +45,13 @@ class PacketParser:
         self.print_flag.set(False)
 
         # File paths
-        self.current_path = os.getcwd()
-        self.pcap_file_path = ""
+        self.raw_file_var = tk.StringVar()
+        self.csv_file_var = tk.StringVar()
+        self.raw_file_path = ""
         self.csv_file_path = ""
 
         # default configuration data
-        self.config_data = {'INTERNAL_IPS_24': '192.168.0',
-                            'adoc_ip1':  2, 'adoc_ip2':  3, 'adoc_ip3': 99,
-                            'wcc_ip1' :  8, 'wcc_ip2' : 10, 'wcc_ip3' : 13,
-                            'dlu_ip1' : 27, 'dlu_ip2' : 28, 'dlu_ip3' : 30,
-
-                            'pcap_path': "", 'csv_path' : "",
-                            'iface_selected': "",}
+        self.config_data = DEFAULT_CONFIG_DATA
 
         # selected interface from settings combobox
         self.iface_selected = ""
@@ -63,21 +65,18 @@ class PacketParser:
 
     def load_config_data(self):
         try:
-            with open("GUI/settings.conf", "r") as file:
+            with open("settings.conf", "r") as file:
                 self.config_data = json.load(file)
         except FileNotFoundError:
             # make file, if no config file
             self.save_config_data()
 
         self.iface_selected = self.config_data['iface_selected']
-        print("Load Complete!")
 
     def save_config_data(self, changes={}):
         self.config_data.update(changes)
-        os.makedirs("GUI", exist_ok=True)
-        with open("GUI/settings.conf", "w") as file:
+        with open("settings.conf", "w") as file:
             json.dump(self.config_data, file, indent=4)
-        print("Save Complete!")
 
     def packet_callback(self, packet):
         if not packet.haslayer(IP):
@@ -86,21 +85,27 @@ class PacketParser:
         src_ip, dst_ip = packet[IP].src, packet[IP].dst
 
         # Internal IPs (192.168.0.X)
-        # if src_ip.startswith('192.168.0') and dst_ip.startswith('192.168.0'):
-        #     src_ip_4th = int(src_ip.split('.')[3])
-        #     dst_ip_4th = int(dst_ip.split('.')[3])
-        #     if src_ip_4th not in self.config_data.values() or dst_ip_4th not in self.config_data.values():
-        #         return
-        # else:
-        #     return
+        if src_ip.startswith('192.168.0') and dst_ip.startswith('192.168.0'):
+            src_ip_4th = int(src_ip.split('.')[3])
+            dst_ip_4th = int(dst_ip.split('.')[3])
+            if src_ip_4th not in self.config_data['IP'].values() or dst_ip_4th not in self.config_data['IP'].values():
+                return
+        else:
+            return
 
         if packet.haslayer(TCP): self.pkt_tcp_num += 1
         else:                    self.pkt_udp_num += 1
 
-        scapy.wrpcap(self.pcap_file_path, packet, append=True)
+        scapy.wrpcap(self.raw_file_path, packet, append=True)
 
 
     def sniff_packets(self, interface=None, date_time=""):
+        # Create PCAP file
+        if not os.path.exists(self.raw_file_path):
+            with open(self.raw_file_path, "wb") as f:
+                f.write(b'\xd4\xc3\xb2\xa1')    # PCAP File Header
+        self.raw_file_var.set(os.path.split(self.raw_file_path)[1])
+
         # Sniffing and processing packets
         bpf_filter = "ip and (tcp or udp)"
         scapy.sniff(iface=interface, prn=self.packet_callback, store=False, promisc=True,
@@ -113,7 +118,8 @@ class PacketParser:
         # For pcap file name
         os.makedirs('RAW', exist_ok=True)
         date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-        self.pcap_file_path = f"RAW/packet_{date_time}.pcap"
+        self.raw_file_path = os.path.join(os.getcwd(), 'RAW', f'packet_{date_time}.pcap')
+
 
         # Start Sniff Thread
         self.is_sniffing = True
@@ -133,17 +139,15 @@ class PacketParser:
 
 
 if __name__ == "__main__":
-    # path change
-    if getattr(sys, 'frozen', False):
-        os.chdir(os.path.dirname(sys.executable))
+    # Check if scapy is available
+    if not scapy.conf.use_pcap:
+        messagebox.showerror("Error", "\"Npcap\" is not installed."
+                                      "\nPlease install \"Npcap\" with 'Winpcap API-compatible mode'")
+        exit(1)
 
-    print(os.getcwd())
     root = tk.Tk()
     pss = PacketParser(root)
-
+    # GUI Title
     root.title(f"Packet Parsing Software {VERSION}")
-
-
-
-
+    # Run GUI Application
     root.mainloop()

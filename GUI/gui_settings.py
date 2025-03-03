@@ -5,7 +5,11 @@ from scapy.arch import get_windows_if_list
 import tkinter as tk
 from tkinter import ttk, Frame, messagebox, PhotoImage, font
 
-
+DEFAULT_CONFIG_DATA = {'iface_selected': "",
+                       'IP': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3': "",
+                              'wcc_ip1' :  "8", 'wcc_ip2' : "10", 'wcc_ip3' : "13",
+                              'dlu_ip1' : "27", 'dlu_ip2' : "28", 'dlu_ip3' : "30"},
+                       'pcap_path': "", 'csv_path' : "",}
 
 def open_settings(self):
 
@@ -25,10 +29,9 @@ def open_settings(self):
     settings_window.transient(self.root)  # 부모 창(root)과 연결
     settings_window.grab_set()            # 설정 창이 닫히기 전까지 다른 창 클릭 불가
 
-    # Icon directory
-    icon_path = os.path.join(os.getcwd(), 'GUI', 'res/button_settings.png')
-    icon = PhotoImage(file=icon_path)
-    settings_window.iconphoto(True, icon)
+    # Settings Title Icon
+    settings_icon = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_settings.png'))
+    settings_window.iconphoto(True, settings_icon)
 
     # ------------------------------------ Frame 1 ------------------------------------- #
     frame1 = Frame(settings_window)
@@ -60,7 +63,7 @@ def open_settings(self):
     frame2_1.grid(row=0, column=0, padx=20, pady=2)
     frame2_1.grid_propagate(False)
 
-    internal_label = tk.Label(frame2_1, text="▶ Internal IP - 192. 168. 0. X")
+    internal_label = tk.Label(frame2_1, text=" ▶  Internal IP - 192. 168. 0. X")
     internal_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky='wn')
 
     frame2_1_body = Frame(frame2_1)
@@ -93,16 +96,25 @@ def open_settings(self):
     self.dlu_ip_entry2.grid(row=3, column=2, padx=10, pady=6, sticky='nw')
     self.dlu_ip_entry3.grid(row=3, column=3, padx=10, pady=6, sticky='nw')
 
-    self.adoc_ip_entry1.insert(0, self.config_data['adoc_ip1'])
-    self.adoc_ip_entry2.insert(0, self.config_data['adoc_ip2'])
-    self.adoc_ip_entry3.insert(0, self.config_data['adoc_ip3'])
-    self.adoc_ip_entry3.configure(state='readonly')
-    self.wcc_ip_entry1.insert(0, self.config_data['wcc_ip1'])
-    self.wcc_ip_entry2.insert(0, self.config_data['wcc_ip2'])
-    self.wcc_ip_entry3.insert(0, self.config_data['wcc_ip3'])
-    self.dlu_ip_entry1.insert(0, self.config_data['dlu_ip1'])
-    self.dlu_ip_entry2.insert(0, self.config_data['dlu_ip2'])
-    self.dlu_ip_entry3.insert(0, self.config_data['dlu_ip3'])
+    try:
+        self.adoc_ip_entry1.insert(0, self.config_data['IP']['adoc_ip1'])
+        self.adoc_ip_entry2.insert(0, self.config_data['IP']['adoc_ip2'])
+        self.adoc_ip_entry3.insert(0, self.config_data['IP']['adoc_ip3'])
+        self.adoc_ip_entry3.configure(state='readonly')
+        self.wcc_ip_entry1.insert(0, self.config_data['IP']['wcc_ip1'])
+        self.wcc_ip_entry2.insert(0, self.config_data['IP']['wcc_ip2'])
+        self.wcc_ip_entry3.insert(0, self.config_data['IP']['wcc_ip3'])
+        self.dlu_ip_entry1.insert(0, self.config_data['IP']['dlu_ip1'])
+        self.dlu_ip_entry2.insert(0, self.config_data['IP']['dlu_ip2'])
+        self.dlu_ip_entry3.insert(0, self.config_data['IP']['dlu_ip3'])
+    except:
+        settings_window.destroy()
+        messagebox.showerror("Error", f" Invalid File : setting.config \n Configuration Initialized ! ")
+        if os.path.exists("settings.conf"):
+            os.remove("settings.conf")
+        self.save_config_data(changes=DEFAULT_CONFIG_DATA)
+
+        return open_settings(self)
 
     # ----------------------------------- Frame 2-2 ------------------------------------ #
     frame2_2 = Frame(frame2, bd=1, relief='ridge', width=280, height=150)
@@ -167,9 +179,10 @@ def select_iface_combobox(self, event):
 
 def get_config_data(self):
     # Default Configuration of GUI data
-    config_data = {'adoc_ip1': self.adoc_ip_entry1.get(), 'adoc_ip2': self.adoc_ip_entry2.get(), 'adoc_ip3': self.adoc_ip_entry3.get(),
-                   'wcc_ip1' : self.wcc_ip_entry1.get(),  'wcc_ip2' : self.wcc_ip_entry2.get(),  'wcc_ip3' : self.wcc_ip_entry3.get(),
-                   'dlu_ip1' : self.dlu_ip_entry1.get(),  'dlu_ip2' : self.dlu_ip_entry2.get(),  'dlu_ip3' : self.dlu_ip_entry3.get(),
-                   'pcap_path': "", 'csv_path': "",
-                   'iface_selected': self.iface_selected}
+    config_data = {'iface_selected': self.iface_selected,
+                   'IP': {'adoc_ip1': self.adoc_ip_entry1.get(), 'adoc_ip2': self.adoc_ip_entry2.get(), 'adoc_ip3': self.adoc_ip_entry3.get(),
+                          'wcc_ip1' : self.wcc_ip_entry1.get(),  'wcc_ip2' : self.wcc_ip_entry2.get(),  'wcc_ip3' : self.wcc_ip_entry3.get(),
+                          'dlu_ip1' : self.dlu_ip_entry1.get(),  'dlu_ip2' : self.dlu_ip_entry2.get(),  'dlu_ip3' : self.dlu_ip_entry3.get()},
+                   'pcap_path': "", 'csv_path': "", }
+
     return config_data

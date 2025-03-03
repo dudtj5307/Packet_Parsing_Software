@@ -5,7 +5,7 @@ a = Analysis(
     ['PPS.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('GUI/res/*png', 'GUI/res'), ('GUI/res/*ico', 'GUI/res')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
