@@ -6,12 +6,18 @@ import hashlib
 # C 타입과 Python struct 모듈 포맷 코드 매핑 (필요에 따라 추가)
 KNOWN_TYPE_MAP = {
     'char'          : 'c',
+
     'uchar'         : 'B',
     'unsigned char' : 'B',
+    'octet'         : 'B',
 
     'short'          : 'h',
+    'long'           : 'h',
+
     'ushort'         : 'H',
     'unsigned short' : 'H',
+    'unsigned long'  : 'h',
+
 
     'int'   : 'i',
     'uint'  : 'I',
@@ -133,7 +139,8 @@ class IDL_CODE_GENERATION():
         return "\n".join(func_lines)
 
     def generate_code(self):
-        generated_code = f"# {self.idl_name} : {calculate_hash(self.idl_path)}\n\n"
+        generated_code = f"# {self.idl_name} : {calculate_hash(self.idl_path)}\n"
+        generated_code += f"# Auto-generated parsing function\n\n"
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
         for struct_name in self.IDL_TYPE_MAP:

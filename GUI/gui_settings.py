@@ -5,14 +5,13 @@ from scapy.arch import get_windows_if_list
 import tkinter as tk
 from tkinter import ttk, Frame, messagebox, PhotoImage, font
 
-DEFAULT_CONFIG_DATA = {'iface_selected': [" "," "," "],
-                       'IP': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3': "",
+DEFAULT_CONFIG_DATA = {'iface_selected': ["No", "Interface", "Selected"],
+                       'IP': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3':  "",
                               'wcc_ip1' :  "8", 'wcc_ip2' : "10", 'wcc_ip3' : "13",
                               'dlu_ip1' : "27", 'dlu_ip2' : "28", 'dlu_ip3' : "30"},
-                       'pcap_path': "", 'csv_path' : "",}
+                       'raw_file_paths': [""], 'csv_file_paths' : [""]}
 
 def open_settings(self):
-
     window_width, window_height = 650, 455
     p = self.root # p : parent window
     p.update_idletasks()  # Update Window Info
@@ -33,6 +32,9 @@ def open_settings(self):
     settings_icon = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_settings.png'))
     settings_window.iconphoto(True, settings_icon)
 
+    # Initialize every open
+    self.iface_selected_idx = -1
+
     # ------------------------------------ Frame 1 ------------------------------------- #
     frame1 = Frame(settings_window)
     frame1.grid(row=0, column=0, padx=5, pady=5, sticky='w')
@@ -41,10 +43,11 @@ def open_settings(self):
     self.iface_label = tk.Label(frame1, text=">  Network Interface")
     self.iface_label.grid(row=0, column=0, padx=10, pady=10, sticky='w')
 
-    self.iface_combobox1 = ttk.Combobox(frame1, textvariable=self.iface_selected, width=65, state="readonly")
+    self.iface_combobox1 = ttk.Combobox(frame1, textvariable=self.iface_selected_var, width=65, state="readonly")
     self.iface_combobox1.grid(row=0, column=1, padx=5, pady=10)
-
     self.iface_combobox1.set(self.iface_selected)
+
+    self.iface_selected_var.set(self.iface_selected)
 
     # Function Binding
     self.iface_combobox1.bind("<Button-1>", lambda event: update_iface_combobox(self, self.iface_combobox1))
@@ -152,7 +155,6 @@ def update_iface_combobox(self, self_combox, event=None):
     for iface in get_windows_if_list():
         if len(iface['ips']) == 0 or "loopback" in iface['name'].lower():
             continue
-
         iface_name = f"{iface['name']}"
         iface_description = f"{iface['description']}"
         for ip in iface['ips']:
@@ -165,19 +167,18 @@ def update_iface_combobox(self, self_combox, event=None):
 
 # ComboBox Item Selected
 def select_iface_combobox(self, event):
-    selected_idx = self.iface_combobox1.current()
-    # self_iface_combobox.set(self_iface_combobox['values'][selected_idx])
-    self.iface_selected = self.iface_list[selected_idx]
-    self.iface_combobox1.set(self.iface_selected)
-    # Inserting this computer IP info
+    self.iface_selected_idx = self.iface_combobox1.current()
+
+    # # Inserting this computer IP info
     self.adoc_ip_entry3.configure(state=tk.NORMAL)
     self.adoc_ip_entry3.delete(0, tk.END)
-    self.adoc_ip_entry3.insert(0, self.iface_selected[0].split('.')[-1])
+    self.adoc_ip_entry3.insert(0, self.iface_combobox1['values'][self.iface_selected_idx][0].split('.')[-1])
     self.adoc_ip_entry3.configure(state='readonly')
 
-    print(f"Interface Selected :", self.iface_list[selected_idx])
+    print(f"Interface Selected :", self.iface_selected_var.get())
 
 def get_config_data(self):
+    if self.iface_selected_idx != -1: self.iface_selected = self.iface_combobox1['values'][self.iface_selected_idx]
     # Default Configuration of GUI data
     config_data = {'iface_selected': self.iface_selected,
                    'IP': {'adoc_ip1': self.adoc_ip_entry1.get(), 'adoc_ip2': self.adoc_ip_entry2.get(), 'adoc_ip3': self.adoc_ip_entry3.get(),
