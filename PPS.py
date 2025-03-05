@@ -1,6 +1,8 @@
 import os
 import sys
 import time
+from unittest.mock import DEFAULT
+
 import psutil
 import datetime
 import json
@@ -14,6 +16,7 @@ from scapy.arch import get_windows_if_list
 from scapy.utils import PcapWriter
 
 from GUI import gui_main, gui_settings
+from GUI.gui_settings import DEFAULT_CONFIG_DATA
 from IDL.auto_generate import IDL_CODE_GENERATION
 
 
@@ -56,10 +59,18 @@ class PacketParser:
 
         self.load_config_data()
 
-        # Auto-generator for IDL parsing-functions
-        self.generator = IDL_CODE_GENERATION()
-
         gui_main.create_widgets(self)
+
+        # Invalid configuration or no interface selected
+        if self.config_data['interface'][0]=="No":
+            pass
+        if self.config_data.keys() != DEFAULT_CONFIG_DATA.keys():
+            messagebox.showerror("Error", f" Invalid File : \'setting.config\' \n Configuration Initialized ! ")
+            if os.path.exists("settings.conf"):
+                os.remove("settings.conf")
+            self.config_data = DEFAULT_CONFIG_DATA
+            self.save_config_data()
+            gui_settings.open_settings(self)
 
     def load_config_data(self):
         try:
@@ -69,7 +80,7 @@ class PacketParser:
             # make file, if no config file
             self.save_config_data()
 
-        self.iface_selected = self.config_data['iface_selected']
+        self.iface_selected = self.config_data['interface']
         self.iface_selected_var.set("".join(self.iface_selected))
 
     def save_config_data(self, changes={}):
@@ -82,7 +93,7 @@ class PacketParser:
         if not packet.haslayer(IP):
             return
         # Check IP Number
-        src_ip, dst_ip = packet[IP].src, packet[IP].dst
+        # src_ip, dst_ip = packet[IP].src, packet[IP].dst
 
         # Internal IPs (192.168.0.X)
         # if src_ip.startswith('192.168.0') and dst_ip.startswith('192.168.0'):
@@ -96,21 +107,13 @@ class PacketParser:
         if packet.haslayer(TCP): self.pkt_tcp_var.set(self.pkt_tcp_var.get() + 1)
         else:                    self.pkt_udp_var.set(self.pkt_udp_var.get() + 1)
 
-        # scapy.wrpcap(self.raw_file_paths[0], packet, append=True)
-        # if self.written:
-        #     return
         self.pcap_writer.write(packet)
-        # self.written = True
 
     def sniff_packets(self, interface=None, date_time=""):
-        # Create PCAP file
-        # if not os.path.exists(self.raw_file_paths[0]):
-        #     with open(self.raw_file_paths[0], "wb") as f:
-        #         f.write(b'\xd4\xc3\xb2\xa1')    # PCAP File Header
+
         self.raw_file_var.set(" "+os.path.split(self.raw_file_paths[0])[1])
 
         self.pcap_writer = PcapWriter(self.raw_file_paths[0], append=True, sync=True)
-        # self.written = False
 
         # Sniffing and processing packets
         bpf_filter = "ip and (tcp or udp)"

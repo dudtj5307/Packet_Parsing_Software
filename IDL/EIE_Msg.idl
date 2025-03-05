@@ -18,12 +18,8 @@ struct EIE_header {
 
 struct EIE_0x301{
 EIE_header  header;
-uint	type1;  // 0~200
+uchar	type1;  // 0~200
 ushort type2;
-uchar type3;
-int 	type4;
-short type5;
-char type6;
 }
 
 struct EIE_0x302{

@@ -3,6 +3,8 @@ import os
 import mmap
 import hashlib
 
+import struct
+
 # C 타입과 Python struct 모듈 포맷 코드 매핑 (필요에 따라 추가)
 KNOWN_TYPE_MAP = {
     'char'          : 'c',
@@ -125,12 +127,16 @@ class IDL_CODE_GENERATION():
 
         # Recursive for Nested Structures
         fmt = self.get_fmt_recursive(struct_name)
+        size = struct.calcsize(fmt)
         dict_lines, _ = self.get_dict_recursive(struct_name, "    ", 0)
 
         func_lines = list()
         func_lines.append(f"# Parse {struct_name} data")
         func_lines.append(f"def parse_{struct_name}(data):")
-        func_lines.append(f"    fmt = '{fmt}'")
+        func_lines.append(f"    size = {size}")
+        func_lines.append(f"    if len(data) != size:")
+        func_lines.append(f"        return None")
+        func_lines.append(f"    fmt  = '>{fmt}'")                    # > : Big Endian / < : Little Endian
         func_lines.append("    data = struct.unpack(fmt, data)")
         func_lines.append("    result = {")
         func_lines.extend(dict_lines)

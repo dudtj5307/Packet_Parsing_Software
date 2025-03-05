@@ -5,10 +5,12 @@ from scapy.arch import get_windows_if_list
 import tkinter as tk
 from tkinter import ttk, Frame, messagebox, PhotoImage, font
 
-DEFAULT_CONFIG_DATA = {'iface_selected': ["No", "Interface", "Selected"],
-                       'IP': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3':  "",
-                              'wcc_ip1' :  "8", 'wcc_ip2' : "10", 'wcc_ip3' : "13",
-                              'dlu_ip1' : "27", 'dlu_ip2' : "28", 'dlu_ip3' : "30"},
+DEFAULT_CONFIG_DATA = {'interface': ["No", "Interface", "Selected"],
+                       'IP_local': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3':  "",
+                                    'wcc_ip1' :  "8", 'wcc_ip2' : "10", 'wcc_ip3' : "13",
+                                    'dlu_ip1' : "27", 'dlu_ip2' : "28", 'dlu_ip3' : "30"},
+                       'IP_near' : {},
+                       'IP_ext'  : {},
                        'raw_file_paths': [""], 'csv_file_paths' : [""]}
 
 def open_settings(self):
@@ -100,16 +102,16 @@ def open_settings(self):
     self.dlu_ip_entry3.grid(row=3, column=3, padx=10, pady=6, sticky='nw')
 
     try:
-        self.adoc_ip_entry1.insert(0, self.config_data['IP']['adoc_ip1'])
-        self.adoc_ip_entry2.insert(0, self.config_data['IP']['adoc_ip2'])
-        self.adoc_ip_entry3.insert(0, self.config_data['IP']['adoc_ip3'])
+        self.adoc_ip_entry1.insert(0, self.config_data['IP_local']['adoc_ip1'])
+        self.adoc_ip_entry2.insert(0, self.config_data['IP_local']['adoc_ip2'])
+        self.adoc_ip_entry3.insert(0, self.config_data['IP_local']['adoc_ip3'])
         self.adoc_ip_entry3.configure(state='readonly')
-        self.wcc_ip_entry1.insert(0, self.config_data['IP']['wcc_ip1'])
-        self.wcc_ip_entry2.insert(0, self.config_data['IP']['wcc_ip2'])
-        self.wcc_ip_entry3.insert(0, self.config_data['IP']['wcc_ip3'])
-        self.dlu_ip_entry1.insert(0, self.config_data['IP']['dlu_ip1'])
-        self.dlu_ip_entry2.insert(0, self.config_data['IP']['dlu_ip2'])
-        self.dlu_ip_entry3.insert(0, self.config_data['IP']['dlu_ip3'])
+        self.wcc_ip_entry1.insert(0, self.config_data['IP_local']['wcc_ip1'])
+        self.wcc_ip_entry2.insert(0, self.config_data['IP_local']['wcc_ip2'])
+        self.wcc_ip_entry3.insert(0, self.config_data['IP_local']['wcc_ip3'])
+        self.dlu_ip_entry1.insert(0, self.config_data['IP_local']['dlu_ip1'])
+        self.dlu_ip_entry2.insert(0, self.config_data['IP_local']['dlu_ip2'])
+        self.dlu_ip_entry3.insert(0, self.config_data['IP_local']['dlu_ip3'])
     except:
         settings_window.destroy()
         messagebox.showerror("Error", f" Invalid File : \'setting.config\' \n Configuration Initialized ! ")
@@ -180,10 +182,11 @@ def select_iface_combobox(self, event):
 def get_config_data(self):
     if self.iface_selected_idx != -1: self.iface_selected = self.iface_combobox1['values'][self.iface_selected_idx]
     # Default Configuration of GUI data
-    config_data = {'iface_selected': self.iface_selected,
-                   'IP': {'adoc_ip1': self.adoc_ip_entry1.get(), 'adoc_ip2': self.adoc_ip_entry2.get(), 'adoc_ip3': self.adoc_ip_entry3.get(),
-                          'wcc_ip1' : self.wcc_ip_entry1.get(),  'wcc_ip2' : self.wcc_ip_entry2.get(),  'wcc_ip3' : self.wcc_ip_entry3.get(),
-                          'dlu_ip1' : self.dlu_ip_entry1.get(),  'dlu_ip2' : self.dlu_ip_entry2.get(),  'dlu_ip3' : self.dlu_ip_entry3.get()},
-                   'pcap_path': "", 'csv_path': "", }
-
+    config_data = {'interface': self.iface_selected,
+                   'IP_local': {'adoc_ip1': self.adoc_ip_entry1.get(), 'adoc_ip2': self.adoc_ip_entry2.get(), 'adoc_ip3': self.adoc_ip_entry3.get(),
+                                'wcc_ip1' : self.wcc_ip_entry1.get(),  'wcc_ip2' : self.wcc_ip_entry2.get(),  'wcc_ip3' : self.wcc_ip_entry3.get(),
+                                'dlu_ip1' : self.dlu_ip_entry1.get(),  'dlu_ip2' : self.dlu_ip_entry2.get(),  'dlu_ip3' : self.dlu_ip_entry3.get()},
+                    'IP_near': {},
+                    'IP_ext': {},
+                    'raw_file_paths': [""], 'csv_file_paths': [""]}
     return config_data

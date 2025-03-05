@@ -1,26 +1,40 @@
 from collections import defaultdict
 import scapy.all as scapy
 
+from IDL import parse_data
+from IDL.auto_generate import IDL_CODE_GENERATION
+
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 
 from IDL import *
 
-ips = {'adoc_ip1': "", 'adoc_ip2': "", 'adoc_ip3': "",
-       'wcc_ip1' : "", 'wcc_ip2' : "", 'wcc_ip3' : "",
-       'dlu_ip1' : "", 'dlu_ip2' : "", 'dlu_ip3' : ""}
-SYS_TYPE = defaultdict(list)
-MSG_TYPE = defaultdict(lambda: "Undefined")
-MSG_TYPE.update({('ADOC', 'ADOC'): 'EIE', ('ADOC', 'WCC'): 'EIE', ('WCC', 'ADOC'): 'EIE', ('WCC', 'WCC'): 'EIE',
-                ('WCC', 'DLU'): 'TIE',   ('DLU', 'WCC'): 'TIE',  ('DLU', 'DLU'): 'TIE',})
+LOCAL_IP_PREFIX = "192.168.45."
+NEAR_IP_PREFIX = "192.168."
+
+SYS_TYPES = defaultdict(lambda: "Undefined")
+MSG_TYPES = defaultdict(lambda: "Undefined")
+MSG_TYPES.update({('ADOC','ADOC'): 'EIE', ('ADOC','WCC'): 'EIE', ('WCC','ADOC'): 'EIE', ('WCC', 'WCC'): 'EIE',
+                  ('WCC', 'DLU') : 'TIE', ('DLU', 'WCC'): 'TIE', ('DLU','DLU') : 'TIE',})
+
+code_generator = IDL_CODE_GENERATION()
+
+def update_system_type(config_data):
+    global SYS_TYPES
+    local = {key: LOCAL_IP_PREFIX + val for key, val in config_data['IP_local'].items()}
+    SYS_TYPES.update({local['adoc_ip1']:'ADOC', local['adoc_ip2']:'ADOC', local['adoc_ip3']:'ADOC',
+                      local['wcc_ip1']: 'WCC',  local['wcc_ip2']: 'WCC',  local['wcc_ip3']: 'WCC',
+                      local['dlu_ip1']: 'DLU',  local['dlu_ip2']: 'DLU',  local['dlu_ip3']: 'DLU'})
+    SYS_TYPES['192.168.45.179'] = 'WCC'
 
 def raw_to_csv(self, raw_file_path):
-    # IP infos from config_data
-    global ips, SYS_TYPE
-    ips = self.config_data['IP']
-    SYS_TYPE.update({'ADOC': [ips['adoc_ip1'], ips['adoc_ip2'], ips['adoc_ip3']],
-                     'WCC': [ips['wcc_ip1'],  ips['wcc_ip2'],  ips['wcc_ip3']],
-                     'DLU': [ips['dlu_ip1'],  ips['dlu_ip2'],  ips['dlu_ip3']]})
-    update_system_type(self.config_data['IP'])
+    # Parsing function auto-generation
+    self.idl_file_paths = ['IDL/EIE_Msg.idl']
+    for idl_file_path in self.idl_file_paths:
+        code_generator.set(idl_file_path)
+        code_generator.run()
+
+    # IP update from config_data
+    update_system_type(self.config_data)
 
     # Read raw files
     with scapy.PcapReader(raw_file_path) as packets:
@@ -29,40 +43,15 @@ def raw_to_csv(self, raw_file_path):
             if not packet.haslayer('Raw'):
                 continue
             src_ip, dst_ip = packet[IP].src, packet[IP].dst
-            sys_types = find_system_type(src_ip, dst_ip)
+            src_sys, dst_sys = SYS_TYPES[src_ip], SYS_TYPES[dst_ip]
+            msg_type = MSG_TYPES[(src_sys, dst_sys)]
+            raw_data = packet['Raw'].load
+            data = parse_data.parse_type(msg_type, raw_data)
+            print(data)
 
+            packet_info = {'src_ip': src_ip, 'dst_ip':dst_ip,'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
 
-            print(sys_types)
-
-            # Filter Packets by ip (ex. ACK msgs)
-            if src_ip not in ips.values() or dst_ip not in ips.values():
-                continue
-
-
-def update_system_type(ips):
-
-    pass
-
-
-# Find Name by src & dst
-def find_system_type(src, dst):
-    data_types = {}
-    # Find Device Name (ADOC, WCC, DLU)
-    print(SYS_TYPE)
-    for sys, ip_list in SYS_TYPE.items():
-        if src in ip_list: data_types['src_ip'] = sys
-        if dst in ip_list: data_types['dst_ip'] = sys
-    return data_types
-
-def find_
-    # Find Message Type (EIE, TIE, K, X)
-    print(MSG_TYPE)
-    print((data_types['src_ip'], data_types['dst_ip'])
-    data_types['msg_type'] = MSG_TYPE[(data_types['src_ip'], data_types['dst_ip'])]
-    return data_types
-
-
-
+            # print(packet_info)
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from GUI import gui_settings
 
 def create_widgets(self):
     # Window Size
-    self.root.geometry("750x400")
+    self.root.geometry("770x350")
     self.root.resizable(False, False)
 
     frame_bg = '#203864'
@@ -19,8 +19,8 @@ def create_widgets(self):
     label_bg = '#f7f7f5'
     self.root.configure(bg=frame_bg)
 
-    # frame_bg = [frame_bg] * 30
-    frame_bg = ['red', 'orange', 'green', 'skyblue', 'purple'] * 5
+    frame_bg = [frame_bg] * 30
+    # frame_bg = ['red', 'orange', 'green', 'skyblue', 'purple'] * 5
 
     # Icon directory
     self.icon_folder_path = os.path.join(sys._MEIPASS if getattr(sys, 'frozen', False) else os.getcwd(), 'GUI', 'res')
@@ -35,31 +35,31 @@ def create_widgets(self):
 
     # ------------------------------------  Frame 1  ------------------------------------- #
     frame1 = Frame(self.root, bg=frame_bg[0])
-    frame1.grid(row=0, column=0, padx=0, pady=0, sticky='w')
+    frame1.grid(row=0, column=0, padx=15, pady=0, sticky='w')
     # ------------------------------------ Frame 1-1 ------------------------------------- #
-    frame1_1 = Frame(frame1, bg=frame_bg[1])
-    frame1_1.grid(row=0, column=0, padx=10, pady=5, sticky='w')
+    frame1_1 = Frame(frame1, bg=frame_bg[1], highlightthickness=2, highlightbackground='skyblue')
+    frame1_1.grid(row=0, column=0, padx=0, pady=5, ipadx=4, sticky='w')
 
     # Setting Button
     self.settings_img_on = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_settings.png'))
     self.settings_img_off = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_settings_off.png'))
     self.settings_button = tk.Button(frame1_1, borderwidth=0, bg='black', relief="raised", highlightthickness=0,
                                      image=self.settings_img_on, command=lambda: gui_settings.open_settings(self))
-    self.settings_button.grid(row=0, column=0, padx=20, pady=10, sticky='w')
+    self.settings_button.grid(row=0, column=0, padx=11, pady=10, sticky='w')
 
     # Start Button
     self.start_img_on = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_start.png'))
     self.start_img_off = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_start_off.png'))
     self.start_button = tk.Button(frame1_1, borderwidth=0, bg='black', relief="raised", highlightthickness=0,
                                   image=self.start_img_on, command=self.start_sniffing)
-    self.start_button.grid(row=0, column=1, padx=10, pady=10, sticky='w')
+    self.start_button.grid(row=0, column=1, padx=11, pady=10, sticky='w')
 
     # Stop Button
     self.stop_img_on = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_stop.png'))
     self.stop_img_off = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_stop_off.png'))
     self.stop_button = tk.Button(frame1_1, borderwidth=0, bg='black', relief="raised", highlightthickness=0,
                                  image=self.stop_img_off, command=self.stop_sniffing, state=tk.DISABLED)
-    self.stop_button.grid(row=0, column=2, padx=0, pady=10, sticky='w')
+    self.stop_button.grid(row=0, column=2, padx=3, pady=10, sticky='w')
 
     # ------------------------------------ Frame 1-2 ------------------------------------- #
     frame1_2 = Frame(frame1, bg=frame_bg[2])
@@ -95,6 +95,13 @@ def create_widgets(self):
     self.csv_view_button = tk.Button(frame1_3, borderwidth=0, bg='black', relief="raised", highlightthickness=0,
                                  image=self.csv_view_img_off, command=lambda: csv_view_file(self), state=tk.DISABLED)
     self.csv_view_button.grid(row=0, column=1, padx=5, pady=10, sticky='w')
+
+    # CSV Folder Open Button
+    self.csv_folder_img_on = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_csv_folder.png'))
+    self.csv_folder_img_off = PhotoImage(file=os.path.join(self.icon_folder_path, 'button_csv_folder_off.png'))
+    self.csv_folder_button = tk.Button(frame1_3, borderwidth=0, bg='black', relief="raised", highlightthickness=0,
+                                 image=self.csv_folder_img_on, command=lambda: csv_open_folder(self))
+    self.csv_folder_button.grid(row=0, column=2, padx=5, pady=10, sticky='w')
 
     # ------------------------------------  Frame 2  ------------------------------------- #
     frame2 = Frame(self.root, bg=frame_bg[4], highlightthickness=2, highlightbackground='skyblue')       # purple
@@ -152,15 +159,15 @@ def create_widgets(self):
     # Restart
     self.restart_label = tk.Label(frame2_3, width=6, height=1, fg='black', bg=label_bg, font=('맑은 고딕', 11, 'bold'),
                                   text="Restart",justify='center', state='normal')
-    self.restart_label.grid(row=0, column=0, padx=2, pady=4, ipadx=3, sticky='w')
+    self.restart_label.grid(row=0, column=0, padx=3, pady=4, ipadx=3, sticky='w')
     # Restart hour Entry
     self.hour_entry = tk.Entry(frame2_3, width=5, fg='gray', font=('맑은 고딕', 10, 'italic'), justify='center', state=tk.NORMAL)
-    self.hour_entry.grid(row=0, column=1, padx=5, pady=5, sticky='e')
+    self.hour_entry.grid(row=0, column=1, padx=7, pady=5, sticky='e')
     set_entry_hint(self.hour_entry, "hour")
 
     # Restart min Entry
     self.min_entry = tk.Entry(frame2_3, width=5, fg='gray', font=('맑은 고딕', 10, 'italic'), justify='center', state=tk.NORMAL)
-    self.min_entry.grid(row=0, column=2, padx=5, pady=5, sticky='e')
+    self.min_entry.grid(row=0, column=2, padx=6, pady=5, sticky='e')
     set_entry_hint(self.min_entry, "min")
 
 
@@ -217,6 +224,7 @@ def open_csv_file(self):
 
 def csv_create_file(self):
     csv_folder_path = os.path.join(os.getcwd(), 'CSV')
+    os.makedirs(csv_folder_path, exist_ok=True)
     self.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
                                    self.raw_file_paths))
 
@@ -235,11 +243,14 @@ def csv_create_file(self):
     if file_num >= 2:
         self.csv_file_var.set(f" Created {file_num} CSV Files")
 
-
-
-
     self.csv_view_button.configure(state=tk.NORMAL, image=self.csv_view_img_on)
-    pass
+
+def csv_open_folder(self):
+    # Select csv file
+    csv_folder_path = os.path.join(os.getcwd(), 'CSV')
+    os.makedirs(csv_folder_path, exist_ok=True)
+    os.startfile(csv_folder_path)
+
 
 def csv_view_file(self):
     pass
