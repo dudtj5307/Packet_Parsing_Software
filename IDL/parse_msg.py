@@ -1,12 +1,17 @@
+import struct
+from datetime import datetime
 from collections import defaultdict
+
 import scapy.all as scapy
 
-from IDL import parse_data
 from IDL.auto_generate import IDL_CODE_GENERATION
+from IDL import parse_EIE_Msg
+from IDL import parse_TIE_Msg
+# from IDL import parse_K_Msg
+# from IDL import parse_X_Msg
+
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
-
-from IDL import *
 
 LOCAL_IP_PREFIX = "192.168.45."
 NEAR_IP_PREFIX = "192.168."
@@ -32,26 +37,59 @@ def raw_to_csv(self, raw_file_path):
     for idl_file_path in self.idl_file_paths:
         code_generator.set(idl_file_path)
         code_generator.run()
-
+    import time
+    start = time.time()
     # IP update from config_data
     update_system_type(self.config_data)
-
-    # Read raw files
+    # Read raw pcap files
     with scapy.PcapReader(raw_file_path) as packets:
         for packet in packets:
             # Filter Packets without data (ex. ACK, FIN, SYN msgs)
             if not packet.haslayer('Raw'):
                 continue
-            src_ip, dst_ip = packet[IP].src, packet[IP].dst
+            date, _time = datetime.fromtimestamp(float(packet.time)).strftime("%Y-%m-%d %H:%M:%S.%f").split(" ")
+            src_ip,  dst_ip  = packet[IP].src,    packet[IP].dst
             src_sys, dst_sys = SYS_TYPES[src_ip], SYS_TYPES[dst_ip]
             msg_type = MSG_TYPES[(src_sys, dst_sys)]
             raw_data = packet['Raw'].load
-            data = parse_data.parse_type(msg_type, raw_data)
-            print(data)
-
-            packet_info = {'src_ip': src_ip, 'dst_ip':dst_ip,'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
-
+            data = parse_data(msg_type, raw_data)
+            packet_info = {'date': date, 'time': _time,'src_ip': src_ip, 'dst_ip':dst_ip,
+                           'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
             # print(packet_info)
+    print(time.time() - start)
+# Parse if EIE or TIE or K or X or J
+def parse_data(msg_type, data):
+    type_function_name = f'parse_{msg_type}'
+    if type_function_name in globals():
+        return globals()[type_function_name](data)
+    else:
+        # print(f"Can not find msg type '{msg_type}'")
+        return None
+
+def parse_EIE(data):
+    # Find TIE type from TIE header
+    eie_type = struct.unpack('>H', data[0:2])[0]
+    eie_type = 0x301
+    EIE_function_name = f'parse_EIE_{hex(eie_type)}'
+    if EIE_function_name in parse_EIE_Msg.__dict__:
+        return parse_EIE_Msg.__dict__[EIE_function_name](data)
+    else:
+        # print(f"Can not find type 'EIE_{hex(eie_type)}'")
+        return None
+
+def parse_TIE(data):
+    # Find TIE type from TIE header
+    tie_type = struct.unpack('>H', data[0:2])[0]
+    print(tie_type)
+    tie_type = 0x301
+    TIE_function_name = f'parse_TIE_{hex(tie_type)}'
+    if TIE_function_name in parse_TIE_Msg.__dict__:
+        return parse_TIE_Msg.__dict__[TIE_function_name](data)
+    else:
+        # print(f"Can not find type 'TIE_{hex(tie_type)}'")
+        return None
+
+
 
 
 if __name__ == "__main__":

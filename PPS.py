@@ -61,9 +61,7 @@ class PacketParser:
 
         gui_main.create_widgets(self)
 
-        # Invalid configuration or no interface selected
-        if self.config_data['interface'][0]=="No":
-            pass
+        # Invalid configuration
         if self.config_data.keys() != DEFAULT_CONFIG_DATA.keys():
             messagebox.showerror("Error", f" Invalid File : \'setting.config\' \n Configuration Initialized ! ")
             if os.path.exists("settings.conf"):
@@ -76,12 +74,14 @@ class PacketParser:
         try:
             with open("settings.conf", "r") as file:
                 self.config_data = json.load(file)
-        except FileNotFoundError:
-            # make file, if no config file
-            self.save_config_data()
 
-        self.iface_selected = self.config_data['interface']
-        self.iface_selected_var.set("".join(self.iface_selected))
+            self.iface_selected = self.config_data['interface']
+            self.iface_selected_var.set("".join(self.iface_selected))
+        # except FileNotFoundError:
+        except :
+            # make file, if no config file
+            self.config_data = DEFAULT_CONFIG_DATA
+            self.save_config_data()
 
     def save_config_data(self, changes={}):
         self.config_data.update(changes)

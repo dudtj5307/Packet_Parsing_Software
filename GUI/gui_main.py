@@ -245,16 +245,14 @@ def csv_create_file(self):
 
     self.csv_view_button.configure(state=tk.NORMAL, image=self.csv_view_img_on)
 
+def csv_view_file(self):
+    pass
+
 def csv_open_folder(self):
     # Select csv file
     csv_folder_path = os.path.join(os.getcwd(), 'CSV')
     os.makedirs(csv_folder_path, exist_ok=True)
     os.startfile(csv_folder_path)
-
-
-def csv_view_file(self):
-    pass
-
 
 # Entry hint message
 def set_entry_hint(entry, hint):
