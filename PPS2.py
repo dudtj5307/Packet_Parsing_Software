@@ -15,7 +15,10 @@ import scapy.all as scapy
 from scapy.arch import get_windows_if_list
 from scapy.utils import PcapWriter
 
-from GUI import gui_main, gui_settings
+
+from GUI.gui_main2 import *
+from GUI.gui_settings2 import *
+
 from GUI.gui_settings import DEFAULT_CONFIG_DATA
 from IDL.auto_generate import IDL_CODE_GENERATION
 
@@ -26,53 +29,43 @@ Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, sc
 
 
 class PacketParser:
-    def __init__(self, root):
-        self.root = root
+    def __init__(self):
 
         # Sniff Packets
         scapy.conf.verb = 0
         self.sniff_thread = None
         self.is_sniffing = False
 
-        # Packet Monitoring
-        self.timer_var = tk.StringVar()
-        self.pkt_tcp_var = tk.IntVar(value=0)
-        self.pkt_udp_var = tk.IntVar(value=0)
-
-        # Flag for printing packets
-        self.print_flag = tk.BooleanVar()
-        self.print_flag.set(False)
-
         # File paths
-        self.raw_file_var = tk.StringVar()
-        self.csv_file_var = tk.StringVar()
         self.raw_file_paths = [""]
         self.csv_file_paths = [""]
 
         # default configuration data
-        self.config_data = gui_settings.DEFAULT_CONFIG_DATA
+        self.config_data = DEFAULT_CONFIG_DATA
 
         # selected interface from settings combobox
         self.iface_selected = ["No", "Interface", "Selected"]
-        self.iface_selected_var = tk.StringVar()
-        self.iface_selected_idx = -1
 
         self.load_config_data()
 
-        gui_main.create_widgets(self)
+        # For File Opener
+        self.root = tk.Tk()
+        self.root.withdraw()
+
+        self.main_window = MainWindow(self)
 
         # Invalid configuration
         if self.config_data.keys() != DEFAULT_CONFIG_DATA.keys():
             messagebox.showerror("Error", f" Invalid File : \'setting.config\' \n Configuration Initialized ! ")
-            if os.path.exists("settings.conf"):
-                os.remove("settings.conf")
+            if os.path.exists("../Project_PPS/GUI/settings.conf"):
+                os.remove("../Project_PPS/GUI/settings.conf")
             self.config_data = DEFAULT_CONFIG_DATA
             self.save_config_data()
-            gui_settings.open_settings(self)
+            self.main_window.open_settings()
 
     def load_config_data(self):
         try:
-            with open("settings.conf", "r") as file:
+            with open("../Project_PPS/GUI/settings.conf", "r") as file:
                 self.config_data = json.load(file)
 
             self.iface_selected = self.config_data['interface']
@@ -85,7 +78,7 @@ class PacketParser:
 
     def save_config_data(self, changes={}):
         self.config_data.update(changes)
-        with open("settings.conf", "w") as file:
+        with open("../Project_PPS/GUI/settings.conf", "w") as file:
             json.dump(self.config_data, file, indent=4)
         print("Saved Configuration as 'setting.conf'")
 
@@ -114,11 +107,11 @@ class PacketParser:
             return
         if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
             messagebox.showerror("Network Error", "Select a new Network Interface")
-            gui_settings.open_settings(self)
+            self.main_window.open_settings()
             return
 
         # For pcap file name
-        os.makedirs('RAW', exist_ok=True)
+        os.makedirs('../Project_PPS/GUI/RAW', exist_ok=True)
         date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
 
         file_name = self.file_name_entry.get()
@@ -169,9 +162,8 @@ if __name__ == "__main__":
     main_pid = psutil.Process(os.getpid())
     main_pid.nice(psutil.HIGH_PRIORITY_CLASS)
 
-    root = tk.Tk()
-    pss = PacketParser(root)
-    # GUI Title
-    root.title(f"Packet Parsing Software {VERSION}")
-    # Run GUI Application
-    root.mainloop()
+    app = QApplication(sys.argv)
+
+    pss = PacketParser()
+    pss.main_window.show()
+    app.exec()

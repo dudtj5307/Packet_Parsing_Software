@@ -1,11 +1,17 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+import glob
+
+png_files = [(f, f) for f in glob.glob("GUI/res/*.png")]
+ico_files = [(f, f) for f in glob.glob("GUI/res/*.ico")]
+
+
 a = Analysis(
     ['PPS.py'],
     pathex=[],
     binaries=[],
-    datas=[('GUI/res/*png', 'GUI/res'), ('GUI/res/*ico', 'GUI/res')],
+    datas=png_files+ico_files,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
