@@ -8,7 +8,7 @@
 ## Anaconda Prompt
 ### 1. Create Virtual Environment
 ```
-conda create -n "yourEnvName" pyinstaller pip psutil pyqt (? qt)
+conda create -n "yourEnvName" pyinstaller pip psutil pyqt
 ```
 ### 2. Activate Environment
 ```

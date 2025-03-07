@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>717</width>
-    <height>406</height>
+    <width>700</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,15 +19,27 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>700</width>
+    <height>320</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>700</width>
+    <height>320</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string notr="true">Packet Parser Software</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>res/PPS.ico</normaloff>res/PPS.ico</iconset>
+    <normaloff>../../.designer/backup/res/PPS.ico</normaloff>../../.designer/backup/res/PPS.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QFrame" name="frame0_0">
+   <widget class="QFrame" name="frame_0_0">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -41,6 +53,9 @@
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
     </property>
     <property name="frameShape">
      <enum>QFrame::Shape::StyledPanel</enum>
@@ -64,10 +79,24 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">image: url(:/res/res/button_stop.png);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normalon>res/button_stop.png</normalon>
+      </iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>40</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QPushButton" name="btn_settings">
@@ -93,7 +122,7 @@
      </property>
      <property name="icon">
       <iconset>
-       <normalon>:/res/res/button_settings.png</normalon>
+       <normalon>res/button_settings.png</normalon>
       </iconset>
      </property>
      <property name="iconSize">
@@ -103,7 +132,7 @@
       </size>
      </property>
      <property name="autoDefault">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="default">
       <bool>false</bool>
@@ -125,12 +154,64 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">image: url(:/res/res/button_start.png);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string/>
      </property>
+     <property name="icon">
+      <iconset>
+       <normalon>res/button_start.png</normalon>
+      </iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>40</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
     </widget>
+    <widget class="QMdiArea" name="mdiArea_5">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>171</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QMdiArea {
+    border: 1px solid gray;
+    border-radius: 5px;
+}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+     <property name="background">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>103</red>
+        <green>103</green>
+        <blue>103</blue>
+       </color>
+      </brush>
+     </property>
+    </widget>
+    <zorder>mdiArea_5</zorder>
+    <zorder>btn_stop</zorder>
+    <zorder>btn_settings</zorder>
+    <zorder>btn_start</zorder>
    </widget>
    <widget class="QFrame" name="frame_0_2">
     <property name="geometry">
@@ -146,6 +227,12 @@
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame {
+    border: 1px solid gray;
+    border-radius: 10px;
+}</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Shape::StyledPanel</enum>
@@ -169,10 +256,24 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">image: url(:/res/res/button_csv_folder.png);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normalon>res/button_csv_folder.png</normalon>
+      </iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>40</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QPushButton" name="btn_csv_create">
@@ -191,10 +292,21 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">image: url(:/res/res/button_csv_create.png);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normalon>res/button_csv_create.png</normalon>
+      </iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>40</width>
+       <height>40</height>
+      </size>
      </property>
      <property name="autoDefault">
       <bool>false</bool>
@@ -219,12 +331,64 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">image: url(:/res/res/button_csv_view.png);</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string/>
      </property>
+     <property name="icon">
+      <iconset>
+       <normalon>res/button_csv_view.png</normalon>
+      </iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>40</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
     </widget>
+    <widget class="QMdiArea" name="mdiArea_6">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>161</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QMdiArea {
+    border: 1px solid gray;
+    border-radius: 5px;
+}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+     <property name="background">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>103</red>
+        <green>103</green>
+        <blue>103</blue>
+       </color>
+      </brush>
+     </property>
+    </widget>
+    <zorder>mdiArea_6</zorder>
+    <zorder>btn_csv_folder</zorder>
+    <zorder>btn_csv_create</zorder>
+    <zorder>btn_csv_view</zorder>
    </widget>
    <widget class="QFrame" name="frame_0_1">
     <property name="geometry">
@@ -241,6 +405,12 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame {
+    border: 1px solid gray;
+    border-radius: 10px;
+}</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Shape::StyledPanel</enum>
     </property>
@@ -251,9 +421,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>28</y>
+       <y>30</y>
        <width>41</width>
-       <height>24</height>
+       <height>22</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -261,6 +431,11 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="text">
       <string>CSV</string>
@@ -272,7 +447,7 @@
        <x>10</x>
        <y>8</y>
        <width>41</width>
-       <height>24</height>
+       <height>22</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -280,19 +455,24 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="text">
       <string>RAW</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="edit_csv">
+    <widget class="QLineEdit" name="edit_csv_path">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>30</y>
+       <y>31</y>
        <width>251</width>
        <height>20</height>
       </rect>
@@ -303,15 +483,21 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
-    <widget class="QLineEdit" name="edit_raw">
+    <widget class="QLineEdit" name="edit_raw_path">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>10</y>
+       <y>9</y>
        <width>251</width>
        <height>20</height>
       </rect>
@@ -322,9 +508,57 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
+    <widget class="QMdiArea" name="mdiArea_4">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>311</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QMdiArea {
+    border: 1px solid gray;
+    border-radius: 5px;
+}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+     <property name="background">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>103</red>
+        <green>103</green>
+        <blue>103</blue>
+       </color>
+      </brush>
+     </property>
+    </widget>
+    <zorder>mdiArea_4</zorder>
+    <zorder>btn_csv_open</zorder>
+    <zorder>btn_raw_open</zorder>
+    <zorder>edit_csv_path</zorder>
+    <zorder>edit_raw_path</zorder>
    </widget>
-   <widget class="QFrame" name="frame">
+   <widget class="QFrame" name="frame_1_1">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -339,19 +573,25 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame {
+    border: 1px solid gray;
+    border-radius: 10px;
+}</string>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Shadow::Raised</enum>
     </property>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="lineEdit_file_name">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>10</y>
        <width>151</width>
-       <height>21</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -360,13 +600,27 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::StrongFocus</enum>
+     </property>
+     <property name="toolTip">
+      <string>enter raw file name</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">QLineEdit {
-    font-style: italic;     /* 이탤릭 적용 */
-    color: gray;            /* 텍스트 색상 회색 */
-    text-align: center;     /* 가운데 정렬 */
+    font-style: italic;
+	color: rgb(40, 40, 40);
+    text-align: center;
+	border: 1px solid gray;
+	border-radius: 5px;
 }
-</string>
+
+QTextEdit:focus {
+    font-style: normal;
+    color: black;
+	border: 1px solid gray;
+	border-radius: 5px;
+}</string>
      </property>
      <property name="inputMethodHints">
       <set>Qt::InputMethodHint::ImhNone</set>
@@ -381,16 +635,16 @@
       <set>Qt::AlignmentFlag::AlignCenter</set>
      </property>
      <property name="placeholderText">
-      <string extracomment="raw file name"/>
+      <string>raw file name</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_2">
+    <widget class="QLineEdit" name="lineEdit_tcp_num">
      <property name="geometry">
       <rect>
-       <x>70</x>
-       <y>70</y>
+       <x>80</x>
+       <y>85</y>
        <width>81</width>
-       <height>21</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -398,6 +652,11 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid gray;
+border-radius: 5px;
+</string>
      </property>
      <property name="text">
       <string/>
@@ -412,13 +671,13 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_3">
+    <widget class="QLineEdit" name="lineEdit_tcp_label">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>70</y>
-       <width>48</width>
-       <height>21</height>
+       <y>85</y>
+       <width>61</width>
+       <height>25</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -426,6 +685,17 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid gray;
+border-radius: 5px;
+background-color: rgb(220, 220, 220);</string>
      </property>
      <property name="text">
       <string>TCP</string>
@@ -440,13 +710,13 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_4">
+    <widget class="QLineEdit" name="lineEdit_udp_label">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>90</y>
-       <width>48</width>
-       <height>21</height>
+       <y>110</y>
+       <width>61</width>
+       <height>25</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -454,6 +724,17 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid gray;
+border-radius: 5px;
+background-color: rgb(220, 220, 220);</string>
      </property>
      <property name="text">
       <string>UDP</string>
@@ -468,13 +749,13 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_5">
+    <widget class="QLineEdit" name="lineEdit_udp_num">
      <property name="geometry">
       <rect>
-       <x>70</x>
-       <y>90</y>
+       <x>80</x>
+       <y>110</y>
        <width>81</width>
-       <height>21</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -482,6 +763,11 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid gray;
+border-radius: 5px;
+</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -493,13 +779,13 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_6">
+    <widget class="QLineEdit" name="lineEdit_timer">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>35</y>
+       <y>40</y>
        <width>151</width>
-       <height>31</height>
+       <height>41</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -507,6 +793,96 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid gray;
+border-radius: 6px;
+background-color: rgb(220, 220, 220);</string>
+     </property>
+     <property name="text">
+      <string>00 : 00 : 00</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+     <property name="dragEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_reset_label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>180</y>
+       <width>61</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: 1px solid gray;
+border-radius: 5px;
+background-color: rgb(220, 220, 220);</string>
+     </property>
+     <property name="text">
+      <string>Restart</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_reset_hour">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>180</y>
+       <width>39</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLineEdit {
+    font-style: italic;
+	color: rgb(40, 40, 40);
+    text-align: center;
+	border: 1px solid gray;
+	border-radius: 5px;
+}
+
+QTextEdit:focus {
+    font-style: normal;
+    color: black;
+	border: 1px solid gray;
+	border-radius: 5px;
+}</string>
+     </property>
+     <property name="inputMethodHints">
+      <set>Qt::InputMethodHint::ImhDigitsOnly</set>
+     </property>
+     <property name="inputMask">
+      <string extracomment="raw file name"/>
      </property>
      <property name="text">
       <string/>
@@ -514,42 +890,130 @@
      <property name="alignment">
       <set>Qt::AlignmentFlag::AlignCenter</set>
      </property>
-     <property name="dragEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
+     <property name="placeholderText">
+      <string>hour</string>
      </property>
     </widget>
+    <widget class="QLineEdit" name="lineEdit_9">
+     <property name="geometry">
+      <rect>
+       <x>122</x>
+       <y>180</y>
+       <width>39</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLineEdit {
+    font-style: italic;
+	color: rgb(40, 40, 40);
+    text-align: center;
+	border: 1px solid gray;
+	border-radius: 5px;
+}
+
+QTextEdit:focus {
+    font-style: normal;
+    color: black;
+	border: 1px solid gray;
+	border-radius: 5px;
+}</string>
+     </property>
+     <property name="inputMethodHints">
+      <set>Qt::InputMethodHint::ImhNone</set>
+     </property>
+     <property name="inputMask">
+      <string extracomment="raw file name"/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+     <property name="placeholderText">
+      <string>min</string>
+     </property>
+    </widget>
+    <widget class="QMdiArea" name="mdiArea_7">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>171</width>
+       <height>211</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QMdiArea {
+    border: 1px solid gray;
+    border-radius: 5px;
+}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+     <property name="background">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>103</red>
+        <green>103</green>
+        <blue>103</blue>
+       </color>
+      </brush>
+     </property>
+    </widget>
+    <zorder>mdiArea_7</zorder>
+    <zorder>lineEdit_file_name</zorder>
+    <zorder>lineEdit_tcp_num</zorder>
+    <zorder>lineEdit_tcp_label</zorder>
+    <zorder>lineEdit_udp_label</zorder>
+    <zorder>lineEdit_udp_num</zorder>
+    <zorder>lineEdit_timer</zorder>
+    <zorder>lineEdit_reset_label</zorder>
+    <zorder>lineEdit_reset_hour</zorder>
+    <zorder>lineEdit_9</zorder>
    </widget>
    <widget class="QMdiArea" name="mdiArea">
     <property name="geometry">
      <rect>
-      <x>-10</x>
-      <y>-10</y>
-      <width>851</width>
-      <height>421</height>
+      <x>0</x>
+      <y>0</y>
+      <width>701</width>
+      <height>321</height>
      </rect>
     </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(83, 83, 83);
-border-color: rgb(75, 75, 75);</string>
+     <string notr="true">background-color: rgb(70, 70, 70);
+border-color: rgb(56, 56, 56);</string>
+    </property>
+    <property name="background">
+     <brush brushstyle="SolidPattern">
+      <color alpha="255">
+       <red>50</red>
+       <green>50</green>
+       <blue>50</blue>
+      </color>
+     </brush>
     </property>
    </widget>
    <zorder>mdiArea</zorder>
-   <zorder>frame0_0</zorder>
+   <zorder>frame_0_0</zorder>
    <zorder>frame_0_2</zorder>
    <zorder>frame_0_1</zorder>
-   <zorder>frame</zorder>
+   <zorder>frame_1_1</zorder>
   </widget>
   <action name="button_settings_2">
    <property name="checkable">
@@ -560,7 +1024,7 @@ border-color: rgb(75, 75, 75);</string>
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>res/button_settings.png</normaloff>res/button_settings.png</iconset>
+     <normaloff>../../.designer/backup/res/button_settings.png</normaloff>../../.designer/backup/res/button_settings.png</iconset>
    </property>
    <property name="text">
     <string>btn_setting</string>
@@ -573,13 +1037,11 @@ border-color: rgb(75, 75, 75);</string>
  <tabstops>
   <tabstop>btn_stop</tabstop>
   <tabstop>btn_raw_open</tabstop>
-  <tabstop>edit_raw</tabstop>
+  <tabstop>edit_raw_path</tabstop>
   <tabstop>btn_csv_open</tabstop>
-  <tabstop>edit_csv</tabstop>
+  <tabstop>edit_csv_path</tabstop>
  </tabstops>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
  <slots>
   <signal>open_settings()</signal>
