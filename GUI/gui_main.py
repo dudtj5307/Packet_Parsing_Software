@@ -7,9 +7,8 @@ from shutil import rmtree
 import tkinter as tk
 from tkinter import filedialog
 
-from PyQt6.QtWidgets import QMainWindow, QApplication
-from PyQt6.QtGui import QIcon
-from PyQt6 import uic
+from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit
+from PyQt6.QtGui import QIcon, QIntValidator
 
 from GUI import dialog_main
 from GUI.gui_settings import SettingsWindow
@@ -23,6 +22,7 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         self.setupUi(self)
         # Set Images
         self.parent = parent
+        self.timer_thread = None
         # Set Events
         self.btn_settings.clicked.connect(self.open_settings)
         self.btn_start.clicked.connect(self.start_sniffing)
@@ -32,13 +32,14 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         self.btn_csv_create.clicked.connect(self.csv_create_file)
         self.btn_csv_view.clicked.connect(self.csv_view_file)
         self.btn_csv_folder.clicked.connect(self.csv_open_folder)
-
-        self.btn_stop.setEnabled(False)
+        # Enable/Disable Buttons
+        self.lock_ui_controls(False)
+        self.btn_csv_create.setEnabled(False)
+        # Input Validator
+        self.lineEdit_reset_hour.setValidator(QIntValidator(0, 99))
+        self.lineEdit_reset_min.setValidator(QIntValidator(0, 999))
 
     def set_icon_path(self, icon_path):
-        print(os.path.join(icon_path, "button_settings.png"))
-        print(os.path.exists(os.path.join(icon_path, "button_settings.png")))
-        print(os.path.exists(os.path.join(icon_path, "button_settings1.png")))
         self.btn_settings.setIcon(QIcon(os.path.join(icon_path, "button_settings.png")))
         self.btn_start.setIcon(QIcon(os.path.join(icon_path, "button_start.png")))
         self.btn_stop.setIcon(QIcon(os.path.join(icon_path, "button_stop.png")))
@@ -51,7 +52,7 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         self.settings_window.exec()
         print("open_settings")
 
-    def buttons_control_running(self, val):
+    def lock_ui_controls(self, val):
         self.btn_settings.setDisabled(val)
         self.btn_start.setDisabled(val)
         self.btn_stop.setEnabled(val)
@@ -60,21 +61,42 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         self.edit_raw_path.setDisabled(val)
         self.edit_csv_path.setDisabled(val)
         self.btn_csv_create.setDisabled(val)
-        self.btn_csv_view.setDisabled(val)
-
+        self.btn_csv_view.setDisabled(True)
+        self.lineEdit_reset_min.setDisabled(val)
+        self.lineEdit_reset_hour.setDisabled(val)
 
     def start_sniffing(self):
-        print("start_sniffing")
-        # self.parent.start_sniffing()
+        result = self.parent.start_sniffing()
+        if not result:
+            return
 
+        self.start_timer()
+        self.lock_ui_controls(True)
 
-        self.buttons_control_running(True)
+        self.lineEdit_tcp_num.setText("0")
+        self.lineEdit_udp_num.setText("0")
+
+        self.edit_csv_path.setText("")
+
+        # Recursive Restart
+        hour, min_ = self.lineEdit_reset_hour.text(), self.lineEdit_reset_min.text()
+        if not hour: hour = "0"
+        if not min_: min_ = "0"
+        if hour.isdigit() and min_.isdigit() and ( int(hour)>=1 or int(min_)>=1 ):
+            delay = 3600 * int(hour) + 60 * int(min_)
+            timer = threading.Timer(delay, self.restart_sniffing)
+            timer.start()
 
     def stop_sniffing(self):
-        print("stop_sniffing")
-        # self.parent.stop_sniffing()
+        self.parent.stop_sniffing()
+        self.stop_timer()
+        self.lock_ui_controls(False)
 
-        self.buttons_control_running(False)
+    def restart_sniffing(self):
+        if self.parent.is_sniffing:
+            self.stop_sniffing()
+            print("Restarting!!")
+            self.start_sniffing()
 
     def open_raw_file(self):
         # Select pcap file
@@ -83,15 +105,14 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         file_paths = tk.filedialog.askopenfilenames(title='Select PCAP file', filetypes=[("PCAP Files", "*.pcap")],
                                                     initialdir=raw_folder_path)
         file_num = len(file_paths)
-        if file_num == 1:   self.edit_raw_path.setText(" " + os.path.split(file_paths[0])[-1])
-        elif file_num >= 2: self.edit_raw_path.setText(f" Selected {file_num} Raw Files")
+        if file_num == 1:   self.edit_raw_path.setText(os.path.split(file_paths[0])[-1])
+        elif file_num >= 2: self.edit_raw_path.setText(f"Selected {file_num} Raw Files")
         else: return
-        self.raw_file_paths = file_paths
+        self.parent.raw_file_paths = file_paths
         self.edit_csv_path.setText("")
 
-        # Button 설정하기 TODO
-        # self.csv_create_button.configure(state=tk.NORMAL, image=self.csv_create_img_on)
-        # self.csv_view_button.configure(state=tk.DISABLED, image=self.csv_view_img_off)
+        self.btn_csv_create.setEnabled(True)
+        self.btn_csv_view.setEnabled(False)
 
     def open_csv_file(self):
         # Select csv file
@@ -99,36 +120,36 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         os.makedirs(csv_folder_path, exist_ok=True)
         file_path = tk.filedialog.askdirectory(title='Select CSV folder', initialdir=csv_folder_path)
         if file_path:
-            self.csv_file_paths = [file_path]
+            self.parent.csv_file_paths = [file_path]
 
-            self.edit_raw_path.setText(" ")
-            self.edit_csv_path.setText(" " + os.path.split(file_path)[-1])
-            # Button 설정하기 TODO
-            # self.csv_create_button.configure(state=tk.DISABLED, image=self.csv_create_img_off)
-            # self.csv_view_button.configure(state=tk.NORMAL, image=self.csv_view_img_on)
+            self.edit_raw_path.setText("")
+            self.edit_csv_path.setText(os.path.split(file_path)[-1])
+
+            self.btn_csv_create.setEnabled(False)
+            self.btn_csv_view.setEnabled(True)
 
     def csv_create_file(self):
         csv_folder_path = os.path.join(os.getcwd(), 'CSV')
         os.makedirs(csv_folder_path, exist_ok=True)
-        self.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
-                                       self.raw_file_paths))
+        self.parent.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
+                                       self.parent.raw_file_paths))
 
-        for raw_file_path, new_folder_path in zip(self.raw_file_paths, self.csv_file_paths):
+        for raw_file_path, new_folder_path in zip(self.parent.raw_file_paths, self.parent.csv_file_paths):
             # Make CSV folder
-            print(raw_file_path, new_folder_path)
             if os.path.exists(new_folder_path):
                 rmtree(new_folder_path)
             os.makedirs(new_folder_path, exist_ok=True)
-            # Parse Msg
-            result = parse_msg.raw_to_csv(self.parent, raw_file_path)
-            print("result", result)
+            # Parse Msg TODO
+            # result = parse_msg.raw_to_csv(self.parent, raw_file_path)
+            # print("result", result)
 
-        file_num = len(self.raw_file_paths)
-        if file_num == 1: self.edit_csv_path.setText(" " + os.path.split(self.csv_file_paths[0])[-1])
-        if file_num >= 2: self.edit_csv_path.setText(f" Created {file_num} CSV Files")
+        file_num = len(self.parent.raw_file_paths)
+        if file_num == 1:
+            self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
+            self.btn_csv_view.setEnabled(True)
+        if file_num >= 2:
+            self.edit_csv_path.setText(f"Created {file_num} CSV Files")
 
-        # Button 설정하기 TODO
-        # self.csv_view_button.configure(state=tk.NORMAL, image=self.csv_view_img_on)
 
     # View CSV TODO
     def csv_view_file(self):
@@ -140,33 +161,29 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         os.makedirs(csv_folder_path, exist_ok=True)
         os.startfile(csv_folder_path)
 
-
+    # Timer Functions
     def start_timer(self):
-        self.timer_var.set("00 : 00 : 00")
-        self.pkt_tcp_var.set(0)
-        self.pkt_udp_var.set(0)
-        self.timer_thread = threading.Thread(target=update_timer, daemon=True, args=(self, time.time(),))
+        if self.timer_thread:
+            return
+        self.lineEdit_timer.setText("00 : 00 : 00")
+
+        self.timer_thread = threading.Thread(target=self.update_timer, daemon=True, args=(time.time(),))
         self.timer_thread.start()
 
     def update_timer(self, start_time):
-        while self.is_sniffing:
+        while self.parent.is_sniffing:
             duration = int(time.time() - start_time)
             if duration >= 0:
                 hour = duration // 3600
                 minutes = (duration % 3600) // 60
                 seconds = duration % 60
-                self.timer_var.set(f"{hour:02} : {minutes:02} : {seconds:02}")
+                self.lineEdit_timer.setText(f"{hour:02} : {minutes:02} : {seconds:02}")
             time.sleep(0.2)
 
-
+    def stop_timer(self):
+        self.timer_thread.join()
+        self.timer_thread = None
 
 
 if __name__ == "__main__" :
-    #QApplication : 프로그램을 실행시켜주는 클래스
-    app = QApplication(sys.argv)
-
-    #WindowClass의 인스턴스 생성
-    myWindow = MainWindow("3")
-    myWindow.show()
-
-    app.exec()
+    pass

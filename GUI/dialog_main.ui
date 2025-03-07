@@ -78,6 +78,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="toolTip">
+      <string>Stop Recording</string>
+     </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -113,6 +116,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Settings</string>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
@@ -152,6 +158,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Start Recording</string>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
@@ -255,6 +264,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="toolTip">
+      <string>Open CSV directory</string>
+     </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -290,6 +302,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Convert Raw to CSV</string>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
@@ -329,6 +344,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Analyze CSV file</string>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
@@ -437,6 +455,9 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="toolTip">
+      <string>Open CSV folder</string>
+     </property>
      <property name="text">
       <string>CSV</string>
      </property>
@@ -460,6 +481,9 @@
       <font>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="toolTip">
+      <string>Open Raw file</string>
      </property>
      <property name="text">
       <string>RAW</string>
@@ -485,6 +509,9 @@
      </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(0, 0, 0);</string>
+     </property>
+     <property name="maxLength">
+      <number>100</number>
      </property>
      <property name="readOnly">
       <bool>true</bool>
@@ -513,6 +540,9 @@
      </property>
      <property name="text">
       <string/>
+     </property>
+     <property name="maxLength">
+      <number>100</number>
      </property>
      <property name="readOnly">
       <bool>true</bool>
@@ -600,11 +630,16 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="font">
+      <font>
+       <italic>true</italic>
+      </font>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::FocusPolicy::StrongFocus</enum>
      </property>
      <property name="toolTip">
-      <string>enter raw file name</string>
+      <string>Enter Raw file name header</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLineEdit {
@@ -652,6 +687,11 @@ QTextEdit:focus {
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid gray;
@@ -764,6 +804,11 @@ background-color: rgb(220, 220, 220);</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid gray;
 border-radius: 5px;
@@ -862,6 +907,9 @@ background-color: rgb(220, 220, 220);</string>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="toolTip">
+      <string>Restart timer (hour)</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">QLineEdit {
     font-style: italic;
@@ -894,7 +942,7 @@ QTextEdit:focus {
       <string>hour</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_9">
+    <widget class="QLineEdit" name="lineEdit_reset_min">
      <property name="geometry">
       <rect>
        <x>122</x>
@@ -908,6 +956,9 @@ QTextEdit:focus {
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>Restart timer (min)</string>
      </property>
      <property name="styleSheet">
       <string notr="true">QLineEdit {
@@ -926,7 +977,7 @@ QTextEdit:focus {
 }</string>
      </property>
      <property name="inputMethodHints">
-      <set>Qt::InputMethodHint::ImhNone</set>
+      <set>Qt::InputMethodHint::ImhDigitsOnly</set>
      </property>
      <property name="inputMask">
       <string extracomment="raw file name"/>
@@ -984,7 +1035,7 @@ QTextEdit:focus {
     <zorder>lineEdit_timer</zorder>
     <zorder>lineEdit_reset_label</zorder>
     <zorder>lineEdit_reset_hour</zorder>
-    <zorder>lineEdit_9</zorder>
+    <zorder>lineEdit_reset_min</zorder>
    </widget>
    <widget class="QMdiArea" name="mdiArea">
     <property name="geometry">

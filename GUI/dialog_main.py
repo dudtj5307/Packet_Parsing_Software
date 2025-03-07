@@ -223,6 +223,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.edit_csv_path.sizePolicy().hasHeightForWidth())
         self.edit_csv_path.setSizePolicy(sizePolicy)
         self.edit_csv_path.setStyleSheet("color: rgb(0, 0, 0);")
+        self.edit_csv_path.setMaxLength(100)
         self.edit_csv_path.setReadOnly(True)
         self.edit_csv_path.setObjectName("edit_csv_path")
         self.edit_raw_path = QtWidgets.QLineEdit(parent=self.frame_0_1)
@@ -235,6 +236,7 @@ class Ui_MainWindow(object):
         self.edit_raw_path.setSizePolicy(sizePolicy)
         self.edit_raw_path.setStyleSheet("color: rgb(0, 0, 0);")
         self.edit_raw_path.setText("")
+        self.edit_raw_path.setMaxLength(100)
         self.edit_raw_path.setReadOnly(True)
         self.edit_raw_path.setObjectName("edit_raw_path")
         self.mdiArea_4 = QtWidgets.QMdiArea(parent=self.frame_0_1)
@@ -276,6 +278,9 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit_file_name.sizePolicy().hasHeightForWidth())
         self.lineEdit_file_name.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setItalic(True)
+        self.lineEdit_file_name.setFont(font)
         self.lineEdit_file_name.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.lineEdit_file_name.setStyleSheet("QLineEdit {\n"
 "    font-style: italic;\n"
@@ -303,6 +308,9 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit_tcp_num.sizePolicy().hasHeightForWidth())
         self.lineEdit_tcp_num.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.lineEdit_tcp_num.setFont(font)
         self.lineEdit_tcp_num.setStyleSheet("border: 1px solid gray;\n"
 "border-radius: 5px;\n"
 "")
@@ -354,6 +362,9 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit_udp_num.sizePolicy().hasHeightForWidth())
         self.lineEdit_udp_num.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.lineEdit_udp_num.setFont(font)
         self.lineEdit_udp_num.setStyleSheet("border: 1px solid gray;\n"
 "border-radius: 5px;\n"
 "")
@@ -416,14 +427,14 @@ class Ui_MainWindow(object):
         self.lineEdit_reset_hour.setText("")
         self.lineEdit_reset_hour.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.lineEdit_reset_hour.setObjectName("lineEdit_reset_hour")
-        self.lineEdit_9 = QtWidgets.QLineEdit(parent=self.frame_1_1)
-        self.lineEdit_9.setGeometry(QtCore.QRect(122, 180, 39, 25))
+        self.lineEdit_reset_min = QtWidgets.QLineEdit(parent=self.frame_1_1)
+        self.lineEdit_reset_min.setGeometry(QtCore.QRect(122, 180, 39, 25))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.lineEdit_9.sizePolicy().hasHeightForWidth())
-        self.lineEdit_9.setSizePolicy(sizePolicy)
-        self.lineEdit_9.setStyleSheet("QLineEdit {\n"
+        sizePolicy.setHeightForWidth(self.lineEdit_reset_min.sizePolicy().hasHeightForWidth())
+        self.lineEdit_reset_min.setSizePolicy(sizePolicy)
+        self.lineEdit_reset_min.setStyleSheet("QLineEdit {\n"
 "    font-style: italic;\n"
 "    color: rgb(40, 40, 40);\n"
 "    text-align: center;\n"
@@ -437,11 +448,11 @@ class Ui_MainWindow(object):
 "    border: 1px solid gray;\n"
 "    border-radius: 5px;\n"
 "}")
-        self.lineEdit_9.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhNone)
-        self.lineEdit_9.setInputMask("")
-        self.lineEdit_9.setText("")
-        self.lineEdit_9.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_9.setObjectName("lineEdit_9")
+        self.lineEdit_reset_min.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhDigitsOnly)
+        self.lineEdit_reset_min.setInputMask("")
+        self.lineEdit_reset_min.setText("")
+        self.lineEdit_reset_min.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_reset_min.setObjectName("lineEdit_reset_min")
         self.mdiArea_7 = QtWidgets.QMdiArea(parent=self.frame_1_1)
         self.mdiArea_7.setGeometry(QtCore.QRect(0, 0, 171, 211))
         self.mdiArea_7.setStyleSheet("QMdiArea {\n"
@@ -464,7 +475,7 @@ class Ui_MainWindow(object):
         self.lineEdit_timer.raise_()
         self.lineEdit_reset_label.raise_()
         self.lineEdit_reset_hour.raise_()
-        self.lineEdit_9.raise_()
+        self.lineEdit_reset_min.raise_()
         self.mdiArea = QtWidgets.QMdiArea(parent=self.centralwidget)
         self.mdiArea.setGeometry(QtCore.QRect(0, 0, 701, 321))
         self.mdiArea.setStyleSheet("background-color: rgb(70, 70, 70);\n"
@@ -497,14 +508,24 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
+        self.btn_stop.setToolTip(_translate("MainWindow", "Stop Recording"))
+        self.btn_settings.setToolTip(_translate("MainWindow", "Settings"))
+        self.btn_start.setToolTip(_translate("MainWindow", "Start Recording"))
+        self.btn_csv_folder.setToolTip(_translate("MainWindow", "Open CSV directory"))
+        self.btn_csv_create.setToolTip(_translate("MainWindow", "Convert Raw to CSV"))
+        self.btn_csv_view.setToolTip(_translate("MainWindow", "Analyze CSV file"))
+        self.btn_csv_open.setToolTip(_translate("MainWindow", "Open CSV folder"))
         self.btn_csv_open.setText(_translate("MainWindow", "CSV"))
+        self.btn_raw_open.setToolTip(_translate("MainWindow", "Open Raw file"))
         self.btn_raw_open.setText(_translate("MainWindow", "RAW"))
-        self.lineEdit_file_name.setToolTip(_translate("MainWindow", "enter raw file name"))
+        self.lineEdit_file_name.setToolTip(_translate("MainWindow", "Enter Raw file name header"))
         self.lineEdit_file_name.setPlaceholderText(_translate("MainWindow", "raw file name"))
         self.lineEdit_tcp_label.setText(_translate("MainWindow", "TCP"))
         self.lineEdit_udp_label.setText(_translate("MainWindow", "UDP"))
         self.lineEdit_timer.setText(_translate("MainWindow", "00 : 00 : 00"))
         self.lineEdit_reset_label.setText(_translate("MainWindow", "Restart"))
+        self.lineEdit_reset_hour.setToolTip(_translate("MainWindow", "Restart timer (hour)"))
         self.lineEdit_reset_hour.setPlaceholderText(_translate("MainWindow", "hour"))
-        self.lineEdit_9.setPlaceholderText(_translate("MainWindow", "min"))
+        self.lineEdit_reset_min.setToolTip(_translate("MainWindow", "Restart timer (min)"))
+        self.lineEdit_reset_min.setPlaceholderText(_translate("MainWindow", "min"))
         self.button_settings_2.setText(_translate("MainWindow", "btn_setting"))

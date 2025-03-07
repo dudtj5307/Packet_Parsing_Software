@@ -24,10 +24,10 @@ class Ui_Dialog(object):
         self.buttonBox.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Apply|QtWidgets.QDialogButtonBox.StandardButton.Cancel|QtWidgets.QDialogButtonBox.StandardButton.Ok)
         self.buttonBox.setObjectName("buttonBox")
-        self.comboBox = QtWidgets.QComboBox(parent=Dialog)
-        self.comboBox.setGeometry(QtCore.QRect(150, 10, 341, 22))
-        self.comboBox.setObjectName("comboBox")
-        self.comboBox.addItem("")
+        self.combo_interface = QtWidgets.QComboBox(parent=Dialog)
+        self.combo_interface.setGeometry(QtCore.QRect(150, 10, 341, 22))
+        self.combo_interface.setObjectName("combo_interface")
+        self.combo_interface.addItem("")
         self.lineEdit = QtWidgets.QLineEdit(parent=Dialog)
         self.lineEdit.setGeometry(QtCore.QRect(20, 10, 131, 22))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -309,7 +309,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
-        self.comboBox.setItemText(0, _translate("Dialog", "No Interface Selected"))
+        self.combo_interface.setItemText(0, _translate("Dialog", "No Interface Selected"))
         self.lineEdit.setText(_translate("Dialog", "Network Interface :"))
         self.lineEdit_4.setText(_translate("Dialog", "External IPs (X. X. X. X)"))
         self.lineEdit_tcp_label.setText(_translate("Dialog", "ADOC"))

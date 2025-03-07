@@ -1,7 +1,6 @@
 import os
 import sys
 import time
-import copy
 from unittest.mock import DEFAULT
 
 import psutil
@@ -16,11 +15,8 @@ import scapy.all as scapy
 from scapy.arch import get_windows_if_list
 from scapy.utils import PcapWriter
 
-
-from GUI.gui_main import *
-from GUI.gui_settings import *
-
-from GUI.gui_settings import DEFAULT_CONFIG_DATA
+from GUI import gui_main_2, gui_settings_2
+from GUI.gui_settings_2 import DEFAULT_CONFIG_DATA
 from IDL.auto_generate import IDL_CODE_GENERATION
 
 
@@ -30,57 +26,62 @@ Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, sc
 
 
 class PacketParser:
-    def __init__(self):
+    def __init__(self, root):
+        self.root = root
 
         # Sniff Packets
         scapy.conf.verb = 0
-        self.is_sniffing = False
         self.sniff_thread = None
-        self.pcap_writer = None
+        self.is_sniffing = False
 
-        # # File paths
+        # Packet Monitoring
+        self.timer_var = tk.StringVar()
+        self.pkt_tcp_var = tk.IntVar(value=0)
+        self.pkt_udp_var = tk.IntVar(value=0)
+
+        # Flag for printing packets
+        self.print_flag = tk.BooleanVar()
+        self.print_flag.set(False)
+
+        # File paths
+        self.raw_file_var = tk.StringVar()
+        self.csv_file_var = tk.StringVar()
         self.raw_file_paths = [""]
         self.csv_file_paths = [""]
 
-        self.pkt_tcp_num = 0
-        self.pkt_udp_num = 0
+        # default configuration data
+        self.config_data = gui_settings.DEFAULT_CONFIG_DATA
 
         # selected interface from settings combobox
         self.iface_selected = ["No", "Interface", "Selected"]
+        self.iface_selected_var = tk.StringVar()
+        self.iface_selected_idx = -1
 
-        # default configuration data
-        self.config_data = {}
         self.load_config_data()
 
-        # For File Opener
-        self.root = tk.Tk()
-        self.root.withdraw()
-
-        self.icon_folder_path = os.path.join(sys._MEIPASS if getattr(sys, 'frozen', False) else os.getcwd(), 'GUI', 'res')
-
-        self.main_window = MainWindow(self)
-        self.main_window.set_icon_path(self.icon_folder_path)
+        gui_main.create_widgets(self)
 
         # Invalid configuration
         if self.config_data.keys() != DEFAULT_CONFIG_DATA.keys():
             messagebox.showerror("Error", f" Invalid File : \'setting.config\' \n Configuration Initialized ! ")
-            if os.path.exists("../Project_PPS/GUI/settings.conf"):
-                os.remove("../Project_PPS/GUI/settings.conf")
-            self.config_data = copy.deepcopy(DEFAULT_CONFIG_DATA)
+            if os.path.exists("settings.conf"):
+                os.remove("settings.conf")
+            self.config_data = DEFAULT_CONFIG_DATA
             self.save_config_data()
-            self.main_window.open_settings()
+            gui_settings.open_settings(self)
 
     def load_config_data(self):
         try:
             with open("settings.conf", "r") as file:
                 self.config_data = json.load(file)
-                self.iface_selected = self.config_data['interface']
-        except Exception as e:
-            print(f"Error in loading configuration : {e}")
-            # Reset and Save Configuration
-            self.config_data = copy.deepcopy(DEFAULT_CONFIG_DATA)
-            self.save_config_data()
+
             self.iface_selected = self.config_data['interface']
+            self.iface_selected_var.set("".join(self.iface_selected))
+        # except FileNotFoundError:
+        except :
+            # make file, if no config file
+            self.config_data = DEFAULT_CONFIG_DATA
+            self.save_config_data()
 
     def save_config_data(self, changes={}):
         self.config_data.update(changes)
@@ -91,20 +92,18 @@ class PacketParser:
     def packet_callback(self, packet):
         if not packet.haslayer(IP):
             return
-        if packet.haslayer(TCP):
-            self.pkt_tcp_num += 1
-            self.main_window.lineEdit_tcp_num.setText(str(self.pkt_tcp_num))
-        else:
-            self.pkt_udp_num += 1
-            self.main_window.lineEdit_udp_num.setText(str(self.pkt_udp_num))
+
+        if packet.haslayer(TCP): self.pkt_tcp_var.set(self.pkt_tcp_var.get() + 1)
+        else:                    self.pkt_udp_var.set(self.pkt_udp_var.get() + 1)
 
         self.pcap_writer.write(packet)
 
     def sniff_packets(self, interface=None, date_time=""):
-        # raw file pcap writer
+
+        self.raw_file_var.set(" "+os.path.split(self.raw_file_paths[0])[1])
+
         self.pcap_writer = PcapWriter(self.raw_file_paths[0], append=True, sync=True)
 
-        self.main_window.edit_raw_path.setText(""+os.path.split(self.raw_file_paths[0])[1])
         # Sniffing and processing packets
         bpf_filter = "ip and (tcp or udp)"
         scapy.sniff(iface=interface, prn=self.packet_callback, store=False, promisc=True,
@@ -112,33 +111,51 @@ class PacketParser:
 
     def start_sniffing(self):
         if self.is_sniffing:
-            return False
-        # if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]: TODO
-        #     messagebox.showerror("Network Error", "Select a new Network Interface")
-        #     self.main_window.open_settings()
-        #     return False
+            return
+        if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
+            messagebox.showerror("Network Error", "Select a new Network Interface")
+            gui_settings.open_settings(self)
+            return
 
         # For pcap file name
-        os.makedirs('../Project_PPS/GUI/RAW', exist_ok=True)
-        file_name = self.main_window.lineEdit_file_name.text()
-        file_header = file_name if file_name else "packet"
+        os.makedirs('RAW', exist_ok=True)
         date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+
+        file_name = self.file_name_entry.get()
+        file_header = "packet" if file_name=="Raw File Name" or file_name=="" else file_name
         self.raw_file_paths = [os.path.join(os.getcwd(), 'RAW', f'{file_header}_{date_time}.pcap')]
 
-        # Start Sniff Thread TODO
+        self.csv_file_var.set("")
+
+        # Start Sniff Thread
         self.is_sniffing = True
-        # self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(self.iface_selected[1], date_time,))
-        self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(None, date_time,))
+        self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(self.iface_selected[1], date_time,))
         self.sniff_thread.start()
 
+        gui_main.start_button_pressed(self)
         print("Start Sniffing Packets")
-        return True
+
+        # Recursive Restart
+        h, m = self.hour_entry.get(), self.min_entry.get()
+        if h == "hour": h = "0"
+        if m == "min":  m = "0"
+        if h.isdigit() and m.isdigit() and (int(h)>=1 or int(m)>=1):
+            delay = 3600 * int(h) + 60 * int(m)
+            timer = threading.Timer(delay, self.restart_sniffing)
+            timer.start()
 
     def stop_sniffing(self):
         # Stop Sniff Thread
         self.is_sniffing = False
-
+        self.timer_thread.join()
+        gui_main.stop_button_pressed(self)
         print("Stop Sniffing Packets")
+
+    def restart_sniffing(self):
+        if self.is_sniffing:
+            self.stop_sniffing()
+            print("Restarting!!")
+            self.start_sniffing()
 
 
 if __name__ == "__main__":
@@ -152,8 +169,9 @@ if __name__ == "__main__":
     main_pid = psutil.Process(os.getpid())
     main_pid.nice(psutil.HIGH_PRIORITY_CLASS)
 
-    app = QApplication(sys.argv)
-
-    pss = PacketParser()
-    pss.main_window.show()
-    app.exec()
+    root = tk.Tk()
+    pss = PacketParser(root)
+    # GUI Title
+    root.title(f"Packet Parsing Software {VERSION}")
+    # Run GUI Application
+    root.mainloop()
