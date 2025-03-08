@@ -22,11 +22,14 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.setupUi(self)
         # Set Images
         self.parent = parent
+        self.settings_window = None
+        # Timer and Reset Thread
         self.timer_thread = None
-        # Set Events
+        self.restart_thread = None
+        # Set Signal Functions
         self.btn_settings.clicked.connect(self.open_settings)
-        self.btn_start.clicked.connect(self.start_sniffing)
-        self.btn_stop.clicked.connect(self.stop_sniffing)
+        self.btn_start.clicked.connect(self.start_recording)
+        self.btn_stop.clicked.connect(self.stop_recording)
         self.btn_raw_open.clicked.connect(self.open_raw_file)
         self.btn_csv_open.clicked.connect(self.open_csv_file)
         self.btn_csv_create.clicked.connect(self.csv_create_file)
@@ -48,10 +51,6 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.btn_csv_view.setIcon(QIcon(os.path.join(icon_path, "button_csv_view.png")))
         self.btn_csv_folder.setIcon(QIcon(os.path.join(icon_path, "button_csv_folder.png")))
 
-    def open_settings(self):
-        self.settings_window = SettingsWindow(self)
-        self.settings_window.exec()
-        print("open_settings")
 
     def lock_ui_controls(self, lock):
         self.btn_settings.setDisabled(lock)
@@ -72,7 +71,11 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.edit_udp_num.setText("0")
             self.edit_csv_path.setText("")
 
-    def start_sniffing(self):
+    def open_settings(self):
+        self.settings_window = SettingsWindow(self, self.parent)
+        self.settings_window.exec()
+
+    def start_recording(self):
         success = self.parent.start_sniffing()
         if not success:
             return
@@ -83,21 +86,25 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         hour, min_ = self.edit_reset_hour.text(), self.edit_reset_min.text()
         if not hour: hour = "0"
         if not min_: min_ = "0"
-        if hour.isdigit() and min_.isdigit() and ( int(hour)>=1 or int(min_)>=1 ):
+        if hour.isdigit() and min_.isdigit() and (int(hour)>=1 or int(min_)>=1):
             delay = 3600 * int(hour) + 60 * int(min_)
-            timer = threading.Timer(delay, self.restart_sniffing)
-            timer.start()
+            # Set restart Timer
+            self.restart_thread = threading.Timer(delay, self.restart_recording)
+            self.restart_thread.start()
 
-    def stop_sniffing(self):
+    def stop_recording(self):
         self.parent.stop_sniffing()
         self.stop_timer()
         self.lock_ui_controls(False)
 
-    def restart_sniffing(self):
+        if self.restart_thread and self.restart_thread.is_alive():
+            self.restart_thread.cancel()
+
+    def restart_recording(self):
         if self.parent.is_sniffing:
-            self.stop_sniffing()
+            self.stop_recording()
             print("Restarting!!")
-            self.start_sniffing()
+            self.start_recording()
 
     def open_raw_file(self):
         # Select pcap file

@@ -760,6 +760,9 @@ border-radius: 5px;
        <bold>true</bold>
       </font>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::NoFocus</enum>
+     </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black;
 border-radius: 5px;
@@ -798,6 +801,9 @@ background-color: rgb(220, 220, 220);</string>
        <pointsize>10</pointsize>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::NoFocus</enum>
      </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black;
@@ -873,6 +879,9 @@ border-radius: 5px;
        <bold>true</bold>
       </font>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::NoFocus</enum>
+     </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid black;
 border-radius: 6px;
@@ -911,6 +920,12 @@ background-color: rgb(220, 220, 220);</string>
        <bold>true</bold>
       </font>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::NoFocus</enum>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
      <property name="autoFillBackground">
       <bool>false</bool>
      </property>
@@ -924,6 +939,9 @@ background-color: rgb(220, 220, 220);</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="QLineEdit" name="edit_reset_hour">
@@ -1074,6 +1092,9 @@ border-radius: 5px;
     </property>
     <property name="focusPolicy">
      <enum>Qt::FocusPolicy::ClickFocus</enum>
+    </property>
+    <property name="acceptDrops">
+     <bool>false</bool>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(70, 70, 70);

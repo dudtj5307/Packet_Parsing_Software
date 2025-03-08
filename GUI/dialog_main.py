@@ -91,6 +91,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mdiArea_5.sizePolicy().hasHeightForWidth())
         self.mdiArea_5.setSizePolicy(sizePolicy)
+        self.mdiArea_5.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.mdiArea_5.setStyleSheet("QMdiArea {\n"
 "    border: 1px solid gray;\n"
 "    border-radius: 5px;\n"
@@ -262,6 +263,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mdiArea_4.sizePolicy().hasHeightForWidth())
         self.mdiArea_4.setSizePolicy(sizePolicy)
+        self.mdiArea_4.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.mdiArea_4.setStyleSheet("QMdiArea {\n"
 "    border: 1px solid gray;\n"
 "    border-radius: 5px;\n"
@@ -339,6 +341,7 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         font.setBold(True)
         self.edit_tcp_label.setFont(font)
+        self.edit_tcp_label.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.edit_tcp_label.setStyleSheet("border: 1px solid black;\n"
 "border-radius: 5px;\n"
 "background-color: rgb(220, 220, 220);")
@@ -357,6 +360,7 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         font.setBold(True)
         self.edit_udp_label.setFont(font)
+        self.edit_udp_label.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.edit_udp_label.setStyleSheet("border: 1px solid black;\n"
 "border-radius: 5px;\n"
 "background-color: rgb(220, 220, 220);")
@@ -392,6 +396,7 @@ class Ui_MainWindow(object):
         font.setPointSize(15)
         font.setBold(True)
         self.edit_timer.setFont(font)
+        self.edit_timer.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.edit_timer.setStyleSheet("border: 1px solid black;\n"
 "border-radius: 6px;\n"
 "background-color: rgb(220, 220, 220);")
@@ -409,11 +414,14 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setBold(True)
         self.edit_reset_label.setFont(font)
+        self.edit_reset_label.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.edit_reset_label.setAcceptDrops(False)
         self.edit_reset_label.setAutoFillBackground(False)
         self.edit_reset_label.setStyleSheet("border: 1px solid black;\n"
 "border-radius: 5px;\n"
 "background-color: rgb(220, 220, 220);")
         self.edit_reset_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.edit_reset_label.setReadOnly(True)
         self.edit_reset_label.setObjectName("edit_reset_label")
         self.edit_reset_hour = QtWidgets.QLineEdit(parent=self.frame_1_1)
         self.edit_reset_hour.setGeometry(QtCore.QRect(80, 180, 39, 25))
@@ -451,6 +459,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mdiArea_7.sizePolicy().hasHeightForWidth())
         self.mdiArea_7.setSizePolicy(sizePolicy)
+        self.mdiArea_7.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.mdiArea_7.setStyleSheet("QMdiArea {\n"
 "    border: 1px solid gray;\n"
 "    border-radius: 5px;\n"
@@ -480,6 +489,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.mdiArea.sizePolicy().hasHeightForWidth())
         self.mdiArea.setSizePolicy(sizePolicy)
         self.mdiArea.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
+        self.mdiArea.setAcceptDrops(False)
         self.mdiArea.setStyleSheet("background-color: rgb(70, 70, 70);\n"
 "border-color: rgb(56, 56, 56);")
         brush = QtGui.QBrush(QtGui.QColor(50, 50, 50))

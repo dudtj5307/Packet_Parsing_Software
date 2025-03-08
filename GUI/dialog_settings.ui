@@ -69,7 +69,7 @@
     <set>QDialogButtonBox::StandardButton::Apply|QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
    </property>
   </widget>
-  <widget class="QComboBox" name="combo_interface">
+  <widget class="QComboBox" name="combo_iface">
    <property name="geometry">
     <rect>
      <x>166</x>
@@ -119,7 +119,7 @@
     <enum>Qt::FocusPolicy::ClickFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(255, 255, 255);
+    <string notr="true">color: rgb(230, 230, 230);
 background-color: transparent;</string>
    </property>
    <property name="inputMask">
@@ -164,7 +164,7 @@ background-color: transparent;</string>
     <enum>Qt::FocusPolicy::ClickFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(255, 255, 255);
+    <string notr="true">color: rgb(230, 230, 230);
 background-color: transparent;</string>
    </property>
    <property name="inputMask">
@@ -831,7 +831,7 @@ border-radius: 5px;
     <enum>Qt::FocusPolicy::ClickFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(255, 255, 255);
+    <string notr="true">color: rgb(230, 230, 230);
 background-color: transparent;</string>
    </property>
    <property name="inputMask">
@@ -876,7 +876,7 @@ background-color: transparent;</string>
     <enum>Qt::FocusPolicy::ClickFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(255, 255, 255);
+    <string notr="true">color: rgb(230, 230, 230);
 background-color: transparent;</string>
    </property>
    <property name="inputMask">
@@ -2407,7 +2407,7 @@ border-color: rgb(56, 56, 56);</string>
   </widget>
   <zorder>mdiArea</zorder>
   <zorder>btn_group</zorder>
-  <zorder>combo_interface</zorder>
+  <zorder>combo_iface</zorder>
   <zorder>lineEdit</zorder>
   <zorder>lineEdit_4</zorder>
   <zorder>lineEdit_2</zorder>
@@ -2417,7 +2417,7 @@ border-color: rgb(56, 56, 56);</string>
   <zorder>frame_2_1</zorder>
  </widget>
  <tabstops>
-  <tabstop>combo_interface</tabstop>
+  <tabstop>combo_iface</tabstop>
   <tabstop>edit_adoc_ip1</tabstop>
   <tabstop>edit_adoc_ip2</tabstop>
   <tabstop>edit_adoc_ip3</tabstop>

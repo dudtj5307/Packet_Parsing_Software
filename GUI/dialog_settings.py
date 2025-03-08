@@ -37,15 +37,15 @@ class Ui_SettingsWindow(object):
         self.btn_group.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.btn_group.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Apply|QtWidgets.QDialogButtonBox.StandardButton.Cancel|QtWidgets.QDialogButtonBox.StandardButton.Ok)
         self.btn_group.setObjectName("btn_group")
-        self.combo_interface = QtWidgets.QComboBox(parent=SettingsWindow)
-        self.combo_interface.setGeometry(QtCore.QRect(166, 12, 361, 22))
+        self.combo_iface = QtWidgets.QComboBox(parent=SettingsWindow)
+        self.combo_iface.setGeometry(QtCore.QRect(166, 12, 361, 22))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.combo_interface.sizePolicy().hasHeightForWidth())
-        self.combo_interface.setSizePolicy(sizePolicy)
-        self.combo_interface.setObjectName("combo_interface")
-        self.combo_interface.addItem("")
+        sizePolicy.setHeightForWidth(self.combo_iface.sizePolicy().hasHeightForWidth())
+        self.combo_iface.setSizePolicy(sizePolicy)
+        self.combo_iface.setObjectName("combo_iface")
+        self.combo_iface.addItem("")
         self.lineEdit = QtWidgets.QLineEdit(parent=SettingsWindow)
         self.lineEdit.setGeometry(QtCore.QRect(20, 10, 151, 22))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -60,7 +60,7 @@ class Ui_SettingsWindow(object):
         self.lineEdit.setFont(font)
         self.lineEdit.setMouseTracking(False)
         self.lineEdit.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit.setStyleSheet("color: rgb(255, 255, 255);\n"
+        self.lineEdit.setStyleSheet("color: rgb(230, 230, 230);\n"
 "background-color: transparent;")
         self.lineEdit.setInputMask("")
         self.lineEdit.setFrame(False)
@@ -80,7 +80,7 @@ class Ui_SettingsWindow(object):
         self.lineEdit_4.setFont(font)
         self.lineEdit_4.setMouseTracking(False)
         self.lineEdit_4.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_4.setStyleSheet("color: rgb(255, 255, 255);\n"
+        self.lineEdit_4.setStyleSheet("color: rgb(230, 230, 230);\n"
 "background-color: transparent;")
         self.lineEdit_4.setInputMask("")
         self.lineEdit_4.setFrame(False)
@@ -343,6 +343,7 @@ class Ui_SettingsWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mdiArea_7.sizePolicy().hasHeightForWidth())
         self.mdiArea_7.setSizePolicy(sizePolicy)
+        self.mdiArea_7.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.mdiArea_7.setStyleSheet("QMdiArea {\n"
 "    border: 1px solid gray;\n"
 "    border-radius: 5px;\n"
@@ -382,7 +383,7 @@ class Ui_SettingsWindow(object):
         self.lineEdit_2.setFont(font)
         self.lineEdit_2.setMouseTracking(False)
         self.lineEdit_2.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_2.setStyleSheet("color: rgb(255, 255, 255);\n"
+        self.lineEdit_2.setStyleSheet("color: rgb(230, 230, 230);\n"
 "background-color: transparent;")
         self.lineEdit_2.setInputMask("")
         self.lineEdit_2.setFrame(False)
@@ -402,7 +403,7 @@ class Ui_SettingsWindow(object):
         self.lineEdit_3.setFont(font)
         self.lineEdit_3.setMouseTracking(False)
         self.lineEdit_3.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
-        self.lineEdit_3.setStyleSheet("color: rgb(255, 255, 255);\n"
+        self.lineEdit_3.setStyleSheet("color: rgb(230, 230, 230);\n"
 "background-color: transparent;")
         self.lineEdit_3.setInputMask("")
         self.lineEdit_3.setFrame(False)
@@ -900,6 +901,7 @@ class Ui_SettingsWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mdiArea_8.sizePolicy().hasHeightForWidth())
         self.mdiArea_8.setSizePolicy(sizePolicy)
+        self.mdiArea_8.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.mdiArea_8.setStyleSheet("QMdiArea {\n"
 "    border: 1px solid gray;\n"
 "    border-radius: 5px;\n"
@@ -1071,6 +1073,7 @@ class Ui_SettingsWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mdiArea_9.sizePolicy().hasHeightForWidth())
         self.mdiArea_9.setSizePolicy(sizePolicy)
+        self.mdiArea_9.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.mdiArea_9.setStyleSheet("QMdiArea {\n"
 "    border: 1px solid gray;\n"
 "    border-radius: 5px;\n"
@@ -1105,7 +1108,7 @@ class Ui_SettingsWindow(object):
         self.mdiArea.setObjectName("mdiArea")
         self.mdiArea.raise_()
         self.btn_group.raise_()
-        self.combo_interface.raise_()
+        self.combo_iface.raise_()
         self.lineEdit.raise_()
         self.lineEdit_4.raise_()
         self.lineEdit_2.raise_()
@@ -1118,7 +1121,7 @@ class Ui_SettingsWindow(object):
         self.btn_group.accepted.connect(SettingsWindow.accept) # type: ignore
         self.btn_group.rejected.connect(SettingsWindow.reject) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(SettingsWindow)
-        SettingsWindow.setTabOrder(self.combo_interface, self.edit_adoc_ip1)
+        SettingsWindow.setTabOrder(self.combo_iface, self.edit_adoc_ip1)
         SettingsWindow.setTabOrder(self.edit_adoc_ip1, self.edit_adoc_ip2)
         SettingsWindow.setTabOrder(self.edit_adoc_ip2, self.edit_adoc_ip3)
         SettingsWindow.setTabOrder(self.edit_adoc_ip3, self.edit_wcc_ip1)
@@ -1169,7 +1172,7 @@ class Ui_SettingsWindow(object):
     def retranslateUi(self, SettingsWindow):
         _translate = QtCore.QCoreApplication.translate
         SettingsWindow.setWindowTitle(_translate("SettingsWindow", "Dialog"))
-        self.combo_interface.setItemText(0, _translate("SettingsWindow", "No Interface Selected"))
+        self.combo_iface.setItemText(0, _translate("SettingsWindow", "No Interface Selected"))
         self.lineEdit.setText(_translate("SettingsWindow", "✓ Network Interface :"))
         self.lineEdit_4.setText(_translate("SettingsWindow", "✓ External IPs (X. X. X. X)"))
         self.edit_adoc_label.setText(_translate("SettingsWindow", "ADOC"))
