@@ -7,16 +7,16 @@ from shutil import rmtree
 import tkinter as tk
 from tkinter import filedialog
 
-from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit
+from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QIcon, QIntValidator
 
-from GUI import dialog_main
+from GUI.dialog_main import Ui_MainWindow
 from GUI.gui_settings import SettingsWindow
 
 from IDL import parse_msg
 
 
-class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
+class MainWindow(QMainWindow, Ui_MainWindow) :
     def __init__(self, parent) :
         super().__init__()
         self.setupUi(self)
@@ -36,8 +36,9 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         self.lock_ui_controls(False)
         self.btn_csv_create.setEnabled(False)
         # Input Validator
-        self.lineEdit_reset_hour.setValidator(QIntValidator(0, 99))
-        self.lineEdit_reset_min.setValidator(QIntValidator(0, 999))
+        self.edit_reset_hour.setValidator(QIntValidator(0, 99))
+        self.edit_reset_min.setValidator(QIntValidator(0, 999))
+        # Settings window
 
     def set_icon_path(self, icon_path):
         self.btn_settings.setIcon(QIcon(os.path.join(icon_path, "button_settings.png")))
@@ -52,34 +53,34 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         self.settings_window.exec()
         print("open_settings")
 
-    def lock_ui_controls(self, val):
-        self.btn_settings.setDisabled(val)
-        self.btn_start.setDisabled(val)
-        self.btn_stop.setEnabled(val)
-        self.btn_raw_open.setDisabled(val)
-        self.btn_csv_open.setDisabled(val)
-        self.edit_raw_path.setDisabled(val)
-        self.edit_csv_path.setDisabled(val)
-        self.btn_csv_create.setDisabled(val)
+    def lock_ui_controls(self, lock):
+        self.btn_settings.setDisabled(lock)
+        self.btn_start.setDisabled(lock)
+        self.btn_stop.setEnabled(lock)
+        self.btn_raw_open.setDisabled(lock)
+        self.btn_csv_open.setDisabled(lock)
+        self.edit_raw_path.setDisabled(lock)
+        self.edit_csv_path.setDisabled(lock)
+        self.btn_csv_create.setDisabled(lock)
         self.btn_csv_view.setDisabled(True)
-        self.lineEdit_reset_min.setDisabled(val)
-        self.lineEdit_reset_hour.setDisabled(val)
+        self.edit_reset_min.setDisabled(lock)
+        self.edit_reset_hour.setDisabled(lock)
+        if lock:
+            self.parent.pkt_tcp_num = 0
+            self.parent.pkt_udp_num = 0
+            self.edit_tcp_num.setText("0")
+            self.edit_udp_num.setText("0")
+            self.edit_csv_path.setText("")
 
     def start_sniffing(self):
-        result = self.parent.start_sniffing()
-        if not result:
+        success = self.parent.start_sniffing()
+        if not success:
             return
-
         self.start_timer()
         self.lock_ui_controls(True)
 
-        self.lineEdit_tcp_num.setText("0")
-        self.lineEdit_udp_num.setText("0")
-
-        self.edit_csv_path.setText("")
-
         # Recursive Restart
-        hour, min_ = self.lineEdit_reset_hour.text(), self.lineEdit_reset_min.text()
+        hour, min_ = self.edit_reset_hour.text(), self.edit_reset_min.text()
         if not hour: hour = "0"
         if not min_: min_ = "0"
         if hour.isdigit() and min_.isdigit() and ( int(hour)>=1 or int(min_)>=1 ):
@@ -105,8 +106,8 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
         file_paths = tk.filedialog.askopenfilenames(title='Select PCAP file', filetypes=[("PCAP Files", "*.pcap")],
                                                     initialdir=raw_folder_path)
         file_num = len(file_paths)
-        if file_num == 1:   self.edit_raw_path.setText(os.path.split(file_paths[0])[-1])
-        elif file_num >= 2: self.edit_raw_path.setText(f"Selected {file_num} Raw Files")
+        if file_num == 1:   self.edit_raw_path.setText(" "+os.path.split(file_paths[0])[-1])
+        elif file_num >= 2: self.edit_raw_path.setText(f" Selected {file_num} Raw Files")
         else: return
         self.parent.raw_file_paths = file_paths
         self.edit_csv_path.setText("")
@@ -123,7 +124,7 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
             self.parent.csv_file_paths = [file_path]
 
             self.edit_raw_path.setText("")
-            self.edit_csv_path.setText(os.path.split(file_path)[-1])
+            self.edit_csv_path.setText(" "+os.path.split(file_path)[-1])
 
             self.btn_csv_create.setEnabled(False)
             self.btn_csv_view.setEnabled(True)
@@ -145,10 +146,10 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
 
         file_num = len(self.parent.raw_file_paths)
         if file_num == 1:
-            self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
+            self.edit_csv_path.setText(" "+os.path.split(self.parent.csv_file_paths[0])[-1])
             self.btn_csv_view.setEnabled(True)
         if file_num >= 2:
-            self.edit_csv_path.setText(f"Created {file_num} CSV Files")
+            self.edit_csv_path.setText(f" Created {file_num} CSV Files")
 
 
     # View CSV TODO
@@ -165,7 +166,7 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
     def start_timer(self):
         if self.timer_thread:
             return
-        self.lineEdit_timer.setText("00 : 00 : 00")
+        self.edit_timer.setText("00 : 00 : 00")
 
         self.timer_thread = threading.Thread(target=self.update_timer, daemon=True, args=(time.time(),))
         self.timer_thread.start()
@@ -177,7 +178,7 @@ class MainWindow(QMainWindow, dialog_main.Ui_MainWindow) :
                 hour = duration // 3600
                 minutes = (duration % 3600) // 60
                 seconds = duration % 60
-                self.lineEdit_timer.setText(f"{hour:02} : {minutes:02} : {seconds:02}")
+                self.edit_timer.setText(f"{hour:02} : {minutes:02} : {seconds:02}")
             time.sleep(0.2)
 
     def stop_timer(self):

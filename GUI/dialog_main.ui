@@ -49,7 +49,7 @@
      </rect>
     </property>
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -97,6 +97,9 @@
        <width>40</width>
        <height>40</height>
       </size>
+     </property>
+     <property name="shortcut">
+      <string>Space</string>
      </property>
      <property name="autoDefault">
       <bool>false</bool>
@@ -179,6 +182,9 @@
        <height>40</height>
       </size>
      </property>
+     <property name="shortcut">
+      <string>Space</string>
+     </property>
      <property name="autoDefault">
       <bool>false</bool>
      </property>
@@ -191,6 +197,15 @@
        <width>171</width>
        <height>61</height>
       </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::ClickFocus</enum>
      </property>
      <property name="styleSheet">
       <string notr="true">QMdiArea {
@@ -232,7 +247,7 @@
      </rect>
     </property>
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -378,6 +393,12 @@
        <height>61</height>
       </rect>
      </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="styleSheet">
       <string notr="true">QMdiArea {
     border: 1px solid gray;
@@ -418,7 +439,7 @@
      </rect>
     </property>
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -485,8 +506,14 @@
      <property name="toolTip">
       <string>Open Raw file</string>
      </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="text">
       <string>RAW</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QLineEdit" name="edit_csv_path">
@@ -508,7 +535,9 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
+      <string notr="true">border: 1px solid black;
+border-radius: 5px;
+</string>
      </property>
      <property name="maxLength">
       <number>100</number>
@@ -536,7 +565,9 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
+      <string notr="true">border: 1px solid black;
+border-radius: 5px;
+</string>
      </property>
      <property name="text">
       <string/>
@@ -556,6 +587,15 @@
        <width>311</width>
        <height>61</height>
       </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::ClickFocus</enum>
      </property>
      <property name="styleSheet">
       <string notr="true">QMdiArea {
@@ -598,7 +638,7 @@
      </rect>
     </property>
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -615,7 +655,7 @@
     <property name="frameShadow">
      <enum>QFrame::Shadow::Raised</enum>
     </property>
-    <widget class="QLineEdit" name="lineEdit_file_name">
+    <widget class="QLineEdit" name="edit_file_name">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -632,7 +672,7 @@
      </property>
      <property name="font">
       <font>
-       <italic>true</italic>
+       <italic>false</italic>
       </font>
      </property>
      <property name="focusPolicy">
@@ -642,20 +682,8 @@
       <string>Enter Raw file name header</string>
      </property>
      <property name="styleSheet">
-      <string notr="true">QLineEdit {
-    font-style: italic;
-	color: rgb(40, 40, 40);
-    text-align: center;
-	border: 1px solid gray;
-	border-radius: 5px;
-}
-
-QTextEdit:focus {
-    font-style: normal;
-    color: black;
-	border: 1px solid gray;
-	border-radius: 5px;
-}</string>
+      <string notr="true">border: 1px solid black;
+border-radius: 5px;</string>
      </property>
      <property name="inputMethodHints">
       <set>Qt::InputMethodHint::ImhNone</set>
@@ -673,12 +701,12 @@ QTextEdit:focus {
       <string>raw file name</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_tcp_num">
+    <widget class="QLineEdit" name="edit_tcp_num">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>76</x>
        <y>85</y>
-       <width>81</width>
+       <width>85</width>
        <height>25</height>
       </rect>
      </property>
@@ -694,7 +722,7 @@ QTextEdit:focus {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid gray;
+      <string notr="true">border: 1px solid black;
 border-radius: 5px;
 </string>
      </property>
@@ -711,7 +739,7 @@ border-radius: 5px;
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_tcp_label">
+    <widget class="QLineEdit" name="edit_tcp_label">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -728,12 +756,12 @@ border-radius: 5px;
      </property>
      <property name="font">
       <font>
-       <pointsize>11</pointsize>
+       <pointsize>10</pointsize>
        <bold>true</bold>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid gray;
+      <string notr="true">border: 1px solid black;
 border-radius: 5px;
 background-color: rgb(220, 220, 220);</string>
      </property>
@@ -750,7 +778,7 @@ background-color: rgb(220, 220, 220);</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_udp_label">
+    <widget class="QLineEdit" name="edit_udp_label">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -767,12 +795,12 @@ background-color: rgb(220, 220, 220);</string>
      </property>
      <property name="font">
       <font>
-       <pointsize>11</pointsize>
+       <pointsize>10</pointsize>
        <bold>true</bold>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid gray;
+      <string notr="true">border: 1px solid black;
 border-radius: 5px;
 background-color: rgb(220, 220, 220);</string>
      </property>
@@ -789,12 +817,12 @@ background-color: rgb(220, 220, 220);</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_udp_num">
+    <widget class="QLineEdit" name="edit_udp_num">
      <property name="geometry">
       <rect>
-       <x>80</x>
+       <x>76</x>
        <y>110</y>
-       <width>81</width>
+       <width>85</width>
        <height>25</height>
       </rect>
      </property>
@@ -810,7 +838,7 @@ background-color: rgb(220, 220, 220);</string>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid gray;
+      <string notr="true">border: 1px solid black;
 border-radius: 5px;
 </string>
      </property>
@@ -824,7 +852,7 @@ border-radius: 5px;
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_timer">
+    <widget class="QLineEdit" name="edit_timer">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -841,12 +869,12 @@ border-radius: 5px;
      </property>
      <property name="font">
       <font>
-       <pointsize>14</pointsize>
+       <pointsize>15</pointsize>
        <bold>true</bold>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid gray;
+      <string notr="true">border: 1px solid black;
 border-radius: 6px;
 background-color: rgb(220, 220, 220);</string>
      </property>
@@ -863,7 +891,7 @@ background-color: rgb(220, 220, 220);</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_reset_label">
+    <widget class="QLineEdit" name="edit_reset_label">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -871,6 +899,12 @@ background-color: rgb(220, 220, 220);</string>
        <width>61</width>
        <height>25</height>
       </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
      <property name="font">
       <font>
@@ -881,7 +915,7 @@ background-color: rgb(220, 220, 220);</string>
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid gray;
+      <string notr="true">border: 1px solid black;
 border-radius: 5px;
 background-color: rgb(220, 220, 220);</string>
      </property>
@@ -892,7 +926,7 @@ background-color: rgb(220, 220, 220);</string>
       <set>Qt::AlignmentFlag::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_reset_hour">
+    <widget class="QLineEdit" name="edit_reset_hour">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -911,20 +945,8 @@ background-color: rgb(220, 220, 220);</string>
       <string>Restart timer (hour)</string>
      </property>
      <property name="styleSheet">
-      <string notr="true">QLineEdit {
-    font-style: italic;
-	color: rgb(40, 40, 40);
-    text-align: center;
-	border: 1px solid gray;
-	border-radius: 5px;
-}
-
-QTextEdit:focus {
-    font-style: normal;
-    color: black;
-	border: 1px solid gray;
-	border-radius: 5px;
-}</string>
+      <string notr="true">border: 1px solid black;
+border-radius: 5px;</string>
      </property>
      <property name="inputMethodHints">
       <set>Qt::InputMethodHint::ImhDigitsOnly</set>
@@ -942,7 +964,7 @@ QTextEdit:focus {
       <string>hour</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_reset_min">
+    <widget class="QLineEdit" name="edit_reset_min">
      <property name="geometry">
       <rect>
        <x>122</x>
@@ -961,20 +983,9 @@ QTextEdit:focus {
       <string>Restart timer (min)</string>
      </property>
      <property name="styleSheet">
-      <string notr="true">QLineEdit {
-    font-style: italic;
-	color: rgb(40, 40, 40);
-    text-align: center;
-	border: 1px solid gray;
-	border-radius: 5px;
-}
-
-QTextEdit:focus {
-    font-style: normal;
-    color: black;
-	border: 1px solid gray;
-	border-radius: 5px;
-}</string>
+      <string notr="true">border: 1px solid black;
+border-radius: 5px;
+</string>
      </property>
      <property name="inputMethodHints">
       <set>Qt::InputMethodHint::ImhDigitsOnly</set>
@@ -1000,6 +1011,15 @@ QTextEdit:focus {
        <width>171</width>
        <height>211</height>
       </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::FocusPolicy::ClickFocus</enum>
      </property>
      <property name="styleSheet">
       <string notr="true">QMdiArea {
@@ -1027,15 +1047,15 @@ QTextEdit:focus {
      </property>
     </widget>
     <zorder>mdiArea_7</zorder>
-    <zorder>lineEdit_file_name</zorder>
-    <zorder>lineEdit_tcp_num</zorder>
-    <zorder>lineEdit_tcp_label</zorder>
-    <zorder>lineEdit_udp_label</zorder>
-    <zorder>lineEdit_udp_num</zorder>
-    <zorder>lineEdit_timer</zorder>
-    <zorder>lineEdit_reset_label</zorder>
-    <zorder>lineEdit_reset_hour</zorder>
-    <zorder>lineEdit_reset_min</zorder>
+    <zorder>edit_file_name</zorder>
+    <zorder>edit_tcp_num</zorder>
+    <zorder>edit_tcp_label</zorder>
+    <zorder>edit_udp_label</zorder>
+    <zorder>edit_udp_num</zorder>
+    <zorder>edit_timer</zorder>
+    <zorder>edit_reset_label</zorder>
+    <zorder>edit_reset_hour</zorder>
+    <zorder>edit_reset_min</zorder>
    </widget>
    <widget class="QMdiArea" name="mdiArea">
     <property name="geometry">
@@ -1045,6 +1065,15 @@ QTextEdit:focus {
       <width>701</width>
       <height>321</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::ClickFocus</enum>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(70, 70, 70);
@@ -1086,11 +1115,25 @@ border-color: rgb(56, 56, 56);</string>
   </action>
  </widget>
  <tabstops>
+  <tabstop>btn_settings</tabstop>
+  <tabstop>btn_start</tabstop>
   <tabstop>btn_stop</tabstop>
   <tabstop>btn_raw_open</tabstop>
   <tabstop>edit_raw_path</tabstop>
   <tabstop>btn_csv_open</tabstop>
   <tabstop>edit_csv_path</tabstop>
+  <tabstop>btn_csv_create</tabstop>
+  <tabstop>btn_csv_view</tabstop>
+  <tabstop>btn_csv_folder</tabstop>
+  <tabstop>edit_file_name</tabstop>
+  <tabstop>edit_timer</tabstop>
+  <tabstop>edit_tcp_label</tabstop>
+  <tabstop>edit_tcp_num</tabstop>
+  <tabstop>edit_udp_label</tabstop>
+  <tabstop>edit_udp_num</tabstop>
+  <tabstop>edit_reset_label</tabstop>
+  <tabstop>edit_reset_hour</tabstop>
+  <tabstop>edit_reset_min</tabstop>
  </tabstops>
  <resources/>
  <connections/>
