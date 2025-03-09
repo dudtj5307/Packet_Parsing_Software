@@ -146,8 +146,8 @@ class PacketParser:
 
         # Start Sniff Thread TODO : settings implement
         self.is_sniffing = True
-        # self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(self.iface_selected[1], date_time,))
-        self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(None, date_time,))
+        self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(self.iface_selected[1], date_time,))
+        # self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(None, date_time,))
         self.sniff_thread.start()
 
         print("Start Sniffing Packets")
@@ -157,11 +157,11 @@ class PacketParser:
         return True
 
     def stop_sniffing(self):
-        # Stop Sniff Thread
+        # Stop sniff thread
         self.is_sniffing = False
-
-        scapy.send(IP(dst="127.0.0.1")/UDP(dport=1234))
-
+        # Send dummy packet to stop sniffing right away
+        scapy.sendp(Ether(dst="ff:ff:ff:ff:ff:ff") / IP(dst="255.255.255.255") / UDP(dport=9999),
+                    iface=self.iface_selected[1])
         self.sniff_thread.join()
 
         print("Stop Sniffing Packets")

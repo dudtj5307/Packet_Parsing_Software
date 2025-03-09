@@ -10,18 +10,23 @@ from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QIcon, QIntValidator
 
 from GUI.ui.dialog_main import Ui_MainWindow
+
 from GUI.gui_settings import SettingsWindow
+from GUI.gui_progress import ProgressWindow
+from GUI.gui_timer import GuiTimer
 
 
 class MainWindow(QMainWindow, Ui_MainWindow) :
     def __init__(self, parent) :
         super().__init__()
         self.setupUi(self)
-        # Set Images
+        # Object variables
         self.parent = parent
         self.settings_window = None
-        # Timer and Reset Thread
-        self.timer_thread = None
+        self.progress_window = None
+        # GuiTimer and
+        self.gui_timer = GuiTimer(self)
+        # self.timer_thread = None
         self.restart_thread = None
         # Set Signal Functions
         self.btn_settings.clicked.connect(self.open_settings)
@@ -73,13 +78,15 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.settings_window.exec()
 
     def start_recording(self):
-        success = self.parent.start_sniffing()
-        if not success:
-            return
-        self.start_timer()
+        print("Start record")
+        if not self.parent.start_sniffing(): return
+        print("parent.start_sniffing() Success!!")
+        if not self.gui_timer.start(): return
+        print("self.gui_timer.start() Success!!")
+
         self.lock_ui_controls(True)
 
-        # Recursive Restart
+        # Recursive Restart Recording
         hour, min_ = self.edit_reset_hour.text(), self.edit_reset_min.text()
         if not hour: hour = "0"
         if not min_: min_ = "0"
@@ -91,7 +98,8 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
 
     def stop_recording(self):
         self.parent.stop_sniffing()
-        self.stop_timer()
+
+        self.gui_timer.stop()
         self.lock_ui_controls(False)
 
         if self.restart_thread and self.restart_thread.is_alive():
@@ -134,10 +142,15 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.btn_csv_view.setEnabled(True)
 
     def csv_create_file(self):
+        self.progress_window = ProgressWindow(self, self.parent)
+        self.progress_window.stop_signal.connect(self.csv_create_stop)
+
         csv_folder_path = os.path.join(os.getcwd(), 'CSV')
         os.makedirs(csv_folder_path, exist_ok=True)
         self.parent.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
                                        self.parent.raw_file_paths))
+
+        file_num = len(self.parent.raw_file_paths)
 
         for raw_file_path, new_folder_path in zip(self.parent.raw_file_paths, self.parent.csv_file_paths):
             # Make CSV folder
@@ -148,13 +161,11 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             # result = parse_msg.raw_to_csv(self.parent, raw_file_path)
             # print("result", result)
 
-        file_num = len(self.parent.raw_file_paths)
         if file_num == 1:
             self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
             self.btn_csv_view.setEnabled(True)
         if file_num >= 2:
             self.edit_csv_path.setText(f"Created {file_num} CSV Files")
-
 
     # View CSV TODO
     def csv_view_file(self):
@@ -165,29 +176,6 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         csv_folder_path = os.path.join(os.getcwd(), 'CSV')
         os.makedirs(csv_folder_path, exist_ok=True)
         os.startfile(csv_folder_path)
-
-    # Timer Functions
-    def start_timer(self):
-        if self.timer_thread:
-            return
-        self.edit_timer.setText("00 : 00 : 00")
-
-        self.timer_thread = threading.Thread(target=self.update_timer, daemon=True, args=(time.time(),))
-        self.timer_thread.start()
-
-    def update_timer(self, start_time):
-        while self.parent.is_sniffing:
-            duration = int(time.time() - start_time)
-            if duration >= 0:
-                hour = duration // 3600
-                minutes = (duration % 3600) // 60
-                seconds = duration % 60
-                self.edit_timer.setText(f"{hour:02} : {minutes:02} : {seconds:02}")
-            time.sleep(0.2)
-
-    def stop_timer(self):
-        self.timer_thread.join()
-        self.timer_thread = None
 
 
 if __name__ == "__main__" :
