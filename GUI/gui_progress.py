@@ -5,7 +5,7 @@ from GUI.ui.dialog_progress import Ui_ProgressWindow
 
 class ProgressWindow(QDialog, Ui_ProgressWindow):
     # Static Attribute
-    stop_signal = pyqtSignal()
+    stop_create = pyqtSignal()
 
     def __init__(self, parent=None, p_parent=None):
         super(ProgressWindow, self).__init__(parent)
@@ -24,11 +24,17 @@ class ProgressWindow(QDialog, Ui_ProgressWindow):
 
         # Set Signal Functions
         self.btn_bottom.clicked.connect(self.button_clicked)
-        self.mode_running = True        # True : Running (Stop Button) / False : Finished (OK Button)
+
+
+
+
+        self.mode_running = True  # True : Running (Stop Button) / False : Finished (OK Button)
+
+
 
     def button_clicked(self):
         if self.mode_running:           # Running (Stop Button)
-            self.stop_signal.emit()
+            self.parent.stop_create.emit()
         else:                           # Finished (OK Button)
             self.close()
 

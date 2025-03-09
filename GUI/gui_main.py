@@ -78,11 +78,8 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.settings_window.exec()
 
     def start_recording(self):
-        print("Start record")
         if not self.parent.start_sniffing(): return
-        print("parent.start_sniffing() Success!!")
         if not self.gui_timer.start(): return
-        print("self.gui_timer.start() Success!!")
 
         self.lock_ui_controls(True)
 

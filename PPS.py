@@ -69,7 +69,7 @@ class PacketParser:
         self.root.withdraw()
 
         # For Icons setting
-        self.internal_path = os.path.join(sys._MEIPASS if getattr(sys, 'frozen', False) else os.getcwd())
+        self.internal_path = sys._MEIPASS if getattr(sys, 'frozen', False) else os.getcwd()
 
         self.main_window = MainWindow(self)
         self.main_window.set_icon_path(os.path.join(self.internal_path, 'GUI', 'res'))
@@ -99,6 +99,8 @@ class PacketParser:
         print("Saved Configuration as 'setting.conf'")
 
     def packet_callback(self, packet):
+        # if not self.is_sniffing:
+        #     return
         if not packet.haslayer(IP):
             return
         if packet.haslayer(TCP):
@@ -109,7 +111,6 @@ class PacketParser:
             self.main_window.edit_udp_num.setText(str(self.pkt_udp_num))
         else:
             return
-        print(packet[IP].src, packet[IP].dst)
 
         self.pcap_writer.write(packet)
 

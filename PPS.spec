@@ -3,8 +3,8 @@
 
 import glob
 
-png_files = [(f, f) for f in glob.glob("GUI\\res\\*.png")]
-ico_files = [(f, f) for f in glob.glob("GUI\\res\\*.ico")]
+png_files = [(f, 'GUI\\res') for f in glob.glob('GUI\\res\\*.png')]
+ico_files  = [(f, 'GUI\\res') for f in glob.glob('GUI\\res\\*.ico')]
 
 print(png_files, ico_files)
 
