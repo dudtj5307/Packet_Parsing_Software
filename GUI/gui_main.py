@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 import threading
 from shutil import rmtree
@@ -10,10 +9,8 @@ from tkinter import filedialog
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QIcon, QIntValidator
 
-from GUI.dialog_main import Ui_MainWindow
+from GUI.ui.dialog_main import Ui_MainWindow
 from GUI.gui_settings import SettingsWindow
-
-from IDL import parse_msg
 
 
 class MainWindow(QMainWindow, Ui_MainWindow) :

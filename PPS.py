@@ -104,23 +104,25 @@ class PacketParser:
         if packet.haslayer(TCP):
             self.pkt_tcp_num += 1
             self.main_window.edit_tcp_num.setText(str(self.pkt_tcp_num))
-        else:
+        elif packet.haslayer(UDP):
             self.pkt_udp_num += 1
             self.main_window.edit_udp_num.setText(str(self.pkt_udp_num))
-            print(packet[IP].src, packet[IP].dst)
+        else:
+            return
+        print(packet[IP].src, packet[IP].dst)
 
         self.pcap_writer.write(packet)
 
     def sniff_packets(self, interface=None, date_time=""):
-        # Set raw file pcap writer
+        # Set text - raw file path
+        self.main_window.edit_raw_path.setText(os.path.split(self.raw_file_paths[0])[1])
+        # Open pcap_writer
         self.pcap_writer = PcapWriter(self.raw_file_paths[0], append=True, sync=True)
-        # Set text in Raw file path entry
-        self.main_window.edit_raw_path.setText(" "+os.path.split(self.raw_file_paths[0])[1])
-        # Sniffing and processing packets
+        # Sniffing packets
         bpf_filter = "ip and (tcp or udp)"
         scapy.sniff(iface=interface, prn=self.packet_callback, store=False, promisc=True,
                     filter=bpf_filter, stop_filter=lambda p: not self.is_sniffing)
-        # Close pcap file when sniffing stopped
+        # Close pcap_writer
         self.pcap_writer.close()
 
         print("thread stopped!!")
@@ -133,10 +135,11 @@ class PacketParser:
             self.main_window.open_settings()
             return False
 
-        # Check if File name set
+        # Check raw file name
         os.makedirs('RAW', exist_ok=True)
         file_name = self.main_window.edit_file_name.text()
         file_header = file_name if file_name.strip() else "packet"
+
         # Raw pcap file path
         date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
         self.raw_file_paths = [os.path.join(os.getcwd(), 'RAW', f'{file_header}_{date_time}.pcap')]

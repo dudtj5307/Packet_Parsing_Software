@@ -67,7 +67,7 @@
    </property>
    <property name="styleSheet">
     <string notr="true">padding-left: 4px;
-background-color: rgb(200, 200, 200);</string>
+background-color: rgb(240, 240, 240);</string>
    </property>
    <property name="currentText">
     <string/>
@@ -380,6 +380,9 @@ border-radius: 5px;
      <font>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>IBeamCursor</cursorShape>
     </property>
     <property name="styleSheet">
      <string notr="true">border: 1px solid black;
@@ -749,10 +752,9 @@ border-radius: 5px;
      <enum>Qt::FocusPolicy::ClickFocus</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true">QMdiArea {
-    border: 1px solid gray;
+     <string notr="true">    border: 1px solid gray;
     border-radius: 5px;
-}</string>
+</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::Shape::StyledPanel</enum>
@@ -2460,6 +2462,9 @@ background-color: rgb(220, 220, 220);</string>
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="cursor" stdset="0">
+    <cursorShape>ArrowCursor</cursorShape>
    </property>
    <property name="focusPolicy">
     <enum>Qt::FocusPolicy::ClickFocus</enum>

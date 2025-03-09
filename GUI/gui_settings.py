@@ -1,9 +1,7 @@
-import sys
-
 from scapy.arch import get_windows_if_list
 
-from PyQt6.QtWidgets import QApplication, QDialog, QDialogButtonBox
-from GUI.dialog_settings import Ui_SettingsWindow
+from PyQt6.QtWidgets import QDialog
+from GUI.ui.dialog_settings import Ui_SettingsWindow
 
 DEFAULT_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
                        'IP_local': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3':  "",
@@ -38,7 +36,7 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
         self.set_config_data()
 
     def update_combobox_iface(self, event):
-        # Backup before reset
+        # current text backup before reset
         current_text = self.combo_iface.currentText()
         self.combo_iface.clear()
         # Update Network Interface
@@ -50,12 +48,12 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
             for ip in iface['ips']:
                 if all(map(lambda x: x.isdecimal(), ip.split('.'))):
                     self.combo_iface.addItem(" ".join([ip, name, description]), [ip, name, description])
+        # find combobox idx by text
+        current_combobox_idx = self.combo_iface.findText(current_text)
+        self.combo_iface.setCurrentIndex(current_combobox_idx)
 
         super().mousePressEvent(event)
         self.combo_iface.showPopup()
-        # Find Combobox idx by text
-        current_idx = self.combo_iface.findText(current_text)
-        self.combo_iface.setCurrentIndex(current_idx)
 
     # NDDS 어떻게 할지 고민 TODO
     def select_combobox_iface(self):
