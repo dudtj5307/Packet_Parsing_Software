@@ -113,8 +113,8 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         file_paths = tk.filedialog.askopenfilenames(title='Select PCAP file', filetypes=[("PCAP Files", "*.pcap")],
                                                     initialdir=raw_folder_path)
         file_num = len(file_paths)
-        if file_num == 1:   self.edit_raw_path.setText(" "+os.path.split(file_paths[0])[-1])
-        elif file_num >= 2: self.edit_raw_path.setText(f" Selected {file_num} Raw Files")
+        if file_num == 1:   self.edit_raw_path.setText(os.path.split(file_paths[0])[-1])
+        elif file_num >= 2: self.edit_raw_path.setText(f"Selected {file_num} Raw Files")
         else: return
         self.parent.raw_file_paths = file_paths
         self.edit_csv_path.setText("")
@@ -131,7 +131,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.parent.csv_file_paths = [file_path]
 
             self.edit_raw_path.setText("")
-            self.edit_csv_path.setText(" "+os.path.split(file_path)[-1])
+            self.edit_csv_path.setText(os.path.split(file_path)[-1])
 
             self.btn_csv_create.setEnabled(False)
             self.btn_csv_view.setEnabled(True)
@@ -153,10 +153,10 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
 
         file_num = len(self.parent.raw_file_paths)
         if file_num == 1:
-            self.edit_csv_path.setText(" "+os.path.split(self.parent.csv_file_paths[0])[-1])
+            self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
             self.btn_csv_view.setEnabled(True)
         if file_num >= 2:
-            self.edit_csv_path.setText(f" Created {file_num} CSV Files")
+            self.edit_csv_path.setText(f"Created {file_num} CSV Files")
 
 
     # View CSV TODO

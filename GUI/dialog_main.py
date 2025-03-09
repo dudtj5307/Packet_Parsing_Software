@@ -235,7 +235,8 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.edit_csv_path.sizePolicy().hasHeightForWidth())
         self.edit_csv_path.setSizePolicy(sizePolicy)
-        self.edit_csv_path.setStyleSheet("border: 1px solid black;\n"
+        self.edit_csv_path.setStyleSheet("padding-left: 4px;\n"
+"border: 1px solid black;\n"
 "border-radius: 5px;\n"
 "")
         self.edit_csv_path.setMaxLength(100)
@@ -249,7 +250,8 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.edit_raw_path.sizePolicy().hasHeightForWidth())
         self.edit_raw_path.setSizePolicy(sizePolicy)
-        self.edit_raw_path.setStyleSheet("border: 1px solid black;\n"
+        self.edit_raw_path.setStyleSheet("padding-left: 4px;\n"
+"border: 1px solid black;\n"
 "border-radius: 5px;\n"
 "")
         self.edit_raw_path.setText("")

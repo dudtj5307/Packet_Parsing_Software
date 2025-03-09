@@ -40,13 +40,13 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <widget class="QDialogButtonBox" name="btn_group">
+  <widget class="QComboBox" name="combo_iface">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>275</y>
-     <width>251</width>
-     <height>32</height>
+     <x>166</x>
+     <y>12</y>
+     <width>371</width>
+     <height>22</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -62,33 +62,19 @@
      <kerning>true</kerning>
     </font>
    </property>
-   <property name="orientation">
-    <enum>Qt::Orientation::Horizontal</enum>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::StrongFocus</enum>
    </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::StandardButton::Apply|QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+   <property name="styleSheet">
+    <string notr="true">padding-left: 4px;
+background-color: rgb(200, 200, 200);</string>
    </property>
-  </widget>
-  <widget class="QComboBox" name="combo_iface">
-   <property name="geometry">
-    <rect>
-     <x>166</x>
-     <y>12</y>
-     <width>361</width>
-     <height>22</height>
-    </rect>
+   <property name="currentText">
+    <string/>
    </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
+   <property name="maxCount">
+    <number>100</number>
    </property>
-   <item>
-    <property name="text">
-     <string>No Interface Selected</string>
-    </property>
-   </item>
   </widget>
   <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
@@ -119,7 +105,7 @@
     <enum>Qt::FocusPolicy::ClickFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(230, 230, 230);
+    <string notr="true">color: rgb(220, 220, 220);
 background-color: transparent;</string>
    </property>
    <property name="inputMask">
@@ -138,7 +124,7 @@ background-color: transparent;</string>
   <widget class="QLineEdit" name="lineEdit_4">
    <property name="geometry">
     <rect>
-     <x>280</x>
+     <x>290</x>
      <y>45</y>
      <width>171</width>
      <height>22</height>
@@ -164,7 +150,7 @@ background-color: transparent;</string>
     <enum>Qt::FocusPolicy::ClickFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(230, 230, 230);
+    <string notr="true">color: rgb(220, 220, 220);
 background-color: transparent;</string>
    </property>
    <property name="inputMask">
@@ -335,7 +321,7 @@ border-radius: 5px;
      <rect>
       <x>175</x>
       <y>10</y>
-      <width>41</width>
+      <width>45</width>
       <height>25</height>
      </rect>
     </property>
@@ -831,7 +817,7 @@ border-radius: 5px;
     <enum>Qt::FocusPolicy::ClickFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(230, 230, 230);
+    <string notr="true">color: rgb(220, 220, 220);
 background-color: transparent;</string>
    </property>
    <property name="inputMask">
@@ -876,7 +862,7 @@ background-color: transparent;</string>
     <enum>Qt::FocusPolicy::ClickFocus</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(230, 230, 230);
+    <string notr="true">color: rgb(220, 220, 220);
 background-color: transparent;</string>
    </property>
    <property name="inputMask">
@@ -895,7 +881,7 @@ background-color: transparent;</string>
   <widget class="QFrame" name="frame_1_2">
    <property name="geometry">
     <rect>
-     <x>280</x>
+     <x>290</x>
      <y>70</y>
      <width>246</width>
      <height>106</height>
@@ -2255,7 +2241,7 @@ border-radius: 5px;
      <enum>Qt::FocusPolicy::ClickFocus</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: rgb(255, 255, 255);
+     <string notr="true">color: rgb(230, 230, 230);
 background-color: transparent;</string>
     </property>
     <property name="inputMask">
@@ -2373,12 +2359,99 @@ background-color: transparent;</string>
    <zorder>lineEdit_5</zorder>
    <zorder>lineEdit_6</zorder>
   </widget>
+  <widget class="QPushButton" name="btn_ok">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>280</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+     <bold>true</bold>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::ClickFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border: 1px solid black;
+border-radius: 5px;
+
+background-color: rgb(220, 220, 220);</string>
+   </property>
+   <property name="text">
+    <string>OK</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_cancel">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>280</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+     <bold>true</bold>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::ClickFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border: 1px solid black;
+border-radius: 5px;
+
+background-color: rgb(220, 220, 220);</string>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_apply">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>280</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+     <bold>true</bold>
+     <kerning>true</kerning>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::ClickFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border: 1px solid black;
+border-radius: 5px;
+
+background-color: rgb(220, 220, 220);</string>
+   </property>
+   <property name="text">
+    <string>Apply</string>
+   </property>
+  </widget>
   <widget class="QMdiArea" name="mdiArea">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>551</width>
+     <width>561</width>
      <height>311</height>
     </rect>
    </property>
@@ -2390,6 +2463,9 @@ background-color: transparent;</string>
    </property>
    <property name="focusPolicy">
     <enum>Qt::FocusPolicy::ClickFocus</enum>
+   </property>
+   <property name="acceptDrops">
+    <bool>false</bool>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: rgb(70, 70, 70);
@@ -2406,7 +2482,6 @@ border-color: rgb(56, 56, 56);</string>
    </property>
   </widget>
   <zorder>mdiArea</zorder>
-  <zorder>btn_group</zorder>
   <zorder>combo_iface</zorder>
   <zorder>lineEdit</zorder>
   <zorder>lineEdit_4</zorder>
@@ -2415,6 +2490,9 @@ border-color: rgb(56, 56, 56);</string>
   <zorder>frame_1_1</zorder>
   <zorder>frame_1_2</zorder>
   <zorder>frame_2_1</zorder>
+  <zorder>btn_ok</zorder>
+  <zorder>btn_cancel</zorder>
+  <zorder>btn_apply</zorder>
  </widget>
  <tabstops>
   <tabstop>combo_iface</tabstop>
@@ -2467,38 +2545,5 @@ border-color: rgb(56, 56, 56);</string>
   <tabstop>lineEdit_6</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>btn_group</sender>
-   <signal>accepted()</signal>
-   <receiver>SettingsWindow</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_group</sender>
-   <signal>rejected()</signal>
-   <receiver>SettingsWindow</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

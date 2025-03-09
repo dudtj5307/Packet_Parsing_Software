@@ -128,11 +128,10 @@ class PacketParser:
     def start_sniffing(self):
         if self.is_sniffing:
             return False
-        # TODO : settings implement
-        # if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
-        #     messagebox.showerror("Network Error", "Select a new Network Interface")
-        #     self.main_window.open_settings()
-        #     return False
+        if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
+            messagebox.showerror("Network Error", "Select a new Network Interface")
+            self.main_window.open_settings()
+            return False
 
         # Check if File name set
         os.makedirs('RAW', exist_ok=True)

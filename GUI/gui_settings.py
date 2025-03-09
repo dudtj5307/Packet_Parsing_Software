@@ -1,8 +1,11 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QDialog
+
+from scapy.arch import get_windows_if_list
+
+from PyQt6.QtWidgets import QApplication, QDialog, QDialogButtonBox
 from GUI.dialog_settings import Ui_SettingsWindow
 
-DEFAULT_CONFIG_DATA = {'interface': [" No", "Interface", "Selected"],
+DEFAULT_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
                        'IP_local': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3':  "",
                                     'wcc_ip1' :  "8", 'wcc_ip2' : "10", 'wcc_ip3' : "11", 'wcc_ip4': "13",
                                     'dlu_ip1' : "27", 'dlu_ip2' : "28", 'dlu_ip3' : "30"},
@@ -17,6 +20,7 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
         super(SettingsWindow, self).__init__(parent)
         self.setWindowTitle("Settings")
         self.setupUi(self)
+
         # Parent Objects
         self.parent = parent            # parent            (gui_main.py)
         self.p_parent = p_parent        # parent of parent  (PPS.py)
@@ -24,14 +28,38 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
             self.center_to_parent()
 
         # Set Signal Functions
-        # self.combo_iface.focusInEvent = self.update_combobox_iface
-        self.combo_iface.activated.connect(self.update_combobox_iface)
-        self.combo_iface.currentIndexChanged.connect(self.select_combobox_iface)
-        # self.combo_iface.popup
+        self.combo_iface.mousePressEvent = self.update_combobox_iface
+        self.combo_iface.activated.connect(self.select_combobox_iface)
+        self.btn_ok.clicked.connect(self.btn_ok_clicked)
+        self.btn_cancel.clicked.connect(self.btn_cancel_clicked)
+        self.btn_apply.clicked.connect(self.btn_apply_clicked)
 
+        # Setup UI with config data
         self.set_config_data()
-        # self.save_config_data()
 
+    def update_combobox_iface(self, event):
+        # Backup before reset
+        current_text = self.combo_iface.currentText()
+        self.combo_iface.clear()
+        # Update Network Interface
+        for iface in get_windows_if_list():
+            if len(iface['ips']) == 0 or "loopback" in iface['name'].lower():
+                continue
+            name = f"{iface['name']}"
+            description = f"{iface['description']}"
+            for ip in iface['ips']:
+                if all(map(lambda x: x.isdecimal(), ip.split('.'))):
+                    self.combo_iface.addItem(" ".join([ip, name, description]), [ip, name, description])
+
+        super().mousePressEvent(event)
+        self.combo_iface.showPopup()
+        # Find Combobox idx by text
+        current_idx = self.combo_iface.findText(current_text)
+        self.combo_iface.setCurrentIndex(current_idx)
+
+    # NDDS 어떻게 할지 고민 TODO
+    def select_combobox_iface(self):
+        pass
 
     def center_to_parent(self):
         parent, child = self.parent.geometry(), self.geometry()
@@ -42,7 +70,8 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
 
     def set_config_data(self):
         config = self.p_parent.config_data
-
+        # Interface combobox setting
+        self.combo_iface.addItem(" ".join(self.p_parent.config_data['interface']), self.p_parent.config_data['interface'])
         # IP Settings
         config_ips = list(config['IP_local'].items()) + list(config['IP_near'].items()) + list(config['IP_ext'].items())
         for key, val in config_ips:
@@ -52,7 +81,9 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
 
     def save_config_data(self):
         config_origin = self.p_parent.config_data
-
+        # Interface combobox setting
+        config_origin['interface'] = self.combo_iface.currentData()
+        self.p_parent.iface_selected = self.combo_iface.currentData()
         # IP Settings
         for config_dict in [config_origin['IP_local'], config_origin['IP_near'], config_origin['IP_ext']]:
             for key in config_dict.keys():
@@ -62,14 +93,15 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
         # Save to 'settings.conf'
         self.p_parent.save_config_data()
 
-    def update_combobox_iface(self, event):
-        # super().dropEvent(event)
-        print("update")
+    def btn_ok_clicked(self):
+        self.save_config_data()
+        self.close()
 
-    def select_combobox_iface(self):
-        print('Selected')
-        pass
+    def btn_cancel_clicked(self):
+        self.close()
 
+    def btn_apply_clicked(self):
+        self.save_config_data()
 
 
 

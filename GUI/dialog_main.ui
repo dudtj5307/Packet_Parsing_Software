@@ -535,7 +535,8 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid black;
+      <string notr="true">padding-left: 4px;
+border: 1px solid black;
 border-radius: 5px;
 </string>
      </property>
@@ -565,7 +566,8 @@ border-radius: 5px;
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid black;
+      <string notr="true">padding-left: 4px;
+border: 1px solid black;
 border-radius: 5px;
 </string>
      </property>
