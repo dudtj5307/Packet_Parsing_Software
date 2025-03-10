@@ -8,13 +8,15 @@ from tkinter import filedialog
 
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QIcon, QIntValidator
+from PyQt6.QtCore import pyqtSignal, QTimer
 
 from GUI.ui.dialog_main import Ui_MainWindow
 
 from GUI.gui_settings import SettingsWindow
 from GUI.gui_progress import ProgressWindow
-from GUI.gui_timer import GuiTimer
+from GUI.gui_main_timer import GUI_Timer
 
+from GUI.raw_to_csv import RawToCSV
 
 class MainWindow(QMainWindow, Ui_MainWindow) :
     def __init__(self, parent) :
@@ -23,10 +25,9 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Object variables
         self.parent = parent
         self.settings_window = None
-        self.progress_window = None
-        # GuiTimer and
-        self.gui_timer = GuiTimer(self)
-        # self.timer_thread = None
+        # GUI_Timer Object
+        self.gui_timer = GUI_Timer(self)
+
         self.restart_thread = None
         # Set Signal Functions
         self.btn_settings.clicked.connect(self.open_settings)
@@ -37,6 +38,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.btn_csv_create.clicked.connect(self.csv_create_file)
         self.btn_csv_view.clicked.connect(self.csv_view_file)
         self.btn_csv_folder.clicked.connect(self.csv_open_folder)
+
         # Enable/Disable Buttons
         self.lock_ui_controls(False)
         self.btn_csv_create.setEnabled(False)
@@ -52,7 +54,6 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.btn_csv_create.setIcon(QIcon(os.path.join(icon_path, "button_csv_create.png")))
         self.btn_csv_view.setIcon(QIcon(os.path.join(icon_path, "button_csv_view.png")))
         self.btn_csv_folder.setIcon(QIcon(os.path.join(icon_path, "button_csv_folder.png")))
-
 
     def lock_ui_controls(self, lock):
         self.btn_settings.setDisabled(lock)
@@ -75,7 +76,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
 
     def open_settings(self):
         self.settings_window = SettingsWindow(self, self.parent)
-        self.settings_window.exec()
+        self.settings_window.show()
 
     def start_recording(self):
         if not self.parent.start_sniffing(): return
@@ -139,30 +140,33 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.btn_csv_view.setEnabled(True)
 
     def csv_create_file(self):
-        self.progress_window = ProgressWindow(self, self.parent)
-        self.progress_window.stop_signal.connect(self.csv_create_stop)
+        raw_to_csv = RawToCSV(self, self.parent, self.parent.csv_file_paths)
+        raw_to_csv.run()
 
-        csv_folder_path = os.path.join(os.getcwd(), 'CSV')
-        os.makedirs(csv_folder_path, exist_ok=True)
-        self.parent.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
-                                       self.parent.raw_file_paths))
-
-        file_num = len(self.parent.raw_file_paths)
-
-        for raw_file_path, new_folder_path in zip(self.parent.raw_file_paths, self.parent.csv_file_paths):
-            # Make CSV folder
-            if os.path.exists(new_folder_path):
-                rmtree(new_folder_path)
-            os.makedirs(new_folder_path, exist_ok=True)
-            # Parse Msg TODO
-            # result = parse_msg.raw_to_csv(self.parent, raw_file_path)
-            # print("result", result)
-
-        if file_num == 1:
-            self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
-            self.btn_csv_view.setEnabled(True)
-        if file_num >= 2:
-            self.edit_csv_path.setText(f"Created {file_num} CSV Files")
+        # print("rest going on")
+        # if self.is_csv_creating:
+        #     csv_folder_path = os.path.join(os.getcwd(), 'CSV')
+        #     os.makedirs(csv_folder_path, exist_ok=True)
+        #     self.parent.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
+        #                                    self.parent.raw_file_paths))
+        #     progresses = [0, 0, 0]
+        #     file_num = len(self.parent.raw_file_paths)
+        #     for raw_file_path, new_folder_path in zip(self.parent.raw_file_paths, self.parent.csv_file_paths):
+        #         # Make CSV folder
+        #         if os.path.exists(new_folder_path):
+        #             rmtree(new_folder_path)
+        #         os.makedirs(new_folder_path, exist_ok=True)
+        #         # Parse Msg TODO
+        #         # result = parse_msg.raw_to_csv(self.parent, raw_file_path)
+        #         # print("result", result)
+        #
+        #     if file_num == 1:
+        #         self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
+        #         self.btn_csv_view.setEnabled(True)
+        #     if file_num >= 2:
+        #         self.edit_csv_path.setText(f"Created {file_num} CSV Files")
+        #
+        # print("CSV parse finished")
 
     # View CSV TODO
     def csv_view_file(self):

@@ -20,7 +20,7 @@ from GUI.gui_main2 import *
 from GUI.gui_settings2 import *
 
 from GUI.gui_settings import DEFAULT_CONFIG_DATA
-from IDL.auto_generate import IDL_CODE_GENERATION
+from IDL.auto_generate import IDL_FUNC_GENERATOR
 
 
 LAST_UPDATE, VERSION = "2025.03.03", "v0.0"

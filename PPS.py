@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import QApplication
 from GUI.gui_main import MainWindow
 from GUI.gui_settings import DEFAULT_CONFIG_DATA
 
-from IDL.auto_generate import IDL_CODE_GENERATION
+from IDL.auto_generate import IDL_FUNC_GENERATOR
 
 
 # Distribution Info
@@ -99,8 +99,8 @@ class PacketParser:
         print("Saved Configuration as 'setting.conf'")
 
     def packet_callback(self, packet):
-        # if not self.is_sniffing:
-        #     return
+        if not self.is_sniffing:
+            return
         if not packet.haslayer(IP):
             return
         if packet.haslayer(TCP):
@@ -126,11 +126,7 @@ class PacketParser:
         # Close pcap_writer
         self.pcap_writer.close()
 
-        print("thread stopped!!")
-
     def start_sniffing(self):
-        if self.is_sniffing:
-            return False
         if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
             messagebox.showerror("Network Error", "Select a new Network Interface")
             self.main_window.open_settings()
@@ -138,8 +134,8 @@ class PacketParser:
 
         # Check raw file name
         os.makedirs('RAW', exist_ok=True)
-        file_name = self.main_window.edit_file_name.text()
-        file_header = file_name if file_name.strip() else "packet"
+        file_name_set = self.main_window.edit_file_name.text().strip()
+        file_header = file_name_set if file_name_set else "packet"
 
         # Raw pcap file path
         date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
@@ -152,9 +148,6 @@ class PacketParser:
         self.sniff_thread.start()
 
         print("Start Sniffing Packets")
-
-        self.start_time = time.time()
-
         return True
 
     def stop_sniffing(self):
@@ -166,10 +159,6 @@ class PacketParser:
         self.sniff_thread.join()
 
         print("Stop Sniffing Packets")
-
-        print(f"Ran for {time.time()-self.start_time}sec")
-
-
 
 
 if __name__ == "__main__":

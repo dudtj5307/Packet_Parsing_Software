@@ -17,7 +17,7 @@ from scapy.utils import PcapWriter
 
 from GUI import gui_main_2, gui_settings_2
 from GUI.gui_settings_2 import DEFAULT_CONFIG_DATA
-from IDL.auto_generate import IDL_CODE_GENERATION
+from IDL.auto_generate import IDL_FUNC_GENERATOR
 
 
 LAST_UPDATE, VERSION = "2025.03.03", "v0.0"

@@ -32,7 +32,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Settings</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -126,7 +126,7 @@ background-color: transparent;</string>
     <rect>
      <x>290</x>
      <y>45</y>
-     <width>171</width>
+     <width>221</width>
      <height>22</height>
     </rect>
    </property>
@@ -793,7 +793,7 @@ border-radius: 5px;
     <rect>
      <x>20</x>
      <y>45</y>
-     <width>181</width>
+     <width>231</width>
      <height>22</height>
     </rect>
    </property>
@@ -838,7 +838,7 @@ background-color: transparent;</string>
     <rect>
      <x>20</x>
      <y>190</y>
-     <width>171</width>
+     <width>211</width>
      <height>22</height>
     </rect>
    </property>

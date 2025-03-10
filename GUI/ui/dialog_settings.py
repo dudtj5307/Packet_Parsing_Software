@@ -61,7 +61,7 @@ class Ui_SettingsWindow(object):
         self.lineEdit.setReadOnly(True)
         self.lineEdit.setObjectName("lineEdit")
         self.lineEdit_4 = QtWidgets.QLineEdit(parent=SettingsWindow)
-        self.lineEdit_4.setGeometry(QtCore.QRect(290, 45, 171, 22))
+        self.lineEdit_4.setGeometry(QtCore.QRect(290, 45, 221, 22))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -364,7 +364,7 @@ class Ui_SettingsWindow(object):
         self.edit_adoc_ip1.raise_()
         self.edit_adoc_ip2.raise_()
         self.lineEdit_2 = QtWidgets.QLineEdit(parent=SettingsWindow)
-        self.lineEdit_2.setGeometry(QtCore.QRect(20, 45, 181, 22))
+        self.lineEdit_2.setGeometry(QtCore.QRect(20, 45, 231, 22))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -384,7 +384,7 @@ class Ui_SettingsWindow(object):
         self.lineEdit_2.setReadOnly(True)
         self.lineEdit_2.setObjectName("lineEdit_2")
         self.lineEdit_3 = QtWidgets.QLineEdit(parent=SettingsWindow)
-        self.lineEdit_3.setGeometry(QtCore.QRect(20, 190, 171, 22))
+        self.lineEdit_3.setGeometry(QtCore.QRect(20, 190, 211, 22))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1205,7 +1205,7 @@ class Ui_SettingsWindow(object):
 
     def retranslateUi(self, SettingsWindow):
         _translate = QtCore.QCoreApplication.translate
-        SettingsWindow.setWindowTitle(_translate("SettingsWindow", "Dialog"))
+        SettingsWindow.setWindowTitle(_translate("SettingsWindow", "Settings"))
         self.lineEdit.setText(_translate("SettingsWindow", "✓ Network Interface :"))
         self.lineEdit_4.setText(_translate("SettingsWindow", "✓ External IPs (X. X. X. X)"))
         self.edit_adoc_label.setText(_translate("SettingsWindow", "ADOC"))

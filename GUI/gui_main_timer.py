@@ -2,7 +2,7 @@ import time
 import threading
 
 
-class GuiTimer:
+class GUI_Timer:
     def __init__(self, parent):
         self.parent = parent
         self.timer_thread = None

@@ -2,16 +2,19 @@
 <ui version="4.0">
  <class>ProgressWindow</class>
  <widget class="QDialog" name="ProgressWindow">
+  <property name="windowModality">
+   <enum>Qt::WindowModality::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>291</width>
-    <height>192</height>
+    <width>298</width>
+    <height>201</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Progress</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -23,9 +26,9 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>40</y>
+     <y>43</y>
      <width>201</width>
-     <height>21</height>
+     <height>15</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -101,8 +104,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>701</width>
-     <height>321</height>
+     <width>311</width>
+     <height>221</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -183,9 +186,9 @@ background-color: transparent;</string>
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>80</y>
+     <y>83</y>
      <width>201</width>
-     <height>21</height>
+     <height>15</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -263,9 +266,9 @@ background-color: transparent;</string>
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>120</y>
+     <y>123</y>
      <width>201</width>
-     <height>21</height>
+     <height>15</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -340,7 +343,7 @@ background-color: transparent;</string>
    <property name="geometry">
     <rect>
      <x>110</x>
-     <y>150</y>
+     <y>160</y>
      <width>75</width>
      <height>24</height>
     </rect>

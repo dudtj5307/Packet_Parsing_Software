@@ -8,11 +8,11 @@
 ## Anaconda Prompt
 ### 1. Create Virtual Environment
 ```
-conda create -n "yourEnvName" pyinstaller pip psutil pyqt
+conda create -n 'yourEnvName' pyinstaller pip psutil pyqt
 ```
 ### 2. Activate Environment
 ```
-conda activate "yourEnvName"
+conda activate 'yourEnvName'
 ```
 ### 3. Install scapy, six 
 ```

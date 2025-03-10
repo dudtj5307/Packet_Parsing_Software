@@ -522,9 +522,9 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>51</x>
        <y>31</y>
-       <width>251</width>
+       <width>250</width>
        <height>20</height>
       </rect>
      </property>
@@ -537,7 +537,7 @@
      <property name="styleSheet">
       <string notr="true">padding-left: 4px;
 border: 1px solid black;
-border-radius: 5px;
+border-radius: 2px;
 </string>
      </property>
      <property name="maxLength">
@@ -553,9 +553,9 @@ border-radius: 5px;
      </property>
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>51</x>
        <y>9</y>
-       <width>251</width>
+       <width>250</width>
        <height>20</height>
       </rect>
      </property>
@@ -568,7 +568,7 @@ border-radius: 5px;
      <property name="styleSheet">
       <string notr="true">padding-left: 4px;
 border: 1px solid black;
-border-radius: 5px;
+border-radius: 2px;
 </string>
      </property>
      <property name="text">
