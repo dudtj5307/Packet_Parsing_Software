@@ -492,8 +492,7 @@ class Ui_MainWindow(object):
         self.mdiArea.setSizePolicy(sizePolicy)
         self.mdiArea.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
         self.mdiArea.setAcceptDrops(False)
-        self.mdiArea.setStyleSheet("background-color: rgb(70, 70, 70);\n"
-"border-color: rgb(56, 56, 56);")
+        self.mdiArea.setStyleSheet("")
         brush = QtGui.QBrush(QtGui.QColor(50, 50, 50))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
         self.mdiArea.setBackground(brush)

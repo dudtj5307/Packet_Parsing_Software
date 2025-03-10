@@ -41,17 +41,18 @@ def calculate_hash(filepath, algorithm='sha256'):
     return hash_func.hexdigest()
 
 
-class IDL_CODE_GENERATION():
+class IDL_FUNC_GENERATOR:
     def __init__(self):
-        self.idl_path = ""
-        self.idl_name = ""
+        self.idl_path, self.output_path = "", ""
+        self.idl_name, self.output_name = "", ""
+        self.KNOWN_TYPE_MAP = KNOWN_TYPE_MAP        #  OS defined structs
+        self.IDL_TYPE_MAP   = {}                    # IDL defined structs
+        self.results = []
 
-        self.output_path = ""
-        self.output_name = ""
-
-        # Saving all the structs
-        self.KNOWN_TYPE_MAP = KNOWN_TYPE_MAP
-        self.IDL_TYPE_MAP   = {}
+    def reset(self):
+        self.idl_path, self.output_path = "", ""
+        self.idl_name, self.output_name = "", ""
+        self.IDL_TYPE_MAP = {}
 
     def idl_changed(self):
         with open(self.output_path, 'r', encoding='utf-8') as f:
@@ -154,34 +155,36 @@ class IDL_CODE_GENERATION():
 
         with open(self.output_path, 'w') as f:
             f.write(generated_code)
-        print(f"* Auto-Generated : {self.output_name}")
+        print(f"[IDL] '{self.output_name}' auto-generated !")
 
-    def set(self, idl_path):
+    def set_path(self, idl_path):
         # IDL path for parsing & code generation
         self.idl_path = idl_path
-
         # Output path
         idl_folder, self.idl_name = os.path.split(idl_path)
         self.output_name = f"parse_{self.idl_name.split('.')[0]}.py"
         self.output_path = os.path.join(idl_folder, self.output_name)
         self.IDL_TYPE_MAP = {}
 
-    def run(self):
-        # Check if auto-generated code is up-to-date
+    def run(self, idl_path):
+        self.set_path(idl_path)
+        # Check if up-to-date
         if os.path.exists(self.output_path) and not self.idl_changed():
-            print(f"* Already Exists : {self.output_name}")
-            # return    # To Be Restored
-
+            print(f"[IDL] '{self.output_name}' up-to-date !")
+            # return    # TODO
         self.parse_idl_file()
         self.generate_code()
+        self.results.append(self.output_path)
+        # Reset attributes for next running
+        self.reset()
 
-    def reset(self):
-        self.__init__()
 
 
 if __name__ == '__main__':
-    idl_file_path = "EIE_Msg.idl"  # 분석할 IDL 파일 이름
+    eie_file_path = "EIE_Msg.idl"
+    tie_file_path = "TIE_Msg.idl"
 
-    code_generator = IDL_CODE_GENERATION()
-    code_generator.set(idl_file_path)
-    code_generator.run()
+    code_generator = IDL_FUNC_GENERATOR()
+    code_generator.run(eie_file_path)
+    code_generator.run(tie_file_path)
+    print(code_generator.results)

@@ -1,6 +1,8 @@
+import os
 from scapy.arch import get_windows_if_list
 
 from PyQt6.QtWidgets import QDialog
+from PyQt6.QtGui import QIcon
 from GUI.ui.dialog_settings import Ui_SettingsWindow
 
 DEFAULT_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
@@ -18,12 +20,11 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
         super(SettingsWindow, self).__init__(parent)
         self.setWindowTitle("Settings")
         self.setupUi(self)
+        self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_settings.png")))
 
         # Parent Objects
         self.parent = parent            # parent            (gui_main.py)
         self.p_parent = p_parent        # parent of parent  (PPS.py)
-        if parent is not None:
-            self.center_to_parent()
 
         # Set Signal Functions
         self.combo_iface.mousePressEvent = self.update_combobox_iface

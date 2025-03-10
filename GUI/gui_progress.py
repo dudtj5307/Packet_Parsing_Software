@@ -1,8 +1,8 @@
-import time
-import threading
+import os
 
 from PyQt6.QtWidgets import QDialog
-from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt, pyqtSignal
 
 from GUI.ui.dialog_progress import Ui_ProgressWindow
 
@@ -13,50 +13,54 @@ from GUI.ui.dialog_progress import Ui_ProgressWindow
 '''
 
 class ProgressWindow(QDialog, Ui_ProgressWindow):
-    def __init__(self, parent=None, p_parent=None):
+    progress_stopped = pyqtSignal()
+    def __init__(self, parent=None):
         super(ProgressWindow, self).__init__(parent)
+        # super().__init__()
         self.setWindowTitle("Progress")
         self.setupUi(self)
+        self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_settings.png")))
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowCloseButtonHint)
+
         # Parent objects
         self.parent = parent            # parent            (gui_main.py)
-        self.p_parent = p_parent        # parent of parent  (PPS.py)
 
         # Set signal functions
-        self.btn_bottom.clicked.connect(self.close_window)
+        self.btn_bottom.clicked.connect(self.button_clicked)
 
         # Group Objects
         self.progress_bars = [self.progress_bar1, self.progress_bar2, self.progress_bar3]
         self.edit_checks   = [self.edit_check1, self.edit_check2, self.edit_check3]
         self.complete      = [False, False, False]
 
-        # Flag for stopping Process
-        self.is_running = True
-
-        self.run()
+        self.backend_finished = False
+        self.gui_stopped = False
 
     def update_progress(self, values):
-        if not self.is_running:
-            return
-        if values == [100, 100, 100]:
-            self.is_running = False
-            self.finished()
-
         for idx, val in enumerate(values):
-            if val == 100:
-                self.progress_bars[idx].setValue(val)
+            self.progress_bars[idx].setValue(val)
             # Set Check to green color when finished
-            # if self.edit_checks[idx][1] and val >= 100:
-            #     self.edit_checks[idx][0].setStyleSheet("color: rgb(28, 221, 16);")
-            #     self.edit_checks[idx][1] = False
-        
+            if not self.complete[idx] and val >= 100:
+                self.edit_checks[idx].setStyleSheet("color: rgb(28, 221, 16);background-color: transparent;")
+                self.complete[idx] = False
 
-        new_vals = [v + 10 for v in values]
-        self.update_progress(new_vals)
+    def finish_progress(self):
+        if self.gui_stopped:
+            self.close()
+        else:
+            self.btn_bottom.setText("OK")
+            self.backend_finished = True
 
-    def finished(self):
-        self.btn_bottom.setText("OK")
+    def button_clicked(self):
+        if self.backend_finished:
+            self.close()
+        else:
+            self.gui_stopped = True
+            self.progress_stopped.emit()
 
-    def close_window(self):
-        self.btn_bottom.setDisabled(True)
-        self.close()
+    def keyPressEvent(self, event):
+        # Ignore ESC Key during parsing
+        if not self.backend_finished and event.key() == Qt.Key.Key_Escape:
+            return
+        else:
+            super(ProgressWindow, self).keyPressEvent(event)

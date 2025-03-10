@@ -1,22 +1,17 @@
 import os
-import time
 import threading
-from shutil import rmtree
 
-import tkinter as tk
 from tkinter import filedialog
 
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QIcon, QIntValidator
-from PyQt6.QtCore import pyqtSignal, QTimer
 
 from GUI.ui.dialog_main import Ui_MainWindow
 
 from GUI.gui_settings import SettingsWindow
-from GUI.gui_progress import ProgressWindow
 from GUI.gui_main_timer import GUI_Timer
 
-from GUI.raw_to_csv import RawToCSV
+from IDL.raw_to_csv import RawToCSV
 
 class MainWindow(QMainWindow, Ui_MainWindow) :
     def __init__(self, parent) :
@@ -25,10 +20,13 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Object variables
         self.parent = parent
         self.settings_window = None
-        # GUI_Timer Object
+
         self.gui_timer = GUI_Timer(self)
 
         self.restart_thread = None
+
+        self.icon_path = ""
+
         # Set Signal Functions
         self.btn_settings.clicked.connect(self.open_settings)
         self.btn_start.clicked.connect(self.start_recording)
@@ -45,9 +43,10 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Input Validator
         self.edit_reset_hour.setValidator(QIntValidator(0, 99))
         self.edit_reset_min.setValidator(QIntValidator(0, 999))
-        # Settings window
 
     def set_icon_path(self, icon_path):
+        self.icon_path = icon_path
+        self.setWindowIcon(QIcon(os.path.join(icon_path, "PPS.ico")))
         self.btn_settings.setIcon(QIcon(os.path.join(icon_path, "button_settings.png")))
         self.btn_start.setIcon(QIcon(os.path.join(icon_path, "button_start.png")))
         self.btn_stop.setIcon(QIcon(os.path.join(icon_path, "button_stop.png")))
@@ -113,7 +112,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Select pcap file
         raw_folder_path = os.path.join(os.getcwd(), 'RAW')
         os.makedirs(raw_folder_path, exist_ok=True)
-        file_paths = tk.filedialog.askopenfilenames(title='Select PCAP file', filetypes=[("PCAP Files", "*.pcap")],
+        file_paths = filedialog.askopenfilenames(title='Select PCAP file', filetypes=[("PCAP Files", "*.pcap")],
                                                     initialdir=raw_folder_path)
         file_num = len(file_paths)
         if file_num == 1:   self.edit_raw_path.setText(os.path.split(file_paths[0])[-1])
@@ -129,7 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Select csv file
         csv_folder_path = os.path.join(os.getcwd(), 'CSV')
         os.makedirs(csv_folder_path, exist_ok=True)
-        file_path = tk.filedialog.askdirectory(title='Select CSV folder', initialdir=csv_folder_path)
+        file_path = filedialog.askdirectory(title='Select CSV folder', initialdir=csv_folder_path)
         if file_path:
             self.parent.csv_file_paths = [file_path]
 
@@ -140,33 +139,19 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.btn_csv_view.setEnabled(True)
 
     def csv_create_file(self):
-        raw_to_csv = RawToCSV(self, self.parent, self.parent.csv_file_paths)
+        raw_to_csv = RawToCSV(self, self.parent.raw_file_paths)
         raw_to_csv.run()
 
-        # print("rest going on")
-        # if self.is_csv_creating:
-        #     csv_folder_path = os.path.join(os.getcwd(), 'CSV')
-        #     os.makedirs(csv_folder_path, exist_ok=True)
-        #     self.parent.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
-        #                                    self.parent.raw_file_paths))
-        #     progresses = [0, 0, 0]
-        #     file_num = len(self.parent.raw_file_paths)
-        #     for raw_file_path, new_folder_path in zip(self.parent.raw_file_paths, self.parent.csv_file_paths):
-        #         # Make CSV folder
-        #         if os.path.exists(new_folder_path):
-        #             rmtree(new_folder_path)
-        #         os.makedirs(new_folder_path, exist_ok=True)
-        #         # Parse Msg TODO
-        #         # result = parse_msg.raw_to_csv(self.parent, raw_file_path)
-        #         # print("result", result)
-        #
-        #     if file_num == 1:
-        #         self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
-        #         self.btn_csv_view.setEnabled(True)
-        #     if file_num >= 2:
-        #         self.edit_csv_path.setText(f"Created {file_num} CSV Files")
-        #
-        # print("CSV parse finished")
+        csv_folder_path = os.path.join(os.getcwd(), 'CSV')
+        self.parent.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
+                                              self.parent.raw_file_paths))
+
+        file_num = len(self.parent.raw_file_paths)
+        if file_num == 1:
+            self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
+            self.btn_csv_view.setEnabled(True)
+        if file_num >= 2:
+            self.edit_csv_path.setText(f"Created {file_num} CSV Files")
 
     # View CSV TODO
     def csv_view_file(self):

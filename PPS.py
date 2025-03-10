@@ -2,13 +2,12 @@ import os
 import sys
 import time
 import copy
-
+import json
 import psutil
 import datetime
-import json
 import threading
 
-import tkinter as tk
+from tkinter import Tk as Tk_root
 from tkinter import messagebox
 
 import scapy.all as scapy
@@ -16,11 +15,10 @@ from scapy.arch import get_windows_if_list
 from scapy.utils import PcapWriter
 
 from PyQt6.QtWidgets import QApplication
+
 from GUI.gui_main import MainWindow
+
 from GUI.gui_settings import DEFAULT_CONFIG_DATA
-
-from IDL.auto_generate import IDL_FUNC_GENERATOR
-
 
 # Distribution Info
 LAST_UPDATE, VERSION = "2025.03.08", "v0.0"
@@ -65,7 +63,7 @@ class PacketParser:
         self.load_config_data()
 
         # For File Opener
-        self.root = tk.Tk()
+        self.root = Tk_root()
         self.root.withdraw()
 
         # For Icons setting

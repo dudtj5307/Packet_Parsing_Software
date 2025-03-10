@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import scapy.all as scapy
 
-from IDL.auto_generate import IDL_CODE_GENERATION
+from IDL.auto_generate import IDL_FUNC_GENERATOR
 from IDL import parse_EIE_Msg
 from IDL import parse_TIE_Msg
 # from IDL import parse_K_Msg
@@ -21,7 +21,7 @@ MSG_TYPES = defaultdict(lambda: "Undefined")
 MSG_TYPES.update({('ADOC','ADOC'): 'EIE', ('ADOC','WCC'): 'EIE', ('WCC','ADOC'): 'EIE', ('WCC', 'WCC'): 'EIE',
                   ('WCC', 'DLU') : 'TIE', ('DLU', 'WCC'): 'TIE', ('DLU','DLU') : 'TIE',})
 
-code_generator = IDL_CODE_GENERATION()
+code_generator = IDL_FUNC_GENERATOR()
 
 def update_system_type(config_data):
     global SYS_TYPES

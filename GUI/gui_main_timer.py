@@ -4,7 +4,9 @@ import threading
 
 class GUI_Timer:
     def __init__(self, parent):
-        self.parent = parent
+        # Parent Objects
+        self.parent = parent  # parent            (gui_main.py)
+
         self.timer_thread = None
 
     def start(self):
