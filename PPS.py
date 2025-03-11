@@ -15,6 +15,7 @@ from scapy.arch import get_windows_if_list
 from scapy.utils import PcapWriter
 
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from GUI.gui_main import MainWindow
 
@@ -38,18 +39,18 @@ def same_dict_keys_recursive(dict1, dict2):
     return True
 
 
-class PacketParser:
+class PacketParser(QObject):
+    tcp_num_set = pyqtSignal(str, name="tcp_num_set")
+    udp_num_set = pyqtSignal(str, name="tcp_num_set")
+
     def __init__(self):
+        super().__init__()
 
         # Sniff Packets
         scapy.conf.verb = 0
         self.is_sniffing = False
         self.sniff_thread = None
         self.pcap_writer = None
-
-        # # File paths
-        self.raw_file_paths = [""]
-        self.csv_file_paths = [""]      # TODO: move to gui_main..?
 
         self.pkt_tcp_num = 0
         self.pkt_udp_num = 0
@@ -102,46 +103,45 @@ class PacketParser:
             return
         if packet.haslayer(TCP):
             self.pkt_tcp_num += 1
-            self.main_window.edit_tcp_num.setText(str(self.pkt_tcp_num))
+            self.main_window.tcp_num_set(str(self.pkt_tcp_num))
         elif packet.haslayer(UDP):
             self.pkt_udp_num += 1
-            self.main_window.edit_udp_num.setText(str(self.pkt_udp_num))
+            self.main_window.udp_num_set(str(self.pkt_udp_num))
         else:
             return
-
         self.pcap_writer.write(packet)
 
-    def sniff_packets(self, interface=None, date_time=""):
-        # Set text - raw file path
-        self.main_window.edit_raw_path.setText(os.path.split(self.raw_file_paths[0])[1])
+    def sniff_packets(self, interface=None):
+        # Raw file name
+        os.makedirs('RAW', exist_ok=True)
+        file_header = self.main_window.edit_file_name.text().strip() or "packet"
+        date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+        raw_file_path = os.path.join(os.getcwd(), 'RAW', f'{file_header}_{date_time}.pcap')
+
+        # Set text (gui_main) - raw file path
+        self.main_window.raw_path_set(raw_file_path)
+
         # Open pcap_writer
-        self.pcap_writer = PcapWriter(self.raw_file_paths[0], append=True, sync=True)
+        self.pcap_writer = PcapWriter(raw_file_path, append=True, sync=True, linktype=1)
+
         # Sniffing packets
         bpf_filter = "ip and (tcp or udp)"
         scapy.sniff(iface=interface, prn=self.packet_callback, store=False, promisc=True,
                     filter=bpf_filter, stop_filter=lambda p: not self.is_sniffing)
+
         # Close pcap_writer
         self.pcap_writer.close()
 
     def start_sniffing(self):
+        # Check validation of iface_selected
         if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
             messagebox.showerror("Network Error", "Select a new Network Interface")
             self.main_window.open_settings()
             return False
 
-        # Check raw file name
-        os.makedirs('RAW', exist_ok=True)
-        file_name_set = self.main_window.edit_file_name.text().strip()
-        file_header = file_name_set if file_name_set else "packet"
-
-        # Raw pcap file path
-        date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-        self.raw_file_paths = [os.path.join(os.getcwd(), 'RAW', f'{file_header}_{date_time}.pcap')]
-
-        # Start Sniff Thread TODO : settings implement
+        # Start Sniff Thread
         self.is_sniffing = True
-        self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(self.iface_selected[1], date_time,))
-        # self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(None, date_time,))
+        self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(self.iface_selected[1],))
         self.sniff_thread.start()
 
         print("Start Sniffing Packets")
@@ -150,12 +150,15 @@ class PacketParser:
     def stop_sniffing(self):
         # Stop sniff thread
         self.is_sniffing = False
-        # Send dummy packet to stop sniffing right away
-        scapy.sendp(Ether(dst="ff:ff:ff:ff:ff:ff") / IP(dst="255.255.255.255") / UDP(dport=9999),
-                    iface=self.iface_selected[1])
+        self.send_dummy_packet()
         self.sniff_thread.join()
 
         print("Stop Sniffing Packets")
+
+    # Stops sniff thread right away
+    def send_dummy_packet(self):
+        scapy.sendp(Ether(dst="ff:ff:ff:ff:ff:ff") / IP(dst="255.255.255.255") / UDP(dport=9999),
+                    iface=self.iface_selected[1])
 
 
 if __name__ == "__main__":

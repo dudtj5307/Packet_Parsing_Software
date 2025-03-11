@@ -122,7 +122,7 @@ class IDL_FUNC_GENERATOR:
             content = f.read()
         # Parse all structs in IDL file
         for struct_match in struct_pattern.finditer(content):
-            if not self.backend.is_running: # Check if Backend is still running
+            if self.backend.stopped:    # Check if Backend is stopped from GUI
                 return STOPPED
             struct_name = struct_match.group(1)
             struct_body = struct_match.group(2)
@@ -174,12 +174,9 @@ class IDL_FUNC_GENERATOR:
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
         for struct_name in self.IDL_TYPE_MAP:
-            if not self.backend.is_running: # Check if Backend is still running
+            if self.backend.stopped:    # Check if Backend is stopped from GUI
                 return STOPPED
             generated_code += self.generate_parse_function(struct_name) + "\n\n"
-
-
-
 
         with open(self.output_path, 'w') as f:
             f.write(generated_code)

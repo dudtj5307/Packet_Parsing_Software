@@ -11,7 +11,9 @@ from GUI.ui.dialog_main import Ui_MainWindow
 from GUI.gui_settings import SettingsWindow
 from GUI.gui_main_timer import GUI_Timer
 
-from IDL.raw_to_csv import RawToCSV
+from IDL.raw_to_csv import ProgressRawToCSV
+
+COMPLETE, STOPPED = True, False
 
 class MainWindow(QMainWindow, Ui_MainWindow) :
     def __init__(self, parent) :
@@ -25,6 +27,9 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.gui_timer = GUI_Timer(self)
         # Button icons path
         self.icon_path = ""
+        # Created CSV file paths
+        self.raw_file_paths = []
+        self.csv_file_paths = []
 
         # Set Signal Functions
         self.btn_settings.clicked.connect(self.open_settings)
@@ -36,12 +41,26 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.btn_csv_view.clicked.connect(self.csv_view_file)
         self.btn_csv_folder.clicked.connect(self.csv_open_folder)
 
+        self.parent.tcp_num_set.connect(self.tcp_num_set)
+        self.parent.tcp_num_set.connect(self.udp_num_set)
+
         # Enable/Disable Buttons
         self.lock_ui_controls(False)
         self.btn_csv_create.setEnabled(False)
         # Input Validator
         self.edit_reset_hour.setValidator(QIntValidator(0, 99))
         self.edit_reset_min.setValidator(QIntValidator(0, 999))
+
+    def tcp_num_set(self, val_str):
+        self.edit_tcp_num.setText(val_str)
+
+    def udp_num_set(self, val_str):
+        self.edit_udp_num.setText(val_str)
+
+    def raw_path_set(self, raw_file_path):
+        self.raw_file_paths = [raw_file_path]
+        self.edit_raw_path.setText(os.path.split(raw_file_path[0])[1])
+
 
     def set_button_img(self, widget, image):
         img_normal = os.path.join(self.icon_path, image).replace('\\', '/')
@@ -90,7 +109,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
 
         self.lock_ui_controls(True)
 
-        # Recursive Restart Recording
+        # Recursive Restart
         hour, min_ = self.edit_reset_hour.text(), self.edit_reset_min.text()
         if not hour: hour = "0"
         if not min_: min_ = "0"
@@ -125,7 +144,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         if file_num == 1:   self.edit_raw_path.setText(os.path.split(file_paths[0])[-1])
         elif file_num >= 2: self.edit_raw_path.setText(f"Selected {file_num} Raw Files")
         else: return
-        self.parent.raw_file_paths = file_paths
+        self.raw_file_paths = file_paths
         self.edit_csv_path.setText("")
 
         self.btn_csv_create.setEnabled(True)
@@ -137,7 +156,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         os.makedirs(csv_folder_path, exist_ok=True)
         file_path = filedialog.askdirectory(title='Select CSV folder', initialdir=csv_folder_path)
         if file_path:
-            self.parent.csv_file_paths = [file_path]
+            self.csv_file_paths = [file_path]
 
             self.edit_raw_path.setText("")
             self.edit_csv_path.setText(os.path.split(file_path)[-1])
@@ -146,14 +165,14 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             # self.btn_csv_view.setEnabled(True)       # TODO: View CSV
 
     def csv_create_file(self):
-        raw_to_csv = RawToCSV(self, self.parent.raw_file_paths)
-        raw_to_csv.run()
-
-        self.parent.csv_file_paths = raw_to_csv.csv_file_paths
-
-        file_num = len(self.parent.csv_file_paths)
+        progress = ProgressRawToCSV(self, self.raw_file_paths)
+        if progress.run() == STOPPED:
+            return
+        # Display to edit_csv_path
+        self.csv_file_paths = progress.csv_file_paths
+        file_num = len(self.csv_file_paths)
         if file_num == 1:
-            self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
+            self.edit_csv_path.setText(os.path.split(self.csv_file_paths[0])[-1])
             # self.btn_csv_view.setEnabled(True)       # TODO: View CSV
         if file_num >= 2:
             self.edit_csv_path.setText(f"Created {file_num} CSV Files")
@@ -167,6 +186,9 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         csv_folder_path = os.path.join(os.getcwd(), 'CSV')
         os.makedirs(csv_folder_path, exist_ok=True)
         os.startfile(csv_folder_path)
+
+
+
 
 
 if __name__ == "__main__" :
