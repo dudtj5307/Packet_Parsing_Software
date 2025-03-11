@@ -43,31 +43,23 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.edit_reset_hour.setValidator(QIntValidator(0, 99))
         self.edit_reset_min.setValidator(QIntValidator(0, 999))
 
-    def set_button_img(self, widget, normal, pressed):
-        img_normal = os.path.join(self.icon_path, normal).replace('\\', '/')
-        img_pressed = os.path.join(self.icon_path, pressed).replace('\\', '/')
+    def set_button_img(self, widget, image):
+        img_normal = os.path.join(self.icon_path, image).replace('\\', '/')
+        img_pressed = os.path.join(self.icon_path, image).replace('\\', '/').replace(".png", "_pressed.png")
+        img_disabled = os.path.join(self.icon_path, image).replace('\\', '/').replace(".png", "_disabled.png")
         widget.setStyleSheet(f"""QPushButton {{border: none; border-image: url("{img_normal}");}}
-                                 QPushButton:pressed {{border-image: url({img_pressed});}}""")
-
+                                 QPushButton:pressed  {{border-image: url({img_pressed});}}
+                                 QPushButton:disabled {{border-image: url({img_disabled});}}""")
 
     def set_icon_path(self, icon_path):
         self.icon_path = icon_path
         self.setWindowIcon(QIcon(os.path.join(icon_path, "PPS.ico")))
-
-        self.btn_settings.setIcon(QIcon(os.path.join(icon_path, "button_settings.png")))
-        self.btn_start.setIcon(QIcon(os.path.join(icon_path, "button_start.png")))
-        self.btn_stop.setIcon(QIcon(os.path.join(icon_path, "button_stop.png")))
-        self.btn_csv_create.setIcon(QIcon(os.path.join(icon_path, "button_csv_create.png")))
-        self.btn_csv_view.setIcon(QIcon(os.path.join(icon_path, "button_csv_view.png")))
-        self.btn_csv_folder.setIcon(QIcon(os.path.join(icon_path, "button_csv_folder.png")))
-
-        # TODO: Add pressed images/ function already implemented
-        # self.set_button_img(self.btn_settings,   "button_settings.png",   "button_settings_pressed.png")
-        # self.set_button_img(self.btn_start,      "button_start.png",      "button_start_pressed.png")
-        # self.set_button_img(self.btn_stop,       "button_stop.png",       "button_stop_pressed.png")
-        # self.set_button_img(self.btn_csv_create, "button_csv_create.png", "button_csv_create_pressed.png")
-        # self.set_button_img(self.btn_csv_view,   "button_csv_view.png",   "button_csv_view_pressed.png")
-        # self.set_button_img(self.btn_csv_folder, "button_csv_folder.png", "button_csv_folder_pressed.png")
+        self.set_button_img(self.btn_settings,   "button_settings.png")
+        self.set_button_img(self.btn_start,      "button_start.png")
+        self.set_button_img(self.btn_stop,       "button_stop.png")
+        self.set_button_img(self.btn_csv_create, "button_csv_create.png")
+        self.set_button_img(self.btn_csv_view,   "button_csv_view.png")
+        self.set_button_img(self.btn_csv_folder, "button_csv_folder.png")
 
     def lock_ui_controls(self, lock):
         self.btn_settings.setDisabled(lock)
