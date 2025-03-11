@@ -4,12 +4,10 @@ from collections import defaultdict
 
 import scapy.all as scapy
 
-from IDL.auto_generate import IDL_FUNC_GENERATOR
 from IDL import parse_EIE_Msg
 from IDL import parse_TIE_Msg
 # from IDL import parse_K_Msg
 # from IDL import parse_X_Msg
-
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 
@@ -21,8 +19,6 @@ MSG_TYPES = defaultdict(lambda: "Undefined")
 MSG_TYPES.update({('ADOC','ADOC'): 'EIE', ('ADOC','WCC'): 'EIE', ('WCC','ADOC'): 'EIE', ('WCC', 'WCC'): 'EIE',
                   ('WCC', 'DLU') : 'TIE', ('DLU', 'WCC'): 'TIE', ('DLU','DLU') : 'TIE',})
 
-code_generator = IDL_FUNC_GENERATOR()
-
 def update_system_type(config_data):
     global SYS_TYPES
     local = {key: LOCAL_IP_PREFIX + val for key, val in config_data['IP_local'].items()}
@@ -32,13 +28,13 @@ def update_system_type(config_data):
     SYS_TYPES['192.168.45.179'] = 'WCC'
 
 def raw_to_csv(self, raw_file_path):
-    # Parsing function auto-generation
-    self.idl_file_paths = ['IDL/EIE_Msg.idl']
-    for idl_file_path in self.idl_file_paths:
-        code_generator.set(idl_file_path)
-        code_generator.run()
-    import time
-    start = time.time()
+
+    # self.idl_file_paths = ['IDL/EIE_Msg.idl']
+    # for idl_file_path in self.idl_file_paths:
+    #     code_generator.set(idl_file_path)
+    #     code_generator.run()
+    # Get Generated Functions
+
     # IP update from config_data
     update_system_type(self.config_data)
     # Read raw pcap files
@@ -55,8 +51,7 @@ def raw_to_csv(self, raw_file_path):
             data = parse_data(msg_type, raw_data)
             packet_info = {'date': date, 'time': _time,'src_ip': src_ip, 'dst_ip':dst_ip,
                            'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
-            # print(packet_info)
-    print(time.time() - start)
+
 # Parse if EIE or TIE or K or X or J
 def parse_data(msg_type, data):
     type_function_name = f'parse_{msg_type}'

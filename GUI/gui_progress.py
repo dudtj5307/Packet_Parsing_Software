@@ -19,7 +19,7 @@ class ProgressWindow(QDialog, Ui_ProgressWindow):
         # super().__init__()
         self.setWindowTitle("Progress")
         self.setupUi(self)
-        self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_settings.png")))
+        self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_csv_create.png")))
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowCloseButtonHint)
 
         # Parent objects

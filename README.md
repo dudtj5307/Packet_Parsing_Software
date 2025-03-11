@@ -25,3 +25,13 @@ conda activate 'yourEnvName'
 ```
 ### 5. Find your output on dist folder
 ###
+
+'''
+
+data [0:4] = "RTPS"
+16바이트 = submsg ID : 0x03 일때
+flag last bit=0 (big endian)/b=1 (little endian)
+data 길이는 
+while문 쓸수밖에...
+
+''''

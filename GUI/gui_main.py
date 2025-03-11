@@ -19,12 +19,11 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.setupUi(self)
         # Object variables
         self.parent = parent
+        # Imported Modules
         self.settings_window = None
-
-        self.gui_timer = GUI_Timer(self)
-
         self.restart_thread = None
-
+        self.gui_timer = GUI_Timer(self)
+        # Button icons path
         self.icon_path = ""
 
         # Set Signal Functions
@@ -44,15 +43,31 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.edit_reset_hour.setValidator(QIntValidator(0, 99))
         self.edit_reset_min.setValidator(QIntValidator(0, 999))
 
+    def set_button_img(self, widget, normal, pressed):
+        img_normal = os.path.join(self.icon_path, normal).replace('\\', '/')
+        img_pressed = os.path.join(self.icon_path, pressed).replace('\\', '/')
+        widget.setStyleSheet(f"""QPushButton {{border: none; border-image: url("{img_normal}");}}
+                                 QPushButton:pressed {{border-image: url({img_pressed});}}""")
+
+
     def set_icon_path(self, icon_path):
         self.icon_path = icon_path
         self.setWindowIcon(QIcon(os.path.join(icon_path, "PPS.ico")))
+
         self.btn_settings.setIcon(QIcon(os.path.join(icon_path, "button_settings.png")))
         self.btn_start.setIcon(QIcon(os.path.join(icon_path, "button_start.png")))
         self.btn_stop.setIcon(QIcon(os.path.join(icon_path, "button_stop.png")))
         self.btn_csv_create.setIcon(QIcon(os.path.join(icon_path, "button_csv_create.png")))
         self.btn_csv_view.setIcon(QIcon(os.path.join(icon_path, "button_csv_view.png")))
         self.btn_csv_folder.setIcon(QIcon(os.path.join(icon_path, "button_csv_folder.png")))
+
+        # TODO: Add pressed images/ function already implemented
+        # self.set_button_img(self.btn_settings,   "button_settings.png",   "button_settings_pressed.png")
+        # self.set_button_img(self.btn_start,      "button_start.png",      "button_start_pressed.png")
+        # self.set_button_img(self.btn_stop,       "button_stop.png",       "button_stop_pressed.png")
+        # self.set_button_img(self.btn_csv_create, "button_csv_create.png", "button_csv_create_pressed.png")
+        # self.set_button_img(self.btn_csv_view,   "button_csv_view.png",   "button_csv_view_pressed.png")
+        # self.set_button_img(self.btn_csv_folder, "button_csv_folder.png", "button_csv_folder_pressed.png")
 
     def lock_ui_controls(self, lock):
         self.btn_settings.setDisabled(lock)
@@ -63,7 +78,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.edit_raw_path.setDisabled(lock)
         self.edit_csv_path.setDisabled(lock)
         self.btn_csv_create.setDisabled(lock)
-        self.btn_csv_view.setDisabled(True)
+        self.btn_csv_view.setDisabled(True)       # TODO: View CSV
         self.edit_reset_min.setDisabled(lock)
         self.edit_reset_hour.setDisabled(lock)
         if lock:
@@ -122,7 +137,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.edit_csv_path.setText("")
 
         self.btn_csv_create.setEnabled(True)
-        self.btn_csv_view.setEnabled(False)
+        # self.btn_csv_view.setEnabled(False)       # TODO: View CSV
 
     def open_csv_file(self):
         # Select csv file
@@ -136,24 +151,22 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.edit_csv_path.setText(os.path.split(file_path)[-1])
 
             self.btn_csv_create.setEnabled(False)
-            self.btn_csv_view.setEnabled(True)
+            # self.btn_csv_view.setEnabled(True)       # TODO: View CSV
 
     def csv_create_file(self):
         raw_to_csv = RawToCSV(self, self.parent.raw_file_paths)
         raw_to_csv.run()
 
-        csv_folder_path = os.path.join(os.getcwd(), 'CSV')
-        self.parent.csv_file_paths = list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]),
-                                              self.parent.raw_file_paths))
+        self.parent.csv_file_paths = raw_to_csv.csv_file_paths
 
-        file_num = len(self.parent.raw_file_paths)
+        file_num = len(self.parent.csv_file_paths)
         if file_num == 1:
             self.edit_csv_path.setText(os.path.split(self.parent.csv_file_paths[0])[-1])
-            self.btn_csv_view.setEnabled(True)
+            # self.btn_csv_view.setEnabled(True)       # TODO: View CSV
         if file_num >= 2:
             self.edit_csv_path.setText(f"Created {file_num} CSV Files")
 
-    # View CSV TODO
+    # TODO: View CSV
     def csv_view_file(self):
         print("csv_view_file: Not implemented")
 

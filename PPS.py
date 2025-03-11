@@ -25,7 +25,6 @@ LAST_UPDATE, VERSION = "2025.03.08", "v0.0"
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 
-
 def same_dict_keys_recursive(dict1, dict2):
     if set(dict1.keys()) != set(dict2.keys()):
         return False
@@ -50,7 +49,7 @@ class PacketParser:
 
         # # File paths
         self.raw_file_paths = [""]
-        self.csv_file_paths = [""]
+        self.csv_file_paths = [""]      # TODO: move to gui_main..?
 
         self.pkt_tcp_num = 0
         self.pkt_udp_num = 0

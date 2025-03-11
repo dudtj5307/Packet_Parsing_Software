@@ -5,6 +5,8 @@ import hashlib
 
 import struct
 
+## Class화
+
 # C 타입과 Python struct 모듈 포맷 코드 매핑 (필요에 따라 추가)
 KNOWN_TYPE_MAP = {
     'char'          : 'c',
@@ -26,11 +28,11 @@ KNOWN_TYPE_MAP = {
     'unsigned int' : 'I',
 }
 
-# struct 정의: 'struct <구조체이름> { ... }'
-struct_pattern = re.compile(r'struct\s+(\w+)\s*\{([^}]+)}', re.MULTILINE | re.DOTALL)
-# 필드 패턴: ex) "uchar valid,       // 100~200"
-field_pattern = re.compile(r'\s*(\w+)\s+(\w+)\s*(?:;?\s*(//.*))?')
+COMPLETE, STOPPED = True, False
 
+# Regular Expressions
+struct_pattern = re.compile(r'struct\s+(\w+)\s*\{([^}]+)}', re.MULTILINE | re.DOTALL)  # 'struct <name> { ... }'
+field_pattern = re.compile(r'\s*(\w+)\s+(\w+)\s*(?:;?\s*(//.*))?')                           # "uchar valid, // 100~200"
 
 def calculate_hash(filepath, algorithm='sha256'):
     hash_func = hashlib.new(algorithm)
@@ -40,9 +42,9 @@ def calculate_hash(filepath, algorithm='sha256'):
             hash_func.update(mm)
     return hash_func.hexdigest()
 
-
 class IDL_FUNC_GENERATOR:
-    def __init__(self):
+    def __init__(self, backend):
+        self.backend = backend
         self.idl_path, self.output_path = "", ""
         self.idl_name, self.output_name = "", ""
         self.KNOWN_TYPE_MAP = KNOWN_TYPE_MAP        #  OS defined structs
@@ -54,42 +56,36 @@ class IDL_FUNC_GENERATOR:
         self.idl_name, self.output_name = "", ""
         self.IDL_TYPE_MAP = {}
 
-    def idl_changed(self):
+    def set_path(self, idl_path):
+        # IDL path for parsing & code generation
+        self.idl_path = idl_path
+        # IDL filename --> Function filename
+        idl_folder, self.idl_name = os.path.split(idl_path)
+        self.output_name = f"parse_{self.idl_name.split('.')[0]}.py"
+        self.output_path = os.path.join(idl_folder, self.output_name)
+        self.IDL_TYPE_MAP = {}
+
+    def is_hash_same(self):
         with open(self.output_path, 'r', encoding='utf-8') as f:
             first_line = f.readline().strip()
         # Read stored hash-value from '{output_path}'
         if ':' in first_line:
+            stored_name = first_line.split(':', 1)[0].strip()
             stored_hash = first_line.split(':', 1)[1].strip()
         else:
             print("No hash-value found : {output_path}")
-            return True
-        # Calculate current hash-value from '{idl_path}'
+            return False
+
         current_hash = calculate_hash(self.idl_path)
-        return stored_hash != current_hash
+        return (self.idl_name == stored_name) and (current_hash == stored_hash)
 
-    def parse_idl_file(self):
-        with open(self.idl_path, 'r') as f:
-            content = f.read()
-        # Parse all structs in IDL file
-        for struct_match in struct_pattern.finditer(content):
-            struct_name = struct_match.group(1)
-            struct_body = struct_match.group(2)
-            fields = []
-            # 각 줄마다 필드 파싱 (빈 줄은 건너뜀)
-            for line in struct_body.splitlines():
-                line = line.strip()
-                if not line:
-                    continue
-                # 끝에 붙은 콤마 제거
-                line = line.rstrip(',')
-                field_match = field_pattern.match(line)
-                if field_match:
-                    ctype = field_match.group(1)
-                    field_name = field_match.group(2)
-                    comment = field_match.group(3) if field_match.group(3) else ""
-                    fields.append((ctype, field_name, comment))
-
-            self.IDL_TYPE_MAP[struct_name] = fields
+    # Check if parse functions are up-to-date
+    def is_up_to_date(self):
+        if os.path.exists(self.output_path) and self.is_hash_same():
+            print(f"[IDL] '{self.output_name}' up-to-date !")
+            return True
+        else:
+            return False
 
     # Recursive fmt function for nested structure
     def get_fmt_recursive(self, struct_name):
@@ -121,8 +117,34 @@ class IDL_FUNC_GENERATOR:
                 lines.append(f"{indent}# Unknown type {ctype} for field {field_name}")
         return lines, current_index
 
+    def parse_idl_file(self):
+        with open(self.idl_path, 'r') as f:
+            content = f.read()
+        # Parse all structs in IDL file
+        for struct_match in struct_pattern.finditer(content):
+            if not self.backend.is_running: # Check if Backend is still running
+                return STOPPED
+            struct_name = struct_match.group(1)
+            struct_body = struct_match.group(2)
+            fields = []
+            # 각 줄마다 필드 파싱 (빈 줄은 건너뜀)
+            for line in struct_body.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                line = line.rstrip(',')
+                field_match = field_pattern.match(line)
+                if field_match:
+                    ctype = field_match.group(1)
+                    field_name = field_match.group(2)
+                    comment = field_match.group(3) if field_match.group(3) else ""
+                    fields.append((ctype, field_name, comment))
+
+            self.IDL_TYPE_MAP[struct_name] = fields
+        return True
+
     def generate_parse_function(self, struct_name):
-        # # Annotation
+        # # Comments
         # fields = self.IDL_TYPE_MAP.get(struct_name, [])
         # range_comments = {name: comment.strip() for ctype, name, comment in fields if comment}
 
@@ -145,46 +167,49 @@ class IDL_FUNC_GENERATOR:
         func_lines.append("    return result")
         return "\n".join(func_lines)
 
+
     def generate_code(self):
         generated_code = f"# {self.idl_name} : {calculate_hash(self.idl_path)}\n"
         generated_code += f"# Auto-generated parsing function\n\n"
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
         for struct_name in self.IDL_TYPE_MAP:
+            if not self.backend.is_running: # Check if Backend is still running
+                return STOPPED
             generated_code += self.generate_parse_function(struct_name) + "\n\n"
+
+
+
 
         with open(self.output_path, 'w') as f:
             f.write(generated_code)
         print(f"[IDL] '{self.output_name}' auto-generated !")
-
-    def set_path(self, idl_path):
-        # IDL path for parsing & code generation
-        self.idl_path = idl_path
-        # Output path
-        idl_folder, self.idl_name = os.path.split(idl_path)
-        self.output_name = f"parse_{self.idl_name.split('.')[0]}.py"
-        self.output_path = os.path.join(idl_folder, self.output_name)
-        self.IDL_TYPE_MAP = {}
+        return True
 
     def run(self, idl_path):
-        self.set_path(idl_path)
-        # Check if up-to-date
-        if os.path.exists(self.output_path) and not self.idl_changed():
-            print(f"[IDL] '{self.output_name}' up-to-date !")
-            # return    # TODO
-        self.parse_idl_file()
-        self.generate_code()
-        self.results.append(self.output_path)
-        # Reset attributes for next running
+        # Reset attributes before running
         self.reset()
+        self.set_path(idl_path)
+        if self.is_up_to_date(): return COMPLETE
+        if self.parse_idl_file() == STOPPED: return STOPPED
+        if self.generate_code()  == STOPPED: return STOPPED
 
+        self.results.append(self.output_name)
+        return COMPLETE
 
 
 if __name__ == '__main__':
+
+    class FAKEPARENT:
+        def __init__(self):
+            self.is_running = True
+
     eie_file_path = "EIE_Msg.idl"
     tie_file_path = "TIE_Msg.idl"
 
-    code_generator = IDL_FUNC_GENERATOR()
+    parent = FAKEPARENT()
+
+    code_generator = IDL_FUNC_GENERATOR(parent)
     code_generator.run(eie_file_path)
     code_generator.run(tie_file_path)
     print(code_generator.results)
