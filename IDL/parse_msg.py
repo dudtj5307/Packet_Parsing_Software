@@ -28,12 +28,7 @@ def update_system_type(config_data):
     SYS_TYPES['192.168.45.179'] = 'WCC'
 
 def raw_to_csv(self, raw_file_path):
-
-    # self.idl_file_paths = ['IDL/EIE_Msg.idl']
-    # for idl_file_path in self.idl_file_paths:
-    #     code_generator.set(idl_file_path)
-    #     code_generator.run()
-    # Get Generated Functions
+    # Import Generated functions
 
     # IP update from config_data
     update_system_type(self.config_data)

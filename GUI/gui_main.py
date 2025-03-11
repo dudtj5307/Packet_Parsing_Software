@@ -4,7 +4,8 @@ import threading
 from tkinter import filedialog
 
 from PyQt6.QtWidgets import QMainWindow
-from PyQt6.QtGui import QIcon, QIntValidator
+from PyQt6.QtGui import QIcon, QIntValidator, QRegularExpressionValidator
+from PyQt6.QtCore import QRegularExpression
 
 from GUI.ui.dialog_main import Ui_MainWindow
 
@@ -14,6 +15,7 @@ from GUI.gui_main_timer import GUI_Timer
 from IDL.raw_to_csv import ProgressRawToCSV
 
 COMPLETE, STOPPED = True, False
+SUCCESS, ERROR = True, False
 
 class MainWindow(QMainWindow, Ui_MainWindow) :
     def __init__(self, parent) :
@@ -47,7 +49,10 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Enable/Disable Buttons
         self.lock_ui_controls(False)
         self.btn_csv_create.setEnabled(False)
+
         # Input Validator
+        regex_pattern = r'^(?!^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?$)[^<>:"/\\|?*\x00-\x1F]{1,255}$'
+        self.edit_file_name.setValidator(QRegularExpressionValidator(QRegularExpression(regex_pattern)))
         self.edit_reset_hour.setValidator(QIntValidator(0, 99))
         self.edit_reset_min.setValidator(QIntValidator(0, 999))
 
@@ -58,9 +63,9 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.edit_udp_num.setText(val_str)
 
     def raw_path_set(self, raw_file_path):
+        self.edit_raw_path.setText(os.path.split(raw_file_path)[1])
         self.raw_file_paths = [raw_file_path]
-        self.edit_raw_path.setText(os.path.split(raw_file_path[0])[1])
-
+        print(os.path.split(raw_file_path))
 
     def set_button_img(self, widget, image):
         img_normal = os.path.join(self.icon_path, image).replace('\\', '/')
@@ -103,18 +108,20 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.settings_window = SettingsWindow(self, self.parent)
         self.settings_window.show()
 
+    def valid_input(self):  # TODO: input validation function
+        pass
+
     def start_recording(self):
-        if not self.parent.start_sniffing(): return
-        if not self.gui_timer.start(): return
+        if self.parent.start_sniffing() == ERROR: return
+        if self.gui_timer.start()       == ERROR: return
 
         self.lock_ui_controls(True)
 
         # Recursive Restart
-        hour, min_ = self.edit_reset_hour.text(), self.edit_reset_min.text()
-        if not hour: hour = "0"
-        if not min_: min_ = "0"
-        if hour.isdigit() and min_.isdigit() and (int(hour)>=1 or int(min_)>=1):
-            delay = 3600 * int(hour) + 60 * int(min_)
+        HOUR, MIN = int(self.edit_reset_hour.text() or "0"), int(self.edit_reset_min.text() or "0")
+
+        if HOUR + MIN > 0:
+            delay = 3600 * HOUR + 60 * MIN
             # Set restart Timer
             self.restart_thread = threading.Timer(delay, self.restart_recording)
             self.restart_thread.start()

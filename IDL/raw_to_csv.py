@@ -77,11 +77,12 @@ class ProgressBackend(QThread):
         ## Step 1. Generate Parsing Function ##
         self.run_code_generation()
 
-        # Default CSV Folder Path
+        # CSV Folder Path
         csv_folder_path = os.path.join(os.getcwd(), 'CSV')
         os.makedirs(csv_folder_path, exist_ok=True)
         for raw_file_path, csv_file_path in zip(self.raw_file_paths, self.csv_file_paths):
 
+            # Renew CSV file path
             if os.path.exists(csv_file_path):
                 rmtree(csv_file_path)
             os.makedirs(csv_file_path, exist_ok=True)

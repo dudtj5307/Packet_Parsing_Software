@@ -114,7 +114,7 @@ class PacketParser(QObject):
     def sniff_packets(self, interface=None):
         # Raw file name
         os.makedirs('RAW', exist_ok=True)
-        file_header = self.main_window.edit_file_name.text().strip() or "packet"
+        file_header = self.main_window.edit_file_name.text().lstrip() or "raw"
         date_time = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
         raw_file_path = os.path.join(os.getcwd(), 'RAW', f'{file_header}_{date_time}.pcap')
 
