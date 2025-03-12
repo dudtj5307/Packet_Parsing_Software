@@ -10,7 +10,7 @@ from PyQt6.QtCore import QRegularExpression
 from GUI.ui.dialog_main import Ui_MainWindow
 
 from GUI.gui_settings import SettingsWindow
-from GUI.gui_main_timer import GUI_Timer
+from GUI.gui_main_clock import ClockTime
 
 from IDL.raw_to_csv import ProgressRawToCSV
 
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Imported Modules
         self.settings_window = None
         self.restart_thread = None
-        self.gui_timer = GUI_Timer(self)
+        self.clock = ClockTime(self)
         # Button icons path
         self.icon_path = ""
         # Created CSV file paths
@@ -46,6 +46,8 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.parent.tcp_num_set.connect(self.tcp_num_set)
         self.parent.tcp_num_set.connect(self.udp_num_set)
 
+        self.clock.set_clock_time.connect(self.set_clock_time)
+
         # Enable/Disable Buttons
         self.lock_ui_controls(False)
         self.btn_csv_create.setEnabled(False)
@@ -53,8 +55,8 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Input Validator
         regex_pattern = r'^(?!^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?$)[^<>:"/\\|?*\x00-\x1F]{1,255}$'
         self.edit_file_name.setValidator(QRegularExpressionValidator(QRegularExpression(regex_pattern)))
-        self.edit_reset_hour.setValidator(QIntValidator(0, 99))
-        self.edit_reset_min.setValidator(QIntValidator(0, 999))
+        self.edit_reset_hour.setValidator(QIntValidator(0, 99, self.edit_reset_hour))
+        self.edit_reset_min.setValidator(QIntValidator(0, 99, self.edit_reset_min))
 
     def tcp_num_set(self, val_str):
         self.edit_tcp_num.setText(val_str)
@@ -62,10 +64,12 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
     def udp_num_set(self, val_str):
         self.edit_udp_num.setText(val_str)
 
+    def set_clock_time(self, time_str):
+        self.edit_clock.setText(time_str)
+
     def raw_path_set(self, raw_file_path):
         self.edit_raw_path.setText(os.path.split(raw_file_path)[1])
         self.raw_file_paths = [raw_file_path]
-        print(os.path.split(raw_file_path))
 
     def set_button_img(self, widget, image):
         img_normal = os.path.join(self.icon_path, image).replace('\\', '/')
@@ -108,28 +112,24 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.settings_window = SettingsWindow(self, self.parent)
         self.settings_window.show()
 
-    def valid_input(self):  # TODO: input validation function
-        pass
-
     def start_recording(self):
         if self.parent.start_sniffing() == ERROR: return
-        if self.gui_timer.start()       == ERROR: return
+        if self.clock.start()       == ERROR: return
 
         self.lock_ui_controls(True)
 
         # Recursive Restart
-        HOUR, MIN = int(self.edit_reset_hour.text() or "0"), int(self.edit_reset_min.text() or "0")
-
-        if HOUR + MIN > 0:
-            delay = 3600 * HOUR + 60 * MIN
+        reset_hour, reset_min = int(self.edit_reset_hour.text() or "0"), int(self.edit_reset_min.text() or "0")
+        if reset_hour + reset_min > 0:
+            delay_sec = 3600 * reset_hour + 60 * reset_min
             # Set restart Timer
-            self.restart_thread = threading.Timer(delay, self.restart_recording)
+            self.restart_thread = threading.Timer(delay_sec, self.restart_recording)
             self.restart_thread.start()
 
     def stop_recording(self):
         self.parent.stop_sniffing()
 
-        self.gui_timer.stop()
+        self.clock.stop()
         self.lock_ui_controls(False)
 
         if self.restart_thread and self.restart_thread.is_alive():
@@ -138,7 +138,6 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
     def restart_recording(self):
         if self.parent.is_sniffing:
             self.stop_recording()
-            print("Restarting!!")
             self.start_recording()
 
     def open_raw_file(self):
@@ -193,9 +192,6 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         csv_folder_path = os.path.join(os.getcwd(), 'CSV')
         os.makedirs(csv_folder_path, exist_ok=True)
         os.startfile(csv_folder_path)
-
-
-
 
 
 if __name__ == "__main__" :

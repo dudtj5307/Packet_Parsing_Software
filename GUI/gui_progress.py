@@ -5,15 +5,14 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, pyqtSignal
 
 from GUI.ui.dialog_progress import Ui_ProgressWindow
-
 '''
               signal        signal
      (parent) <----> (self) <----> (progress)
      
 '''
-
 class ProgressWindow(QDialog, Ui_ProgressWindow):
     progress_stopped = pyqtSignal()
+
     def __init__(self, parent=None):
         super(ProgressWindow, self).__init__(parent)
         # super().__init__()
