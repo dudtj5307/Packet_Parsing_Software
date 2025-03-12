@@ -860,7 +860,7 @@ border-radius: 5px;
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLineEdit" name="edit_timer">
+    <widget class="QLineEdit" name="edit_clock">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -1072,7 +1072,7 @@ border-radius: 5px;
     <zorder>edit_tcp_label</zorder>
     <zorder>edit_udp_label</zorder>
     <zorder>edit_udp_num</zorder>
-    <zorder>edit_timer</zorder>
+    <zorder>edit_clock</zorder>
     <zorder>edit_reset_label</zorder>
     <zorder>edit_reset_hour</zorder>
     <zorder>edit_reset_min</zorder>
@@ -1148,7 +1148,7 @@ border-radius: 5px;
   <tabstop>btn_csv_view</tabstop>
   <tabstop>btn_csv_folder</tabstop>
   <tabstop>edit_file_name</tabstop>
-  <tabstop>edit_timer</tabstop>
+  <tabstop>edit_clock</tabstop>
   <tabstop>edit_tcp_label</tabstop>
   <tabstop>edit_tcp_num</tabstop>
   <tabstop>edit_udp_label</tabstop>
