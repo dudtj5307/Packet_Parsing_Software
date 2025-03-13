@@ -42,7 +42,6 @@ class RAW_PACKET_PARSER:
         self.SYS_TYPES['10.30.7.255'] = 'WCC'    # TODO: For Testing
         self.SYS_TYPES['10.30.7.255'] = 'WCC'    # TODO: For Testing
         self.SYS_TYPES['10.30.7.66'] = 'WCC'    # TODO: For Testing
-        print(self.SYS_TYPES)
 
     def run(self, raw_file_path):
         self.update_system_type(self.backend.p_pps.config_data)
@@ -57,12 +56,24 @@ class RAW_PACKET_PARSER:
                 src_ip,  dst_ip  = packet[IP].src, packet[IP].dst
                 src_sys, dst_sys = self.SYS_TYPES[src_ip], self.SYS_TYPES[dst_ip]
                 msg_type = MSG_TYPES[(src_sys, dst_sys)]
-                raw_data = packet['Raw'].load
-                data = self.parse_data(msg_type, raw_data)
+                if msg_type == 'Undefined': continue
+
+                rtps_packet = packet['Raw'].load
+
+                data = self.parse_data(msg_type, rtps_packet)
+                if data is None: continue
+
                 packet_info = {'date': date, 'time': _time,'src_ip': src_ip, 'dst_ip':dst_ip,
                                'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
-                print(packet_info)
-        return packet_info
+                # print(packet_info)
+        # return packet_info
+
+    def parse_rtps_packet(self, data):
+        magic_number, version, vendor_id, guid_prefix =  struct.upack('>4s 2B 2B 12s', data)
+        if magic_number != "RTPS":
+            return False
+
+        pass
 
     # Parse if EIE or TIE or K or X or J
     def parse_data(self, msg_type, data):

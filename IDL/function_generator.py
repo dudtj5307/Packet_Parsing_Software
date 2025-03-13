@@ -43,8 +43,8 @@ def calculate_hash(filepath, algorithm='sha256'):
     return hash_func.hexdigest()
 
 class IDL_FUNC_GENERATOR:
-    def __init__(self, backend):
-        self.backend = backend
+    def __init__(self, monitor):
+        self.monitor = monitor
         self.idl_path, self.output_path = "", ""
         self.idl_name, self.output_name = "", ""
         self.KNOWN_TYPE_MAP = KNOWN_TYPE_MAP        #  OS defined structs
@@ -122,8 +122,10 @@ class IDL_FUNC_GENERATOR:
             content = f.read()
         # Parse all structs in IDL file
         for struct_match in struct_pattern.finditer(content):
-            for struct_name in self.IDL_TYPE_MAP:
-                if self.backend.stopped:  # TODO: [Monitoring] Check if Backend is stopped from GUI
+            for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
+                # Update monitoring
+                self.monitor.update('idl', task_idx=idx, task_num=len(self.IDL_TYPE_MAP)*2)
+                if self.monitor.backend_stopped():
                     return STOPPED
             struct_name = struct_match.group(1)
             struct_body = struct_match.group(2)
@@ -174,14 +176,17 @@ class IDL_FUNC_GENERATOR:
         generated_code += f"# Auto-generated parsing function\n\n"
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
-        for struct_name in self.IDL_TYPE_MAP:
-            if self.backend.stopped:    # TODO: [Monitoring] Check if Backend is stopped from GUI
+        for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
+            # Update monitoring
+            self.monitor.update('idl', task_idx=idx, task_num=len(self.IDL_TYPE_MAP) * 2)
+            if self.monitor.backend_stopped():
                 return STOPPED
+
             generated_code += self.generate_parse_function(struct_name) + "\n\n"
 
         with open(self.output_path, 'w') as f:
             f.write(generated_code)
-        print(f"[IDL] '{self.output_name}' auto-generated !")
+        # print(f"[IDL] '{self.output_name}' auto-generated !")
         return True
 
     def run(self, idl_path):
@@ -189,8 +194,8 @@ class IDL_FUNC_GENERATOR:
         self.reset()
         self.set_path(idl_path)
         if self.is_up_to_date(): return COMPLETE
-        if self.parse_idl_file() == STOPPED: return STOPPED
-        if self.generate_code()  == STOPPED: return STOPPED
+        if self.parse_idl_file() == STOPPED: return STOPPED;
+        if self.generate_code()  == STOPPED: return STOPPED;
 
         self.results.append(self.output_name)
         return COMPLETE

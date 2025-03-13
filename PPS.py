@@ -110,7 +110,7 @@ class PacketParser(QObject):
         else:
             return
         self.pcap_writer.write(packet)
-        print(packet[IP].src, packet[IP].dst)
+        # print(packet[IP].src, packet[IP].dst)
 
     def sniff_packets(self, interface=None):
         # Raw file name
