@@ -3,20 +3,20 @@ import threading
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
-class ClockTime(QObject):
+class StopWatch(QObject):
     set_clock_time = pyqtSignal(str, name="set_clock_time")
     def __init__(self, parent):
         super().__init__()
         # Parent Objects
         self.parent = parent  # parent            (gui_main.py)
-        self.clock_thread = None
+        self.thread = None
 
     def start(self):
-        if self.clock_thread:
+        if self.thread:
             return False
         self.set_clock_time.emit("00 : 00 : 00")
-        self.clock_thread = threading.Thread(target=self.update, daemon=True, args=(time.time(),))
-        self.clock_thread.start()
+        self.thread = threading.Thread(target=self.update, daemon=True, args=(time.time(),))
+        self.thread.start()
         return True
 
     def update(self, start_time):
@@ -30,5 +30,5 @@ class ClockTime(QObject):
             time.sleep(0.25)
 
     def stop(self):
-        self.clock_thread.join()
-        self.clock_thread = None
+        self.thread.join()
+        self.thread = None

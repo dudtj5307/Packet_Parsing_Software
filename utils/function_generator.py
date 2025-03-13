@@ -207,8 +207,8 @@ if __name__ == '__main__':
         def __init__(self):
             self.is_running = True
 
-    eie_file_path = "EIE_Msg.idl"
-    tie_file_path = "TIE_Msg.idl"
+    eie_file_path = "../IDL/EIE_Msg.idl"
+    tie_file_path = "../IDL/TIE_Msg.idl"
 
     parent = FAKEPARENT()
 

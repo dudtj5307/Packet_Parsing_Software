@@ -5,15 +5,8 @@ from PyQt6.QtWidgets import QDialog
 from PyQt6.QtGui import QIcon
 from GUI.ui.dialog_settings import Ui_SettingsWindow
 
-DEFAULT_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
-                       'IP_local': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3':  "",
-                                    'wcc_ip1' :  "8", 'wcc_ip2' : "10", 'wcc_ip3' : "11", 'wcc_ip4': "13",
-                                    'dlu_ip1' : "27", 'dlu_ip2' : "28", 'dlu_ip3' : "30"},
-                       'IP_near' : {'mdil_ip1' : "110", 'mdil_ip2' : "116", 'mdil_ip3' : "6"},
-                       'IP_ext'  : {'kicc_ip1' : "", 'kicc_ip2' : "", 'kicc_ip3' : "", 'kicc_ip4' : "",
-                                    'kamd_ip1' : "", 'kamd_ip2' : "", 'kamd_ip3' : "", 'kamd_ip4' : "",
-                                    'picc_ip1' : "", 'picc_ip2' : "", 'picc_ip3' : "", 'picc_ip4' : ""},
-                       'raw_file_paths': [""], 'csv_file_paths' : [""]}
+from utils.config import Config
+
 
 class SettingsWindow(QDialog, Ui_SettingsWindow):
     def __init__(self, parent=None, p_parent=None):
@@ -22,19 +15,50 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
         self.setupUi(self)
         self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_settings.png")))
 
+        # config data
+        self.config = Config()
+
         # Parent Objects
         self.parent = parent            # parent            (gui_main.py)
-        self.p_parent = p_parent        # parent of parent  (PPS.py)
 
         # Set Signal Functions
         self.combo_iface.mousePressEvent = self.update_combobox_iface
-        self.combo_iface.activated.connect(self.select_combobox_iface)
         self.btn_ok.clicked.connect(self.btn_ok_clicked)
         self.btn_cancel.clicked.connect(self.btn_cancel_clicked)
         self.btn_apply.clicked.connect(self.btn_apply_clicked)
 
         # Setup UI with config data
-        self.set_config_data()
+        self.set_gui_from_config()
+
+    def center_to_parent(self):
+        parent, child = self.parent.geometry(), self.geometry()
+        # Calculate Coordinate
+        x = parent.x() + (parent.width() - child.width()) // 2
+        y = parent.y() + (parent.height() - child.height()) // 2
+        self.move(x, y)
+
+    def set_gui_from_config(self):
+        config = self.config.get()
+        # Interface combobox setting
+        self.combo_iface.addItem(" ".join(config['interface']), config['interface'])
+        # IP Settings
+        config_ips = list(config['IP_local'].items()) + list(config['IP_near'].items()) + list(config['IP_ext'].items())
+        for key, val in config_ips:
+            edit_widget = getattr(self, f'edit_{key}', None)
+            if edit_widget:
+                edit_widget.setText(val)
+
+    def save_config_data(self):
+        config_data = self.config.get()
+        # Interface combobox setting
+        config_data['interface'] = self.combo_iface.currentData()
+        # IP Settings
+        for config_dict in [config_data['IP_local'], config_data['IP_near'], config_data['IP_ext']]:
+            for key in config_dict.keys():
+                edit_widget = getattr(self, f'edit_{key}', None)
+                if edit_widget:
+                    config_dict[key] = edit_widget.text()
+        self.config.update(config_data)
 
     def update_combobox_iface(self, event):
         # current text backup before reset
@@ -55,42 +79,6 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
 
         super().mousePressEvent(event)
         self.combo_iface.showPopup()
-
-    # NDDS 어떻게 할지 고민 TODO
-    def select_combobox_iface(self):
-        pass
-
-    def center_to_parent(self):
-        parent, child = self.parent.geometry(), self.geometry()
-        # Calculate Coordinate
-        x = parent.x() + (parent.width() - child.width()) // 2
-        y = parent.y() + (parent.height() - child.height()) // 2
-        self.move(x, y)
-
-    def set_config_data(self):
-        config = self.p_parent.config_data
-        # Interface combobox setting
-        self.combo_iface.addItem(" ".join(self.p_parent.config_data['interface']), self.p_parent.config_data['interface'])
-        # IP Settings
-        config_ips = list(config['IP_local'].items()) + list(config['IP_near'].items()) + list(config['IP_ext'].items())
-        for key, val in config_ips:
-            edit_widget = getattr(self, f'edit_{key}', None)
-            if edit_widget:
-                edit_widget.setText(val)
-
-    def save_config_data(self):
-        config_origin = self.p_parent.config_data
-        # Interface combobox setting
-        config_origin['interface'] = self.combo_iface.currentData()
-        self.p_parent.iface_selected = self.combo_iface.currentData()
-        # IP Settings
-        for config_dict in [config_origin['IP_local'], config_origin['IP_near'], config_origin['IP_ext']]:
-            for key in config_dict.keys():
-                edit_widget = getattr(self, f'edit_{key}', None)
-                if edit_widget:
-                    config_dict[key] = edit_widget.text()
-        # Save to 'settings.conf'
-        self.p_parent.save_config_data()
 
     def btn_ok_clicked(self):
         self.save_config_data()

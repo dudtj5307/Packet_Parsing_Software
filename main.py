@@ -19,10 +19,11 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 from GUI.gui_main import MainWindow
 
-from GUI.gui_settings import DEFAULT_CONFIG_DATA
+from utils.config import Config
+
 
 # Distribution Info
-LAST_UPDATE, VERSION = "2025.03.08", "v0.0"
+LAST_UPDATE, VERSION = "2025.03.13", "v0.0"
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 
@@ -58,9 +59,10 @@ class PacketParser(QObject):
         # selected interface from settings combobox
         self.iface_selected = ["No", "Interface", "Selected"]
 
-        # default configuration data
-        self.config_data = {}
-        self.load_config_data()
+        # Load Config Settings
+        self.config = Config()
+        self.config.load_config_file()
+        self.iface_selected = self.config.get('interface')
 
         # For File Opener
         self.root = Tk_root()
@@ -71,30 +73,6 @@ class PacketParser(QObject):
 
         self.main_window = MainWindow(self)
         self.main_window.set_icon_path(os.path.join(self.internal_path, 'GUI', 'res'))
-
-    def load_config_data(self):
-        try:
-            with open("settings.conf", "r") as file:
-                self.config_data = json.load(file)
-                if not same_dict_keys_recursive(self.config_data, DEFAULT_CONFIG_DATA):
-                    raise KeyError("Invalid Dictionary Keys")
-        except Exception as e:
-            print(f"# Error in loading configuration : {e}")
-            # Reset and Save Default Configuration
-            if os.path.exists("settings.conf"):
-                os.remove("settings.conf")
-            self.config_data = copy.deepcopy(DEFAULT_CONFIG_DATA)
-            self.save_config_data()
-            messagebox.showerror("Error", f" Invalid File : \'setting.config\' \n Configuration Initialized !! ")
-
-        self.iface_selected = self.config_data['interface']
-
-    def save_config_data(self, changes=None):
-        if changes:
-            self.config_data.update(changes)
-        with open("settings.conf", "w") as file:
-            json.dump(self.config_data, file, indent=4)
-        print("Saved Configuration as 'setting.conf'")
 
     def packet_callback(self, packet):
         if not self.is_sniffing:
@@ -135,6 +113,7 @@ class PacketParser(QObject):
 
     def start_sniffing(self):
         # Check validation of iface_selected
+        self.iface_selected = self.config.get('interface')
         if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
             messagebox.showerror("Network Error", "Select a new Network Interface")
             self.main_window.open_settings()

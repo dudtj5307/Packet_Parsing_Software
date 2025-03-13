@@ -10,9 +10,9 @@ from PyQt6.QtCore import QRegularExpression
 from GUI.ui.dialog_main import Ui_MainWindow
 
 from GUI.gui_settings import SettingsWindow
-from GUI.gui_main_clock import ClockTime
+from utils.stopwatch import StopWatch
 
-from IDL.raw_to_csv import ProgressRawToCSV
+from utils.raw_to_csv import ProgressRawToCSV
 
 COMPLETE, STOPPED = True, False
 SUCCESS, ERROR = True, False
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Imported Modules
         self.settings_window = None
         self.restart_thread = None
-        self.clock = ClockTime(self)
+        self.clock = StopWatch(self)
         # Button icons path
         self.icon_path = ""
         # Created CSV file paths

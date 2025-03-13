@@ -32,7 +32,7 @@ class RAW_PACKET_PARSER:
             module_name = parsing_code_path.split('.py')[0]
             globals()[module_name] = importlib.import_module(f"IDL.{module_name}")
 
-    # Update IP infos from (PPS.py) config_data
+    # Update IP infos from (main.py) config_data
     def update_system_type(self, config_data):
         local = {key: LOCAL_IP_PREFIX + val for key, val in config_data['IP_local'].items()}
         self.SYS_TYPES.update({local['adoc_ip1']:'ADOC', local['adoc_ip2']:'ADOC', local['adoc_ip3']:'ADOC',
@@ -44,7 +44,7 @@ class RAW_PACKET_PARSER:
         self.SYS_TYPES['10.30.7.66'] = 'WCC'    # TODO: For Testing
 
     def run(self, raw_file_path):
-        self.update_system_type(self.backend.p_pps.config_data)
+        self.update_system_type(self.backend.config.get())
         # Read raw pcap files
         with scapy.PcapReader(raw_file_path) as packets:
             for packet in packets:

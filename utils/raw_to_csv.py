@@ -1,14 +1,12 @@
 import os
-import sys
-import time
 from shutil import rmtree
 
-import threading
-from PyQt6.QtCore import QObject, QThread, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSignal
 
 from GUI.gui_progress import ProgressWindow
-from IDL.function_generator import IDL_FUNC_GENERATOR
-from IDL.packet_parser import RAW_PACKET_PARSER
+from utils.config import Config
+from utils.function_generator import IDL_FUNC_GENERATOR
+from utils.packet_parser import RAW_PACKET_PARSER
 
 COMPLETE, STOPPED = True, False
 
@@ -16,7 +14,7 @@ class ProgressRawToCSV:
     def __init__(self, parent, raw_file_paths):
         # Inherited Variables
         self.parent = parent                    # parent            (gui_main.py)
-        self.p_parent = self.parent.parent      # parent of parent  (PPS.py)
+        self.p_parent = self.parent.parent      # parent of parent  (main.py)
         self.raw_file_paths = raw_file_paths
         self.csv_file_paths = []
 
@@ -71,6 +69,7 @@ class ProgressBackend(QThread):
     progress_finish = pyqtSignal(name="finished")
     def __init__(self, p_pps, raw_file_paths):
         super().__init__(None)
+        self.config = Config()
         self.p_pps = p_pps
         self.raw_file_paths = raw_file_paths
         self.csv_file_paths = raw_to_csv_paths(raw_file_paths)
