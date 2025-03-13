@@ -6,10 +6,9 @@ from collections import defaultdict
 
 import scapy.all as scapy
 
-# from IDL import parse_EIE_Msg
-# from IDL import parse_TIE_Msg
-# from IDL import parse_K_Msg
-# from IDL import parse_X_Msg
+from utils.config import Config
+from utils.monitor import ProgressMonitor
+
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 
@@ -21,13 +20,14 @@ MSG_TYPES.update({('ADOC','ADOC'): 'EIE', ('ADOC','WCC'): 'EIE', ('WCC','ADOC'):
                   ('WCC', 'DLU') : 'TIE', ('DLU', 'WCC'): 'TIE', ('DLU','DLU') : 'TIE',})
 
 class RAW_PACKET_PARSER:
-
-    def __init__(self, parsing_code_paths, backend=None):   # TODO: None - to be erased
+    def __init__(self, parsing_code_paths):
         self.SYS_TYPES = defaultdict(lambda: "Undefined")
-        self.backend = backend
+        self.config = Config()
+        self.monitor = ProgressMonitor()
+
         self.parsing_code_paths = parsing_code_paths
 
-        # Dynamic Import of generated-parsing modules
+        # Dynamic Import of generated-parsing functions
         for parsing_code_path in self.parsing_code_paths:
             module_name = parsing_code_path.split('.py')[0]
             globals()[module_name] = importlib.import_module(f"IDL.{module_name}")
@@ -44,10 +44,18 @@ class RAW_PACKET_PARSER:
         self.SYS_TYPES['10.30.7.66'] = 'WCC'    # TODO: For Testing
 
     def run(self, raw_file_path):
-        self.update_system_type(self.backend.config.get())
+        self.update_system_type(self.config.get())
+        import time
+        start = time.time()
+        total_packets = sum(1 for _ in scapy.PcapReader(raw_file_path))
+        print(time.time()-start)
         # Read raw pcap files
         with scapy.PcapReader(raw_file_path) as packets:
-            for packet in packets:
+            for idx, packet in enumerate(packets):
+                # Update monitoring and Check if Stopped
+                self.monitor.update('parse', work_idx=idx, work_num=total_packets, only_work=True)
+                if self.monitor.backend_stopped(): return
+
                 # Filter Packets without data (ex. ACK, FIN, SYN msgs)
                 if not packet.haslayer('Raw'):
                     continue
@@ -67,6 +75,7 @@ class RAW_PACKET_PARSER:
                                'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
                 # print(packet_info)
         # return packet_info
+        print(time.time() - start, total_packets, idx)
 
     def parse_rtps_packet(self, data):
         magic_number, version, vendor_id, guid_prefix =  struct.upack('>4s 2B 2B 12s', data)
@@ -116,6 +125,6 @@ if __name__ == "__main__":
     #
     # raw_to_csv('a,', raw_file)
 
-    parsing_code_paths = ['parse_EIE_Msg.py', 'parse_TIE_Msg.py']
+    parsing_code_path = ['parse_EIE_Msg.py', 'parse_TIE_Msg.py']
 
-    packet_parser = RAW_PACKET_PARSER(parsing_code_paths)
+    packet_parser = RAW_PACKET_PARSER(parsing_code_path)

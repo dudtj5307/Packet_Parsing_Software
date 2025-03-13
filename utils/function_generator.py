@@ -5,7 +5,8 @@ import hashlib
 
 import struct
 
-## Class화
+from utils.monitor import ProgressMonitor
+
 
 # C 타입과 Python struct 모듈 포맷 코드 매핑 (필요에 따라 추가)
 KNOWN_TYPE_MAP = {
@@ -43,8 +44,8 @@ def calculate_hash(filepath, algorithm='sha256'):
     return hash_func.hexdigest()
 
 class IDL_FUNC_GENERATOR:
-    def __init__(self, monitor):
-        self.monitor = monitor
+    def __init__(self):
+        self.monitor = ProgressMonitor()
         self.idl_path, self.output_path = "", ""
         self.idl_name, self.output_name = "", ""
         self.KNOWN_TYPE_MAP = KNOWN_TYPE_MAP        #  OS defined structs
@@ -123,10 +124,10 @@ class IDL_FUNC_GENERATOR:
         # Parse all structs in IDL file
         for struct_match in struct_pattern.finditer(content):
             for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
-                # Update monitoring
-                self.monitor.update('idl', task_idx=idx, task_num=len(self.IDL_TYPE_MAP)*2)
-                if self.monitor.backend_stopped():
-                    return STOPPED
+                # Update monitoring and Check if Stopped
+                self.monitor.update('idl', task_idx=idx, task_num=len(self.IDL_TYPE_MAP) * 2)
+                if self.monitor.backend_stopped(): return STOPPED
+
             struct_name = struct_match.group(1)
             struct_body = struct_match.group(2)
             fields = []
@@ -177,7 +178,7 @@ class IDL_FUNC_GENERATOR:
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
         for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
-            # Update monitoring
+            # Update monitoring and Check if Stopped
             self.monitor.update('idl', task_idx=idx, task_num=len(self.IDL_TYPE_MAP) * 2)
             if self.monitor.backend_stopped():
                 return STOPPED

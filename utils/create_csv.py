@@ -5,12 +5,19 @@ from PyQt6.QtCore import QThread, pyqtSignal
 
 from GUI.gui_progress import ProgressWindow
 from utils.config import Config
+from utils.monitor import ProgressMonitor
 from utils.function_generator import IDL_FUNC_GENERATOR
 from utils.packet_parser import RAW_PACKET_PARSER
 
 COMPLETE, STOPPED = True, False
 
-class ProgressRawToCSV:
+
+def raw_to_csv_paths(raw_file_paths):
+    csv_folder_path = os.path.join(os.getcwd(), 'CSV')
+    return list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]), raw_file_paths))
+
+
+class CreateCSV:
     def __init__(self, parent, raw_file_paths):
         # Inherited Variables
         self.parent = parent                    # parent            (gui_main.py)
@@ -20,7 +27,7 @@ class ProgressRawToCSV:
 
         # Progress BackEnd & GUI
         self.progress_backend = ProgressBackend(self.p_parent, raw_file_paths)
-        self.progress_window = ProgressWindow(self.parent)          # Progress GUI (Modal)-'MainWindow'
+        self.progress_window  = ProgressWindow(self.parent)          # Progress GUI (Modal)-'MainWindow'
         # Signal : (Backend) ---> (GUI)
         self.progress_backend.progress_update.connect(self.progress_window.update_progress)
         self.progress_backend.progress_finish.connect(self.progress_window.finish_progress)
@@ -36,34 +43,6 @@ class ProgressRawToCSV:
 
         self.csv_file_paths = self.progress_backend.csv_file_paths
 
-class ProgressMonitor:
-    def __init__(self, backend):
-        self.backend = backend
-        self.status = {'work_idx': 0, 'work_num': float('inf'), 'task_idx': 0, 'task_num': float('inf')}
-        self.progress = {'idl': 0, 'parse': 0, 'csv': 0}   # (int: range 0~100)
-
-    # Updates Progress to GUI
-    def update(self, key, work_idx=None, work_num=None, task_idx=None, task_num=None):
-        # Update Working Status
-        self.status['work_idx'] = work_idx or self.status['work_idx']
-        self.status['work_num'] = work_num or self.status['work_num']
-        self.status['task_idx'] = task_idx or self.status['task_idx']
-        self.status['task_num'] = task_num or self.status['task_num']
-        # Save old value & Calculate new value from working status
-        old_value = self.progress[key]
-        new_value = (self.status['work_idx']/self.status['work_num'] + (1/self.status['work_num'])*(self.status['task_idx']+1)/self.status['task_num']) * 100
-        if new_value - old_value >= 2 or new_value == 100:
-            self.progress[key] = min(int(new_value + 0.5), 100)
-            self.backend.progress_update.emit([self.progress['idl'], self.progress['parse'], self.progress['csv']])
-
-    # Check if backend is stopped
-    def backend_stopped(self):
-        return self.backend.stopped
-
-def raw_to_csv_paths(raw_file_paths):
-    csv_folder_path = os.path.join(os.getcwd(), 'CSV')
-    return list(map(lambda x: os.path.join(csv_folder_path, os.path.split(x)[1].split('.pcap')[0]), raw_file_paths))
-
 class ProgressBackend(QThread):
     progress_update = pyqtSignal(list, name="progress_update")
     progress_finish = pyqtSignal(name="finished")
@@ -78,13 +57,15 @@ class ProgressBackend(QThread):
         self.monitor = ProgressMonitor(backend=self)
 
     def run_code_generation(self):
-        code_generator = IDL_FUNC_GENERATOR(monitor=self.monitor)
+        code_generator = IDL_FUNC_GENERATOR()
         # idl_file_paths = get_idl_file_paths()
         idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 2000
 
         for idx, idl_file_path in enumerate(idl_file_paths):
+            # Update monitoring and Check if Stopped
             self.monitor.update('idl', work_idx=idx, work_num=len(idl_file_paths))
             if self.monitor.backend_stopped(): return
+
             code_generator.run(idl_file_path)
 
         return code_generator.results
@@ -102,7 +83,8 @@ class ProgressBackend(QThread):
             return
 
         ## Step 2. 'Parse Packets' with generated codes ##
-        packet_parser = RAW_PACKET_PARSER(generated_code_paths, backend=self)
+        print(generated_code_paths)
+        packet_parser = RAW_PACKET_PARSER(generated_code_paths)
 
 
         # CSV Folder Path
