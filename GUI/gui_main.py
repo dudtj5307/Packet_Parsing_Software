@@ -43,9 +43,6 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.btn_csv_view.clicked.connect(self.csv_view_file)
         self.btn_csv_folder.clicked.connect(self.csv_open_folder)
 
-        self.parent.tcp_num_set.connect(self.tcp_num_set)
-        self.parent.tcp_num_set.connect(self.udp_num_set)
-
         self.clock.set_clock_time.connect(self.set_clock_time)
 
         # Enable/Disable Buttons

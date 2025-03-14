@@ -42,10 +42,10 @@ def same_dict_keys_recursive(dict1, dict2):
 
 class PacketParser(QObject):
     tcp_num_set = pyqtSignal(str, name="tcp_num_set")
-    udp_num_set = pyqtSignal(str, name="tcp_num_set")
+    udp_num_set = pyqtSignal(str, name="udp_num_set")
 
     def __init__(self):
-        super().__init__()
+        super().__init__(None)
 
         # Sniff Packets
         scapy.conf.verb = 0
@@ -74,6 +74,9 @@ class PacketParser(QObject):
         self.main_window = MainWindow(self)
         self.main_window.set_icon_path(os.path.join(self.internal_path, 'GUI', 'res'))
 
+        self.tcp_num_set.connect(self.main_window.tcp_num_set)
+        self.udp_num_set.connect(self.main_window.udp_num_set)
+
     def packet_callback(self, packet):
         if not self.is_sniffing:
             return
@@ -81,10 +84,10 @@ class PacketParser(QObject):
             return
         if packet.haslayer(TCP):
             self.pkt_tcp_num += 1
-            self.main_window.tcp_num_set(str(self.pkt_tcp_num))
+            self.tcp_num_set.emit(str(self.pkt_tcp_num))
         elif packet.haslayer(UDP):
             self.pkt_udp_num += 1
-            self.main_window.udp_num_set(str(self.pkt_udp_num))
+            self.udp_num_set.emit(str(self.pkt_udp_num))
         else:
             return
         self.pcap_writer.write(packet)
@@ -112,6 +115,9 @@ class PacketParser(QObject):
         self.pcap_writer.close()
 
     def start_sniffing(self):
+        # Initialize packet monitoring
+        self.pkt_tcp_num, self.pkt_udp_num = 0, 0
+
         # Check validation of iface_selected
         self.iface_selected = self.config.get('interface')
         if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
