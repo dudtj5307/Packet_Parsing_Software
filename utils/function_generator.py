@@ -123,9 +123,10 @@ class IDL_FUNC_GENERATOR:
             content = f.read()
         # Parse all structs in IDL file
         for struct_match in struct_pattern.finditer(content):
+            self.monitor.update('idl', task_num=len(self.IDL_TYPE_MAP) * 2)
             for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
                 # Update monitoring and Check if Stopped
-                self.monitor.update('idl', task_idx=idx, task_num=len(self.IDL_TYPE_MAP) * 2)
+                self.monitor.update('idl', task_idx=idx)
                 if self.monitor.backend_stopped(): return STOPPED
 
             struct_name = struct_match.group(1)
@@ -177,9 +178,10 @@ class IDL_FUNC_GENERATOR:
         generated_code += f"# Auto-generated parsing function\n\n"
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
+        self.monitor.update('idl', task_num=len(self.IDL_TYPE_MAP) * 2)
         for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
             # Update monitoring and Check if Stopped
-            self.monitor.update('idl', task_idx=idx, task_num=len(self.IDL_TYPE_MAP) * 2)
+            self.monitor.update('idl', task_idx=idx)
             if self.monitor.backend_stopped():
                 return STOPPED
 

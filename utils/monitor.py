@@ -22,9 +22,9 @@ class ProgressMonitor:
         self._status['task_num'] = task_num or self._status['task_num']
         # Save old value & Calculate new value from working status
         old_value = self._progress[key]
-        if only_work: new_value =  (self._status['work_idx'] + 1) / self._status['work_num'] * 100
-        else: new_value =  (self._status['work_idx'] / self._status['work_num']
-                         + (1 / self._status['work_num']) * (self._status['task_idx'] + 1) / self._status['task_num']) * 100
+        new_value =  (self._status['work_idx'] / self._status['work_num']
+                   + (1 / self._status['work_num']) * (self._status['task_idx'] + 1) / self._status['task_num']) * 100
+
         if new_value - old_value >= 2 or new_value == 100:
             self._progress[key] = min(int(new_value + 0.5), 100)
             self._backend.progress_update.emit(

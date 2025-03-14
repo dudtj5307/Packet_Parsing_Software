@@ -1,3 +1,4 @@
+
 import json
 from copy import deepcopy
 
@@ -11,6 +12,8 @@ DEFAULT_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
                                     'picc_ip1' : "", 'picc_ip2' : "", 'picc_ip3' : "", 'picc_ip4' : ""},
                        'raw_file_paths': [""], 'csv_file_paths' : [""]}
 
+CONFIG_FILE_NAME = 'settings.conf'
+
 # Singleton Configuration
 class Config:
     __instance = None
@@ -20,12 +23,24 @@ class Config:
             cls.__instance._settings = deepcopy(DEFAULT_CONFIG_DATA)
         return cls.__instance
 
+    def same_keys_recursive(self, dict1, dict2):
+        if set(dict1.keys()) != set(dict2.keys()):
+            return False
+        for key, dict1_val in dict1.items():
+            dict2_val = dict2[key]
+            if type(dict1_val) != type(dict2_val):
+                return False
+            if isinstance(dict1_val, dict) and isinstance(dict2_val, dict):
+                if not self.same_keys_recursive(dict1_val, dict2_val):
+                    return False
+        return True
+
     def load_config_file(self, path=None):
         try:
-            with open(path if path else "settings.conf", "r") as file:
+            with open(path if path else CONFIG_FILE_NAME, "r") as file:
                 self._settings = json.load(file)
                 print("[Config] 'settings.conf' loaded!")
-                if not Config.same_keys_recursive(self._settings, DEFAULT_CONFIG_DATA):
+                if not self.same_keys_recursive(self._settings, DEFAULT_CONFIG_DATA):
                     raise KeyError("[Error] Invalid Dictionary Keys")
         except Exception as e:
             print(f"[Config] {e}! / 'settings.conf' reset!")
@@ -47,18 +62,6 @@ class Config:
             self._settings.update(new_settings)
         self.save_config_file()
 
-    @staticmethod
-    def same_keys_recursive(dict1, dict2):
-        if set(dict1.keys()) != set(dict2.keys()):
-            return False
-        for key, dict1_val in dict1.items():
-            dict2_val = dict2[key]
-            if type(dict1_val) != type(dict2_val):
-                return False
-            if isinstance(dict1_val, dict) and isinstance(dict2_val, dict):
-                if not Config.same_keys_recursive(dict1_val, dict2_val):
-                    return False
-        return True
 
 
 

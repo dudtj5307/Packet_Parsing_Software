@@ -59,11 +59,12 @@ class ProgressBackend(QThread):
     def run_code_generation(self):
         code_generator = IDL_FUNC_GENERATOR()
         # idl_file_paths = get_idl_file_paths()
-        idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 2000
+        idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 500  # TODO: For Testing
 
+        self.monitor.update('idl', work_num=len(idl_file_paths))
         for idx, idl_file_path in enumerate(idl_file_paths):
             # Update monitoring and Check if Stopped
-            self.monitor.update('idl', work_idx=idx, work_num=len(idl_file_paths))
+            self.monitor.update('idl', work_idx=idx)
             if self.monitor.backend_stopped(): return
 
             code_generator.run(idl_file_path)
@@ -85,12 +86,15 @@ class ProgressBackend(QThread):
         ## Step 2. 'Parse Packets' with generated codes ##
         print(generated_code_paths)
         packet_parser = RAW_PACKET_PARSER(generated_code_paths)
-
+        self.monitor.update('parse', work_num=len(self.raw_file_paths))
 
         # CSV Folder Path
         csv_folder_path = os.path.join(os.getcwd(), 'CSV')
         os.makedirs(csv_folder_path, exist_ok=True)
-        for raw_file_path, csv_file_path in zip(self.raw_file_paths, self.csv_file_paths):
+        for idx, (raw_file_path, csv_file_path) in enumerate(zip(self.raw_file_paths, self.csv_file_paths)):
+            # Update monitoring and Check if Stopped
+            self.monitor.update('parse', work_idx=idx)
+            if self.monitor.backend_stopped(): return
 
             # Renew CSV file path
             if os.path.exists(csv_file_path):
