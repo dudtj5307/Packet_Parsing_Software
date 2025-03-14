@@ -12,7 +12,7 @@ from GUI.ui.dialog_main import Ui_MainWindow
 from GUI.gui_settings import SettingsWindow
 from utils.stopwatch import StopWatch
 
-from utils.create_csv import CreateCSV
+from utils.raw_to_csv_converter import RawToCSVConverter
 
 COMPLETE, STOPPED = True, False
 SUCCESS, ERROR = True, False
@@ -168,11 +168,13 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             # self.btn_csv_view.setEnabled(True)       # TODO: View CSV
 
     def csv_create_file(self):
-        progress = CreateCSV(self, self.raw_file_paths)
-        if progress.run() == STOPPED:
+        csv_converter = RawToCSVConverter(self, self.raw_file_paths)
+        csv_converter.run()
+        if csv_converter.progress_backend.stopped:
             return
+
         # Display to edit_csv_path
-        self.csv_file_paths = progress.csv_file_paths
+        self.csv_file_paths = csv_converter.progress_backend.csv_file_paths
         file_num = len(self.csv_file_paths)
         if file_num == 1:
             self.edit_csv_path.setText(os.path.split(self.csv_file_paths[0])[-1])

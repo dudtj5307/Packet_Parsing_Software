@@ -28,16 +28,16 @@ RTPS_subheader_fmt = ["<B B H", ">B B H"]     # [0] Little-endian (<) / [1] : Bi
 RTPS_subheader_size = struct.calcsize(RTPS_subheader_fmt[0])
 
 class RAW_PACKET_PARSER:
-    def __init__(self, parsing_code_paths):
-        self.parsing_code_paths = parsing_code_paths
-
+    def __init__(self):
         self.SYS_TYPES = defaultdict(lambda: "Undefined")
         self.config = Config()
         self.log = ParseHistoryLog()
         self.monitor = ProgressMonitor()
+        self.parsing_function_paths = []
 
-        # Dynamic Import of generated-parsing functions
-        for parsing_code_path in self.parsing_code_paths:
+    # Dynamic Import of generated-parsing functions
+    def import_functions(self, parsing_functions_paths):
+        for parsing_code_path in self.parsing_function_paths:
             module_name = parsing_code_path.split('.py')[0]
             globals()[module_name] = importlib.import_module(f"IDL.{module_name}")
 
@@ -64,12 +64,12 @@ class RAW_PACKET_PARSER:
         if total_packets is None: self.estimated_packet_num(raw_file_path)
         print(total_packets)
 
+        self.monitor.update_and_check_stop('parse', task_total=total_packets)
         # Read raw pcap files
         with scapy.PcapReader(raw_file_path) as packets:
             for idx, packet in enumerate(packets):
                 # Update monitoring and Check if Stopped
-                self.monitor.update('parse', task_idx=idx, task_num=total_packets)
-                if self.monitor.backend_stopped(): return
+                if self.monitor.update_and_check_stop('parse', task_idx=idx): return
 
                 # Filter Packets without data (ex. ACK, FIN, SYN msgs)
                 if not packet.haslayer('Raw'):
