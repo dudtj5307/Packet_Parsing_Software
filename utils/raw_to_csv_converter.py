@@ -7,7 +7,8 @@ from GUI.gui_progress import ProgressWindow
 from utils.config import Config
 from utils.monitor import ProgressMonitor
 from utils.function_generator import ParsingFunctionGenerator
-from utils.packet_parser import RAW_PACKET_PARSER
+from utils.packet_parser import PacketParser
+from utils.csv_creator import CsvCreator
 
 COMPLETE, STOPPED = True, False
 
@@ -38,6 +39,10 @@ class RawToCSVConverter:
         self.progress_window.exec()
 
 
+def get_idl_files():
+    return [file for file in os.listdir(os.path.join(os.getcwd(), 'IDL')) if file.endswith(('.idl', '.h'))]
+
+
 class ProgressBackend(QThread):
     progress_update = pyqtSignal(list, name="progress_update")
     progress_finish = pyqtSignal(name="finished")
@@ -47,20 +52,25 @@ class ProgressBackend(QThread):
         self.config = Config()
         self.raw_file_paths = raw_file_paths
         self.csv_file_paths = raw_to_csv_paths(raw_file_paths)
-        # Is stopped from GUI
+        # Stopped from GUI
         self.stopped = False
         self.monitor = ProgressMonitor(backend=self)
 
     def run(self):
+        self.run_backend()
+        self.progress_finish.emit()
+
+    def run_backend(self):
         """ Step 1. Generate Parsing Functions """
         # Default IDL Folder
         os.makedirs(os.path.join(os.getcwd(), 'IDL'), exist_ok=True)
 
-        # idl_file_paths = get_idl_file_paths()
-        idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 500  # TODO: For Testing
+        # idl_file_paths = get_idl_files()
+        idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 1000  # TODO: For Testing
 
         generator = ParsingFunctionGenerator()
-        self.monitor.update_and_check_stop('idl', work_total=len(idl_file_paths))
+
+        self.monitor.update('idl', work_total=len(idl_file_paths))
         for idx, idl_file_path in enumerate(idl_file_paths):
             # Update monitoring and Check if Stopped
             if self.monitor.update_and_check_stop('idl', work_idx=idx): return
@@ -73,33 +83,28 @@ class ProgressBackend(QThread):
         """ Step 3. Create CSV    """
         os.makedirs(os.path.join(os.getcwd(), 'CSV'), exist_ok=True)
 
-        parser = RAW_PACKET_PARSER()
+        parser = PacketParser()
         parser.import_functions(function_files)
 
-        self.monitor.update_and_check_stop('parse', work_total=len(self.raw_file_paths))
+        creator = CsvCreator()
+
+        self.monitor.update('parse', work_total=len(self.raw_file_paths))
+        self.monitor.update('csv', work_total=len(idl_file_paths))
         for idx, (raw_file_path, csv_file_path) in enumerate(zip(self.raw_file_paths, self.csv_file_paths)):
             # Update monitoring and Check if Stopped
             if self.monitor.update_and_check_stop('parse', work_idx=idx): return
 
-            # Renew CSV file path
+            # Reset CSV file path
             if os.path.exists(csv_file_path):
                 rmtree(csv_file_path)
             os.makedirs(csv_file_path, exist_ok=True)
 
             ## Step 2. Parse Packet Data ##
-            parser.run(raw_file_path)
-
-            if self.stopped:  # TODO: [Monitoring] Check if Backend is stopped from GUI
-                self.progress_finish.emit()
-                return
+            packet_infos = parser.run(raw_file_path)
+            if self.stopped: return
 
             ## Step 3. Create CSV Files ##
-            self.run_csv_create()
-
-            if self.stopped:  # TODO: [Monitoring] Check if Backend is stopped from GUI
-                self.progress_finish.emit()
-                # return STOPPED
-        self.progress_finish.emit()
+            creator.run(packet_infos, csv_file_path)
 
 
     def stop_progress(self):

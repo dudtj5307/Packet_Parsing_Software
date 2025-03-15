@@ -53,13 +53,16 @@ class ParsingFunctionGenerator:
         self.outputs = []
 
     def set_path(self, idl_path):
+        # Initialize
+        self.idl_path, self.output_path = "", ""
+        self.idl_name, self.output_name = "", ""
+        self.IDL_TYPE_MAP = {}
         # IDL path for parsing & code generation
         self.idl_path = idl_path
         # IDL filename --> Function filename
         idl_folder, self.idl_name = os.path.split(idl_path)
         self.output_name = f"parse_{self.idl_name.split('.')[0]}.py"
         self.output_path = os.path.join(idl_folder, self.output_name)
-        self.IDL_TYPE_MAP = {}
 
     def reset(self):
         self.idl_path, self.output_path = "", ""
@@ -68,7 +71,6 @@ class ParsingFunctionGenerator:
 
     def run(self, idl_path):
         # Reset attributes before running
-        self.reset()
         self.set_path(idl_path)
         if self.is_up_to_date(): return
         if self.parse_idl_file() == STOPPED: return
@@ -132,16 +134,13 @@ class ParsingFunctionGenerator:
         with open(self.idl_path, 'r') as f:
             content = f.read()
         # Parse all structs in IDL file
-        for struct_match in struct_pattern.finditer(content):
-            self.monitor.update_and_check_stop('idl', task_total=len(self.IDL_TYPE_MAP) * 2)
-            for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
-                # Update monitoring and Check if Stopped
-                if self.monitor.update_and_check_stop('idl', task_idx=idx): return
-
-            struct_name = struct_match.group(1)
-            struct_body = struct_match.group(2)
+        struct_matches = list(struct_pattern.finditer(content))         # TODO: check if memory is ok
+        self.monitor.update('idl', task_total=len(struct_matches)*2)
+        for idx, struct_match in enumerate(struct_matches):
+            if self.monitor.update_and_check_stop('idl', task_idx=idx): return
+            struct_name, struct_body = struct_match.group(1), struct_match.group(2)
             fields = []
-            # 각 줄마다 필드 파싱 (빈 줄은 건너뜀)
+            # Parse by each line
             for line in struct_body.splitlines():
                 line = line.strip()
                 if not line:
@@ -149,11 +148,9 @@ class ParsingFunctionGenerator:
                 line = line.rstrip(',')
                 field_match = field_pattern.match(line)
                 if field_match:
-                    ctype = field_match.group(1)
-                    field_name = field_match.group(2)
-                    comment = field_match.group(3) if field_match.group(3) else ""
+                    ctype, field_name, comment = (field_match.group(1), field_match.group(2),
+                                                  field_match.group(3) if field_match.group(3) else "")
                     fields.append((ctype, field_name, comment))
-
             self.IDL_TYPE_MAP[struct_name] = fields
         return True
 
@@ -181,16 +178,15 @@ class ParsingFunctionGenerator:
         func_lines.append("    return result")
         return "\n".join(func_lines)
 
-
     def generate_code(self):
         generated_code = f"# {self.idl_name} : {calculate_hash(self.idl_path)}\n"
         generated_code += f"# Auto-generated parsing function\n\n"
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
-        self.monitor.update_and_check_stop('idl', task_total=len(self.IDL_TYPE_MAP) * 2)
+        self.monitor.update('idl', task_total=len(self.IDL_TYPE_MAP)*2, prior_status=0.5)
         for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
             # Update monitoring and Check if Stopped
-            if self.monitor.update_and_check_stop('idl', task_idx=idx): return
+            if self.monitor.update_and_check_stop('idl', task_idx=idx, prior_status=0.5): return
 
             generated_code += self.generate_parse_function(struct_name) + "\n\n"
 
@@ -211,7 +207,7 @@ if __name__ == '__main__':
 
     parent = FAKEPARENT()
 
-    code_generator = ParsingFunctionGenerator(parent)
+    code_generator = ParsingFunctionGenerator()
     code_generator.run(eie_file_path)
     code_generator.run(tie_file_path)
     print(code_generator.results)

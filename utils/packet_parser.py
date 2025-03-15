@@ -27,7 +27,7 @@ RTPS_header_size = struct.calcsize(RTPS_header_fmt)
 RTPS_subheader_fmt = ["<B B H", ">B B H"]     # [0] Little-endian (<) / [1] : Big-endian (>)
 RTPS_subheader_size = struct.calcsize(RTPS_subheader_fmt[0])
 
-class RAW_PACKET_PARSER:
+class PacketParser:
     def __init__(self):
         self.SYS_TYPES = defaultdict(lambda: "Undefined")
         self.config = Config()
@@ -57,17 +57,25 @@ class RAW_PACKET_PARSER:
         return 660000
 
     def run(self, raw_file_path):
+        packet_infos = []
         self.update_system_type(self.config.get())
         import time
         start = time.time()
         total_packets = self.log.get(raw_file_path)
-        if total_packets is None: self.estimated_packet_num(raw_file_path)
-        print(total_packets)
+        print(raw_file_path)
+        # No previous parsing log
+        if total_packets is None: total_packets = self.estimated_packet_num(raw_file_path);print(total_packets)
+        # Zero packets
+        if total_packets == 0:
+            self.monitor.update_and_check_stop('parse', task_idx=0, task_total=1)
+            return packet_infos
 
-        self.monitor.update_and_check_stop('parse', task_total=total_packets)
+        self.monitor.update('parse', task_total=total_packets)
         # Read raw pcap files
         with scapy.PcapReader(raw_file_path) as packets:
-            for idx, packet in enumerate(packets):
+            idx = -1
+            for packet in packets:
+                idx += 1
                 # Update monitoring and Check if Stopped
                 if self.monitor.update_and_check_stop('parse', task_idx=idx): return
 
@@ -88,12 +96,13 @@ class RAW_PACKET_PARSER:
 
                 packet_info = {'date': date, 'time': _time,'src_ip': src_ip, 'dst_ip':dst_ip,
                                'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
-                # print(packet_info)
+                packet_infos.append(packet_info)
 
-        total_packet_num = idx + 1
-        self.log.update(raw_file_path, total_packet_num)
-        print(time.time() - start, total_packet_num)
-        # return packet_info
+        # Updates raw file's total packet number
+        self.log.update(raw_file_path, idx+1)       # TODO: if len(packets)==0 error
+        print(time.time() - start, total_packets)
+
+        return packet_infos
 
     def parse_RTPS(self, msg_type, data):
         results = []
@@ -168,4 +177,4 @@ if __name__ == "__main__":
 
     parsing_codes = ['parse_EIE_Msg.py', 'parse_TIE_Msg.py']
 
-    packet_parser = RAW_PACKET_PARSER(parsing_codes)
+    packet_parser = PacketParser(parsing_codes)
