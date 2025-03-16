@@ -135,9 +135,9 @@ class ParsingFunctionGenerator:
             content = f.read()
         # Parse all structs in IDL file
         struct_matches = list(struct_pattern.finditer(content))         # TODO: check if memory is ok
-        self.monitor.update('idl', task_total=len(struct_matches)*2)
         for idx, struct_match in enumerate(struct_matches):
-            if self.monitor.update_and_check_stop('idl', task_idx=idx): return
+            if self.monitor.update_check_stop('idl', task_idx=idx, task_total=len(struct_matches) * 2):
+                return
             struct_name, struct_body = struct_match.group(1), struct_match.group(2)
             fields = []
             # Parse by each line
@@ -183,10 +183,10 @@ class ParsingFunctionGenerator:
         generated_code += f"# Auto-generated parsing function\n\n"
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
-        self.monitor.update('idl', task_total=len(self.IDL_TYPE_MAP)*2, prior_status=0.5)
         for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
             # Update monitoring and Check if Stopped
-            if self.monitor.update_and_check_stop('idl', task_idx=idx, prior_status=0.5): return
+            if self.monitor.update_check_stop('idl', task_idx=idx, task_total=len(self.IDL_TYPE_MAP), prior_status=0.5):
+                return
 
             generated_code += self.generate_parse_function(struct_name) + "\n\n"
 
