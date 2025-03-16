@@ -54,8 +54,11 @@ class Config:
         print("[Config] 'settings.conf' saved!")
 
     def get(self, key=None):
-        if key is None: return deepcopy(self._settings)
-        else:           return deepcopy(self._settings.get(key, None))
+        self.load_config_file()
+        if key is None:
+            return deepcopy(self._settings)
+        else:
+            return deepcopy(self._settings.get(key, None))
 
     def update(self, new_settings):
         if isinstance(new_settings, dict):

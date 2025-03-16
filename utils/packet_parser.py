@@ -1,4 +1,5 @@
 import os
+import sys
 import importlib
 import struct
 from datetime import datetime
@@ -36,10 +37,13 @@ class PacketParser:
         self.parsing_function_paths = []
 
     # Dynamic Import of generated-parsing functions
-    def import_functions(self, parsing_functions_paths):
-        for parsing_code_path in self.parsing_function_paths:
-            module_name = parsing_code_path.split('.py')[0]
-            globals()[module_name] = importlib.import_module(f"IDL.{module_name}")
+    def import_functions(self, parsing_function_paths):
+        for parsing_code_path in parsing_function_paths:
+            module_name = f"IDL.{parsing_code_path.split('.py')[0]}"
+            if module_name in sys.modules:
+                globals()[module_name] = importlib.reload(sys.modules[module_name])
+            else:
+                globals()[module_name] = importlib.import_module(module_name)
 
     # Update IP infos from config_data
     def update_system_type(self, config_data):
@@ -62,22 +66,24 @@ class PacketParser:
         import time
         start = time.time()
         total_packets = self.log.get(raw_file_path)
-        print(raw_file_path)
-        # No previous parsing log
-        if total_packets is None: total_packets = self.estimated_packet_num(raw_file_path);print(total_packets)
-        # Zero packets
-        if total_packets == 0:
-            self.monitor.update_and_check_stop('parse', task_idx=0, task_total=1)
-            return packet_infos
+        # print(raw_file_path, total_packets)
 
-        self.monitor.update('parse', task_total=total_packets)
+        # No previous parsing log
+        if total_packets is None:
+            total_packets = self.estimated_packet_num(raw_file_path)
+
+        # Zero packets          # TODO: How to handle zero packets...
+        if total_packets == 0:
+            self.monitor.update_check_stop('parse', task_idx=0, task_total=1)
+            total_packets = 1
+
         # Read raw pcap files
         with scapy.PcapReader(raw_file_path) as packets:
             idx = -1
             for packet in packets:
                 idx += 1
                 # Update monitoring and Check if Stopped
-                if self.monitor.update_and_check_stop('parse', task_idx=idx): return
+                if self.monitor.update_check_stop('parse', task_idx=idx, task_total=total_packets): return
 
                 # Filter Packets without data (ex. ACK, FIN, SYN msgs)
                 if not packet.haslayer('Raw'):
@@ -99,9 +105,9 @@ class PacketParser:
                 packet_infos.append(packet_info)
 
         # Updates raw file's total packet number
-        self.log.update(raw_file_path, idx+1)       # TODO: if len(packets)==0 error
-        print(time.time() - start, total_packets)
-
+        total_packets = idx+1
+        self.log.update(raw_file_path, total_packets)
+        # print(time.time() - start, total_packets)
         return packet_infos
 
     def parse_RTPS(self, msg_type, data):

@@ -20,6 +20,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from GUI.gui_main import MainWindow
 
 from utils.config import Config
+from utils.log import ParseHistoryLog
 
 
 # Distribution Info
@@ -63,6 +64,9 @@ class PacketParser(QObject):
         self.config = Config()
         self.config.load_config_file()
         self.iface_selected = self.config.get('interface')
+
+        # Saving raw packet number
+        self.log = ParseHistoryLog()
 
         # For File Opener
         self.root = Tk_root()
@@ -114,13 +118,20 @@ class PacketParser(QObject):
         # Close pcap_writer
         self.pcap_writer.close()
 
-    def start_sniffing(self):
-        # Initialize packet monitoring
-        self.pkt_tcp_num, self.pkt_udp_num = 0, 0
+        # Delete if zero packets
+        total_packet_num = self.pkt_tcp_num + self.pkt_udp_num
+        # if total_packet_num == 0 and os.path.exists(raw_file_path):
+        #     os.remove(raw_file_path)
+        #     return
+        # Save to log for parsing
+        self.log.update(raw_file_path, total_packet_num)
 
+    def start_sniffing(self):
         # Check validation of iface_selected
         self.iface_selected = self.config.get('interface')
-        if self.iface_selected[1] not in [iface['name'] for iface in get_windows_if_list()]:
+
+        match_iface = list(filter(lambda x: x['name']==self.iface_selected[1], get_windows_if_list()))
+        if not match_iface or self.iface_selected[0] not in match_iface[0]['ips']:
             messagebox.showerror("Network Error", "Select a new Network Interface")
             self.main_window.open_settings()
             return False
@@ -129,6 +140,9 @@ class PacketParser(QObject):
         self.is_sniffing = True
         self.sniff_thread = threading.Thread(target=self.sniff_packets, daemon=True, args=(self.iface_selected[1],))
         self.sniff_thread.start()
+
+        # Initialize packet monitoring
+        self.pkt_tcp_num, self.pkt_udp_num = 0, 0
 
         print("Start Sniffing Packets")
         return True

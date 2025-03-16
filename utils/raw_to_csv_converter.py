@@ -64,16 +64,14 @@ class ProgressBackend(QThread):
         """ Step 1. Generate Parsing Functions """
         # Default IDL Folder
         os.makedirs(os.path.join(os.getcwd(), 'IDL'), exist_ok=True)
-
         # idl_file_paths = get_idl_files()
         idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 1000  # TODO: For Testing
 
         generator = ParsingFunctionGenerator()
-
-        self.monitor.update('idl', work_total=len(idl_file_paths))
         for idx, idl_file_path in enumerate(idl_file_paths):
             # Update monitoring and Check if Stopped
-            if self.monitor.update_and_check_stop('idl', work_idx=idx): return
+            if self.monitor.update_check_stop('idl', work_idx=idx, work_total=len(idl_file_paths),
+                                                         task_idx=0, task_total=float('inf')): return
             generator.run(idl_file_path)
         function_files = generator.outputs
 
@@ -88,11 +86,10 @@ class ProgressBackend(QThread):
 
         creator = CsvCreator()
 
-        self.monitor.update('parse', work_total=len(self.raw_file_paths))
-        self.monitor.update('csv', work_total=len(idl_file_paths))
         for idx, (raw_file_path, csv_file_path) in enumerate(zip(self.raw_file_paths, self.csv_file_paths)):
             # Update monitoring and Check if Stopped
-            if self.monitor.update_and_check_stop('parse', work_idx=idx): return
+            if self.monitor.update_check_stop('parse', work_idx=idx, work_total=len(self.raw_file_paths),
+                                                           task_idx=0, task_total=float('inf')): return
 
             # Reset CSV file path
             if os.path.exists(csv_file_path):
