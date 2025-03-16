@@ -28,20 +28,31 @@ class ProgressWindow(QDialog, Ui_ProgressWindow):
         self.btn_bottom.clicked.connect(self.button_clicked)
 
         # Group Objects
-        self.progress_bars = [self.progress_bar1, self.progress_bar2, self.progress_bar3]
-        self.edit_checks   = [self.edit_check1, self.edit_check2, self.edit_check3]
-        self.complete      = [False, False, False]
+        # self.progress_bars = [self.progress_bar1, self.progress_bar2, self.progress_bar3]
+        # self.edit_checks   = [self.edit_check1, self.edit_check2, self.edit_check3]
+        # self.complete      = [False, False, False]
+
+        self.progress_bars = {'idl': self.progress_bar1, 'parse': self.progress_bar2, 'csv': self.progress_bar3}
+        self.edit_checks   = {'idl': self.edit_check1, 'parse': self.edit_check2, 'csv': self.edit_check3}
+        self.complete      = {'idl': False, 'parse': False, 'csv': False}
 
         self.backend_finished = False
         self.gui_stopped = False
 
     def update_progress(self, values):
-        for idx, val in enumerate(values):
-            self.progress_bars[idx].setValue(val)
-            # Set Check to green color when finished
-            if not self.complete[idx] and val >= 100:
-                self.edit_checks[idx].setStyleSheet("color: rgb(28, 221, 16);background-color: transparent;")
-                self.complete[idx] = False
+        key, val = values
+        # for idx, val in enumerate(values):
+        #     self.progress_bars[idx].setValue(val)
+        #     print("set value:", val)
+        #     # Set Check to green color when finished
+        #     if not self.complete[idx] and val >= 100:
+        #         self.edit_checks[idx].setStyleSheet("color: rgb(28, 221, 16);background-color: transparent;")
+        #         self.complete[idx] = False
+        self.progress_bars[key].setValue(val)
+        # Set Check to green color when finished
+        if not self.complete[key] and val >= 100:
+            self.edit_checks[key].setStyleSheet("color: rgb(28, 221, 16);background-color: transparent;")
+            self.complete[key] = False
 
     def finish_progress(self):
         if self.gui_stopped:
