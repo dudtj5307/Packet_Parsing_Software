@@ -65,7 +65,7 @@ class ProgressBackend(QThread):
         # Default IDL Folder
         os.makedirs(os.path.join(os.getcwd(), 'IDL'), exist_ok=True)
         # idl_file_paths = get_idl_files()
-        idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 1000  # TODO: For Testing
+        idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 1  # TODO: For Testing
 
         generator = ParsingFunctionGenerator()
         for idx, idl_file_path in enumerate(idl_file_paths):
@@ -98,6 +98,7 @@ class ProgressBackend(QThread):
 
             ## Step 2. Parse Packet Data ##
             packet_infos = parser.run(raw_file_path)
+            print(packet_infos)
             if self.stopped: return
 
             ## Step 3. Create CSV Files ##

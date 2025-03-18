@@ -47,14 +47,21 @@ class PacketParser:
 
     # Update IP infos from config_data
     def update_system_type(self, config_data):
+        # Local IPs
         local = {key: LOCAL_IP_PREFIX + val for key, val in config_data['IP_local'].items()}
         self.SYS_TYPES.update({local['adoc_ip1']:'ADOC', local['adoc_ip2']:'ADOC', local['adoc_ip3']:'ADOC',
                                local['wcc_ip1']: 'WCC',  local['wcc_ip2']: 'WCC',  local['wcc_ip3']: 'WCC',
                                local['dlu_ip1']: 'DLU',  local['dlu_ip2']: 'DLU',  local['dlu_ip3']: 'DLU'})
+        # Near IPs
+        range_mdil = range(int(config_data['IP_near']['mdil_ip1']), int(config_data['IP_near']['mdil_ip2']) + 1)
+        near = {NEAR_IP_PREFIX + str(IP_C) + '.' + config_data['IP_near']['mdil_ip3'] : 'MDIL' for IP_C in range_mdil}
+        self.SYS_TYPES.update(near)
 
         self.SYS_TYPES['10.30.7.255'] = 'WCC'    # TODO: For Testing
         self.SYS_TYPES['10.30.7.255'] = 'WCC'    # TODO: For Testing
         self.SYS_TYPES['10.30.7.66'] = 'WCC'    # TODO: For Testing
+
+        print(self.SYS_TYPES)
 
     def estimated_packet_num(self, file_path):
         os.path.getsize(file_path)
@@ -93,9 +100,14 @@ class PacketParser:
                 src_ip,  dst_ip  = packet[IP].src, packet[IP].dst
                 src_sys, dst_sys = self.SYS_TYPES[src_ip], self.SYS_TYPES[dst_ip]
                 msg_type = MSG_TYPES[(src_sys, dst_sys)]
-                if msg_type == 'Undefined': continue
+                # if msg_type == 'Undefined': continue      # TODO: For testing
 
-                rtps_packet = packet['Raw'].load
+                raw_data = packet['Raw'].load
+
+                if msg_type in ['EIE', 'TIE']:
+                    self.parse_RTPS(msg_type, raw_data)
+
+
 
                 data = self.parse_data(msg_type, rtps_packet)
                 if data is None: continue
@@ -108,6 +120,8 @@ class PacketParser:
         total_packets = idx+1
         self.log.update(raw_file_path, total_packets)
         # print(time.time() - start, total_packets)
+
+        print(packet_infos)
         return packet_infos
 
     def parse_RTPS(self, msg_type, data):

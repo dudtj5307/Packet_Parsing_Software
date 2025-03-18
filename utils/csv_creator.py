@@ -10,6 +10,6 @@ class CsvCreator:
 
 
     def run(self, packet_infos, csv_file_path):
+        print('CsvCreator run!')
         self.packet_infos = packet_infos
         self.csv_file_path = packet_infos
-        print('CsvCreator run!')
