@@ -10,6 +10,7 @@ import scapy.all as scapy
 from utils.config import Config
 from utils.monitor import ProgressMonitor
 from utils.log import ParseHistoryLog
+from utils import packet_counter
 
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
@@ -72,8 +73,9 @@ class PacketParser:
         self.update_system_type(self.config.get())
         import time
         start = time.time()
+
+        # Get packet number from log
         total_packets = self.log.get(raw_file_path)
-        # print(raw_file_path, total_packets)
 
         # No previous parsing log
         if total_packets is None:
@@ -81,7 +83,6 @@ class PacketParser:
 
         # Zero packets          # TODO: How to handle zero packets...
         if total_packets == 0:
-            self.monitor.update_check_stop('parse', task_idx=0, task_total=1)
             total_packets = 1
 
         # Read raw pcap files
@@ -100,14 +101,17 @@ class PacketParser:
                 src_ip,  dst_ip  = packet[IP].src, packet[IP].dst
                 src_sys, dst_sys = self.SYS_TYPES[src_ip], self.SYS_TYPES[dst_ip]
                 msg_type = MSG_TYPES[(src_sys, dst_sys)]
+
                 # if msg_type == 'Undefined': continue      # TODO: For testing
 
                 raw_data = packet['Raw'].load
 
                 if msg_type in ['EIE', 'TIE']:
                     self.parse_RTPS(msg_type, raw_data)
-
-
+                elif msg_type in ['MDIL']:
+                    self.parse_data(msg_type, raw_data)
+                else:
+                    continue
 
                 data = self.parse_data(msg_type, rtps_packet)
                 if data is None: continue
@@ -117,9 +121,8 @@ class PacketParser:
                 packet_infos.append(packet_info)
 
         # Updates raw file's total packet number
-        total_packets = idx+1
+        total_packets = idx + 1
         self.log.update(raw_file_path, total_packets)
-        # print(time.time() - start, total_packets)
 
         print(packet_infos)
         return packet_infos
