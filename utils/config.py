@@ -23,6 +23,10 @@ class Config:
             cls.__instance._settings = deepcopy(DEFAULT_CONFIG_DATA)
         return cls.__instance
 
+    def __init__(self):
+        self.load_config_file()
+        print("[Config] 'settings.conf' loaded!")
+
     def same_keys_recursive(self, dict1, dict2):
         if set(dict1.keys()) != set(dict2.keys()):
             return False
@@ -39,7 +43,6 @@ class Config:
         try:
             with open(path if path else CONFIG_FILE_NAME, "r") as file:
                 self._settings = json.load(file)
-                print("[Config] 'settings.conf' loaded!")
                 if not self.same_keys_recursive(self._settings, DEFAULT_CONFIG_DATA):
                     raise KeyError("[Error] Invalid Dictionary Keys")
         except Exception as e:
@@ -64,6 +67,7 @@ class Config:
         if isinstance(new_settings, dict):
             self._settings.update(new_settings)
         self.save_config_file()
+        self.load_config_file()
 
 
 
