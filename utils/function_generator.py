@@ -161,7 +161,8 @@ class ParsingFunctionGenerator:
 
         # Recursive for Nested Structures
         fmt = self.get_fmt_recursive(struct_name)
-        size = struct.calcsize(fmt)
+        size = struct.calcsize("="+fmt)             # TODO: Check if real packet is sent with 'padding'
+
         dict_lines, _ = self.get_dict_recursive(struct_name, "    ", 0)
 
         func_lines = list()
@@ -169,6 +170,7 @@ class ParsingFunctionGenerator:
         func_lines.append(f"def parse_{struct_name}(data):")
         func_lines.append(f"    size = {size}")
         func_lines.append(f"    if len(data) != size:")
+        func_lines.append(f"        print(f\'data: {{len(data)}} / size: {size}')")
         func_lines.append(f"        return None")
         func_lines.append(f"    fmt  = '>{fmt}'")                    # > : Big Endian / < : Little Endian
         func_lines.append("    data = struct.unpack(fmt, data)")

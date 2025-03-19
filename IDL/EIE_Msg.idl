@@ -1,28 +1,23 @@
-struct msgType {
-int a;
-}
-
 struct trkNo {
-msgType     type;
     ushort  trkNo1;
     ushort  trkNo2;
     uint    trkNo3;
     uint    trkNo4;
 }
 
-struct EIE_header {
-    trkNo   srcTN;
-    trkNo   dstTN;
-    uchar   msgType;
+struct EIE_header {         // 26
+    trkNo   srcTN;          // 12
+    trkNo   dstTN;          // 12
+    ushort   msgType;       // 2
 }
 
-struct EIE_0x301{
+struct EIE_0x0301{
 EIE_header  header;
 uchar	type1;  // 0~200
 ushort type2;
 }
 
-struct EIE_0x302{
+struct EIE_0x0302{
 EIE_header  header;
 uint	type1;
 ushort type2;
@@ -32,7 +27,7 @@ short type5;
 char type6;
 }
 
-struct EIE_0x303{
+struct EIE_0x0303{
 EIE_header  header;
 uint	type1;
 ushort type2;

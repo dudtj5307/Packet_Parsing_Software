@@ -5,8 +5,9 @@ import struct
 
 # Parse TIE_0x443 data
 def parse_TIE_0x443(data):
-    size = 15
+    size = 14
     if len(data) != size:
+        print(f'data: {len(data)} / size: 14')
         return None
     fmt  = '>IHBihc'
     data = struct.unpack(fmt, data)
@@ -22,8 +23,9 @@ def parse_TIE_0x443(data):
 
 # Parse TIE_0x445 data
 def parse_TIE_0x445(data):
-    size = 15
+    size = 14
     if len(data) != size:
+        print(f'data: {len(data)} / size: 14')
         return None
     fmt  = '>IHBihc'
     data = struct.unpack(fmt, data)
@@ -39,8 +41,9 @@ def parse_TIE_0x445(data):
 
 # Parse TIE_0x455 data
 def parse_TIE_0x455(data):
-    size = 15
+    size = 14
     if len(data) != size:
+        print(f'data: {len(data)} / size: 14')
         return None
     fmt  = '>IHBihc'
     data = struct.unpack(fmt, data)
