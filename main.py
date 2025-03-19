@@ -62,7 +62,6 @@ class PacketParser(QObject):
 
         # Load Config Settings
         self.config = Config()
-        self.config.load_config_file()
         self.iface_selected = self.config.get('interface')
 
         # Saving raw packet number
@@ -84,7 +83,8 @@ class PacketParser(QObject):
     def packet_callback(self, packet):
         if not self.is_sniffing:
             return
-        if not packet.haslayer(IP):
+        # Return if no 'IP' layer or no 'Raw' layer
+        if not packet.haslayer(IP) or not packet.haslayer('Raw'):
             return
         if packet.haslayer(TCP):
             self.pkt_tcp_num += 1
