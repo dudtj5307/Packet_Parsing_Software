@@ -40,7 +40,7 @@ class RawToCSVConverter:
 
 
 def get_idl_files():
-    return [file for file in os.listdir(os.path.join(os.getcwd(), 'IDL')) if file.endswith(('.idl', '.h'))]
+    return [os.path.join('IDL', file) for file in os.listdir(os.path.join(os.getcwd(), 'IDL')) if file.endswith(('.idl', '.h'))]
 
 
 class ProgressBackend(QThread):
@@ -64,10 +64,16 @@ class ProgressBackend(QThread):
         """ Step 1. Generate Parsing Functions """
         # Default IDL Folder
         os.makedirs(os.path.join(os.getcwd(), 'IDL'), exist_ok=True)
-        # idl_file_paths = get_idl_files()
-        idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 1  # TODO: For Testing
 
+        # Generate functions from IDL files
         generator = ParsingFunctionGenerator()
+        idl_file_paths = get_idl_files()
+        # idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 1  # TODO: For Testing
+
+        # TODO: what to do if no idl_paths
+        if len(idl_file_paths) == 0:
+            return
+
         for idx, idl_file_path in enumerate(idl_file_paths):
             # Update monitoring and Check if Stopped
             if self.monitor.update_check_stop('idl', work_idx=idx, work_total=len(idl_file_paths),
@@ -104,11 +110,8 @@ class ProgressBackend(QThread):
             ## Step 3. Create CSV Files ##
             creator.run(packet_infos, csv_file_path)
 
-
     def stop_progress(self):
         self.stopped = True
 
 
-    def run_csv_create(self):
-        pass
 
