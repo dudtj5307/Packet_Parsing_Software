@@ -105,8 +105,9 @@ class ProgressBackend(QThread):
             ## Step 2. Parse Packet Data ##
             packet_infos = parser.run(raw_file_path)
             print(packet_infos)
-            if self.stopped: return
 
+            if self.monitor.update_check_stop('csv', work_idx=idx, work_total=len(self.raw_file_paths),
+                                                           task_idx=0, task_total=float('inf')): return
             ## Step 3. Create CSV Files ##
             creator.run(packet_infos, csv_file_path)
 

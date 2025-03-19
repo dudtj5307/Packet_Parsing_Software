@@ -6,7 +6,6 @@ from datetime import datetime
 from collections import defaultdict
 
 import scapy.all as scapy
-
 from scapy.layers.l2 import Ether, ARP
 from scapy.layers.inet import IP, TCP, UDP, ICMP
 
@@ -15,8 +14,6 @@ from utils.monitor import ProgressMonitor
 from utils.log import ParseHistoryLog
 from utils import packet_counter
 from utils.ndds import NDDS
-
-import IDL
 
 
 LOCAL_IP_PREFIX = '10.30.7.'
@@ -108,10 +105,11 @@ class PacketParser:
 
                 if packet.haslayer(UDP) and packet.haslayer(NDDS):
                     # print(packet.show())
-                    data = self.parse_data('EIE', packet[NDDS].load)
+                    msg_name, data = self.parse_data('EIE', raw_data)
                     print("data: ", data)
+                else:
+                    continue
 
-                # self.parse_RTPS(msg_type, raw_data)
                 # if msg_type in ['EIE', 'TIE']:
                 #     self.parse_RTPS(msg_type, raw_data)
                 # elif msg_type in ['MDIL']:
@@ -122,15 +120,14 @@ class PacketParser:
                 # data = self.parse_data(msg_type, raw_data)
                 # # if data is None: continue
 
-                # packet_info = {'date': date, 'time': _time,'src_ip': src_ip, 'dst_ip':dst_ip,
-                #                'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
-                # packet_infos.append(packet_info)
+                packet_info = {'DATE': f"{date}'", 'TIME': f"{_time}'",'SRC_IP': src_ip, 'DST_IP':dst_ip,
+                               'SRC_SYS':src_sys, 'DST_SYS':dst_sys, 'MSG_NAME':msg_name, 'DATA':data}
+                packet_infos.append(packet_info)
 
         # Updates raw file's total packet number
         total_packets = idx + 1
         self.log.update(raw_file_path, total_packets)
 
-        print(packet_infos)
         return packet_infos
 
     def parse_RTPS(self, msg_type, data):
@@ -163,36 +160,31 @@ class PacketParser:
 
     # Parse if EIE or TIE or K or X or J
     def parse_data(self, msg_type, data):
-        type_function_name = f'parse_{msg_type}'
-
-        func = getattr(self, type_function_name, None)
+        function_name = f'parse_{msg_type}'
+        func = getattr(self, function_name, None)
         if callable(func):
             return func(data)
         else:
             print(f"Can not find msg type '{msg_type}'")
             return None
 
-        # if type_function_name in self.locals():
-        #     return locals()[type_function_name](data)
-        # else:
-        #     print(f"Can not find msg type '{msg_type}'")
-        #     return None
-
     # noinspection PyUnresolvedReferences
     def parse_EIE(self, data):
-        eie_type = struct.unpack('>H', data[24:26])[0]
-        # eie_type = 0x0301
-        EIE_function_name = f'parse_EIE_0x{eie_type:04X}'
+        import IDL
+        eie_type = struct.unpack('>H', data[24:26])[0]      # TODO: Find right eie_type
+        eie_name = f'EIE_0x{eie_type:04X}'
+        EIE_function_name = f'parse_{eie_name}'
         if EIE_function_name in IDL.parse_EIE_Msg.__dict__:
-            return IDL.parse_EIE_Msg.__dict__[EIE_function_name](data)
+            return eie_name, IDL.parse_EIE_Msg.__dict__[EIE_function_name](data)
         else:
             print(f"Can not find function '{EIE_function_name}'")
-            return None
+            return None, None
 
     # noinspection PyUnresolvedReferences
     def parse_TIE(self, data):
+        import IDL
         # Find TIE type from TIE header
-        tie_type = struct.unpack('>H', data[0:2])[0]
+        tie_type = struct.unpack('>H', data[0:2])[0]        # TODO: Find right tie_type
         # print(tie_type)
         tie_type = 0x301
         TIE_function_name = f'parse_TIE_{hex(tie_type)}'

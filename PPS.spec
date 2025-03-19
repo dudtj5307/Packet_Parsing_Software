@@ -9,7 +9,7 @@ ico_files  = [(f, 'GUI\\res') for f in glob.glob('GUI\\res\\*.ico')]
 print(png_files, ico_files)
 
 a = Analysis(
-    ['PPS.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
     datas=png_files+ico_files,
