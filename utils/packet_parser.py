@@ -7,13 +7,17 @@ from collections import defaultdict
 
 import scapy.all as scapy
 
+from scapy.layers.l2 import Ether, ARP
+from scapy.layers.inet import IP, TCP, UDP, ICMP
+
 from utils.config import Config
 from utils.monitor import ProgressMonitor
 from utils.log import ParseHistoryLog
 from utils import packet_counter
+from utils.ndds import NDDS
 
+import IDL
 
-Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 
 LOCAL_IP_PREFIX = '10.30.7.'
 NEAR_IP_PREFIX = '192.168.'
@@ -62,8 +66,6 @@ class PacketParser:
         self.SYS_TYPES['10.30.7.255'] = 'WCC'    # TODO: For Testing
         self.SYS_TYPES['10.30.7.66'] = 'WCC'    # TODO: For Testing
 
-        print(self.SYS_TYPES)
-
     def estimated_packet_num(self, file_path):
         os.path.getsize(file_path)
         return 660000
@@ -94,31 +96,35 @@ class PacketParser:
                 if self.monitor.update_check_stop('parse', task_idx=idx, task_total=total_packets): return
 
                 # Filter Packets without data (ex. ACK, FIN, SYN msgs)
-                if not packet.haslayer('Raw'):
-                    continue
+                if not packet.haslayer('Raw'): continue
+
+                raw_data = packet['Raw'].load
 
                 date, _time = datetime.fromtimestamp(float(packet.time)).strftime("%Y-%m-%d %H:%M:%S.%f").split(" ")
                 src_ip,  dst_ip  = packet[IP].src, packet[IP].dst
                 src_sys, dst_sys = self.SYS_TYPES[src_ip], self.SYS_TYPES[dst_ip]
                 msg_type = MSG_TYPES[(src_sys, dst_sys)]
-
                 # if msg_type == 'Undefined': continue      # TODO: For testing
 
-                raw_data = packet['Raw'].load
+                if packet.haslayer(UDP) and packet.haslayer(NDDS):
+                    # print(packet.show())
+                    data = self.parse_data('EIE', packet[NDDS].load)
+                    print("data: ", data)
 
-                if msg_type in ['EIE', 'TIE']:
-                    self.parse_RTPS(msg_type, raw_data)
-                elif msg_type in ['MDIL']:
-                    self.parse_data(msg_type, raw_data)
-                else:
-                    continue
+                # self.parse_RTPS(msg_type, raw_data)
+                # if msg_type in ['EIE', 'TIE']:
+                #     self.parse_RTPS(msg_type, raw_data)
+                # elif msg_type in ['MDIL']:
+                #     self.parse_data(msg_type, raw_data)
+                # else:
+                #     continue
 
-                data = self.parse_data(msg_type, rtps_packet)
-                if data is None: continue
+                # data = self.parse_data(msg_type, raw_data)
+                # # if data is None: continue
 
-                packet_info = {'date': date, 'time': _time,'src_ip': src_ip, 'dst_ip':dst_ip,
-                               'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
-                packet_infos.append(packet_info)
+                # packet_info = {'date': date, 'time': _time,'src_ip': src_ip, 'dst_ip':dst_ip,
+                #                'src_sys':src_sys, 'dst_sys':dst_sys, 'msg_type':msg_type, 'data':data}
+                # packet_infos.append(packet_info)
 
         # Updates raw file's total packet number
         total_packets = idx + 1
@@ -132,7 +138,8 @@ class PacketParser:
         HEAD_LEN = RTPS_header_size         # 20
         SUBHEAD_LEN = RTPS_subheader_size   # 4
         pkt_len = len(data)
-        if len(data) < HEAD_LEN + SUBHEAD_LEN:
+
+        if pkt_len < HEAD_LEN + SUBHEAD_LEN:
             return None
 
         # if data[0:4] != b'RTPS': return       # TODO: Delete after testing
@@ -148,31 +155,38 @@ class PacketParser:
             if idx + subMsg_len > pkt_len-1:
                 return
 
-            result = self.parse_msg(msg_type, data[idx+SUBHEAD_LEN:idx+subMsg_len])
+            result = self.parse_data(msg_type, data[idx+SUBHEAD_LEN:idx+subMsg_len])
             if result: result.append(result)
 
             idx += subMsg_len
-            print(idx)
+        return results
 
     # Parse if EIE or TIE or K or X or J
     def parse_data(self, msg_type, data):
         type_function_name = f'parse_{msg_type}'
-        if type_function_name in globals():
-            return globals()[type_function_name](data)
+
+        func = getattr(self, type_function_name, None)
+        if callable(func):
+            return func(data)
         else:
-            # print(f"Can not find msg type '{msg_type}'")
+            print(f"Can not find msg type '{msg_type}'")
             return None
+
+        # if type_function_name in self.locals():
+        #     return locals()[type_function_name](data)
+        # else:
+        #     print(f"Can not find msg type '{msg_type}'")
+        #     return None
 
     # noinspection PyUnresolvedReferences
     def parse_EIE(self, data):
-        # Find TIE type from TIE header
-        eie_type = struct.unpack('>H', data[0:2])[0]
-        eie_type = 0x301
-        EIE_function_name = f'parse_EIE_{hex(eie_type)}'
-        if EIE_function_name in parse_EIE_Msg.__dict__:
-            return parse_EIE_Msg.__dict__[EIE_function_name](data)
+        eie_type = struct.unpack('>H', data[24:26])[0]
+        # eie_type = 0x0301
+        EIE_function_name = f'parse_EIE_0x{eie_type:04X}'
+        if EIE_function_name in IDL.parse_EIE_Msg.__dict__:
+            return IDL.parse_EIE_Msg.__dict__[EIE_function_name](data)
         else:
-            print(f"Can not find type 'EIE_{hex(eie_type)}'")
+            print(f"Can not find function '{EIE_function_name}'")
             return None
 
     # noinspection PyUnresolvedReferences
@@ -182,8 +196,8 @@ class PacketParser:
         # print(tie_type)
         tie_type = 0x301
         TIE_function_name = f'parse_TIE_{hex(tie_type)}'
-        if TIE_function_name in parse_TIE_Msg.__dict__:
-            return parse_TIE_Msg.__dict__[TIE_function_name](data)
+        if TIE_function_name in IDL.parse_TIE_Msg.__dict__:
+            return IDL.parse_TIE_Msg.__dict__[TIE_function_name](data)
         else:
             print(f"Can not find type 'TIE_{hex(tie_type)}'")
             return None
