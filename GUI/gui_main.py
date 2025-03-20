@@ -195,9 +195,9 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
 
     def csv_open_folder(self):
         # Just open CSV folder
-        csv_folder_path = os.path.join(os.getcwd(), 'CSV')
-        os.makedirs(csv_folder_path, exist_ok=True)
-        os.startfile(csv_folder_path)
+        csv_root_folder_path = os.path.join(os.getcwd(), 'CSV')
+        os.makedirs(csv_root_folder_path, exist_ok=True)
+        os.startfile(csv_root_folder_path)
 
 
 if __name__ == "__main__" :

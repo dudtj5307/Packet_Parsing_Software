@@ -2,13 +2,15 @@ import os
 import csv
 from collections import defaultdict
 
-from PyQt6.QtWidgets import QDialog, QAbstractItemView
+from PyQt6.QtWidgets import QDialog, QAbstractItemView, QMainWindow
 from PyQt6.QtGui import QIcon, QBrush, QColor
 from PyQt6.QtCore import QAbstractTableModel, QThread, pyqtSignal, Qt
 
 from GUI.ui.dialog_viewer import Ui_ViewerWindow
 
-class ViewerWindow(QDialog, Ui_ViewerWindow):
+
+# class ViewerWindow(QDialog, Ui_ViewerWindow):
+class ViewerWindow(QMainWindow, Ui_ViewerWindow):
     def __init__(self, parent=None, csv_folder_path=None):
         super(ViewerWindow, self).__init__(parent)
         self.setupUi(self)
@@ -16,8 +18,6 @@ class ViewerWindow(QDialog, Ui_ViewerWindow):
 
         # CSV Folder to View
         self.csv_folder_path = csv_folder_path[0]
-
-        print(self.csv_folder_path.split())
 
         self.setWindowTitle(f"CSV Viewer - {os.path.basename(self.csv_folder_path)}")
 
@@ -28,8 +28,8 @@ class ViewerWindow(QDialog, Ui_ViewerWindow):
 
         # Load csv list
         self.loader_thread = None
-        self.get_path = defaultdict(str)
-        self.get_name = defaultdict(str)
+        self.get_csv_path = defaultdict(str)
+        self.get_csv_name = defaultdict(str)
         self.load_csv_list()
 
         # CSV Table Cache
@@ -38,9 +38,13 @@ class ViewerWindow(QDialog, Ui_ViewerWindow):
         # Signal set
         self.list_csv_names.clicked.connect(self.clicked_csv_list)
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+
     def add_item(self, csv_name, csv_path):
-        self.get_path[csv_name] = csv_path
-        self.get_name[csv_path] = csv_name
+        self.get_csv_path[csv_name] = csv_path
+        self.get_csv_name[csv_path] = csv_name
         self.list_csv_names.addItem(csv_name)
 
     def load_csv_list(self):
@@ -55,7 +59,7 @@ class ViewerWindow(QDialog, Ui_ViewerWindow):
 
     def clicked_csv_list(self):
         csv_name = self.list_csv_names.currentItem().text()
-        csv_path = self.get_path[csv_name]
+        csv_path = self.get_csv_path[csv_name]
         # Check if already in cache
         if csv_path in self.cache:
             self.update_table(self.cache[csv_path])
@@ -63,15 +67,15 @@ class ViewerWindow(QDialog, Ui_ViewerWindow):
             for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
                 item.setBackground(QBrush(QColor(220, 220, 220)))
             self.loader_thread = CSVLoaderThread(csv_path)
-            self.loader_thread.load_complete.connect(self.on_csv_loaded)
+            self.loader_thread.load_complete.connect(self.csv_load_complete)
             self.loader_thread.start()
 
-    def on_csv_loaded(self, csv_path, data):
+    def csv_load_complete(self, csv_path, data):
         # Save in cache
         self.update_table(data)
         self.cache[csv_path] = data
 
-        csv_name = self.get_name[csv_path]
+        csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
             item.setBackground(QBrush(QColor(245, 255, 245)))
 
@@ -91,14 +95,14 @@ class CSVLoaderThread(QThread):
         super().__init__()
         self.csv_path = csv_path
 
-    def run(self):
+    def run(self, encoding='utf-8'):
         try:
-            with open(self.csv_path, newline='', encoding='utf-8') as csvfile:
+            with open(self.csv_path, newline='', encoding='utf-8') as csvfile:      # TODO: Check if 'cp949' or 'euc-kr'
                 reader = csv.reader(csvfile)
                 data = list(reader)
             self.load_complete.emit(self.csv_path, data)
         except Exception as e:
-            print(f"Error loading {self.csv_path}: {e}")
+            print(f"Error loading {self.csv_path}: {e}")                           # TODO: Check if 'cp949' or 'euc-kr'
             import chardet
             with open(self.csv_path, 'rb') as f:
                 raw_data = f.read()

@@ -110,7 +110,7 @@ class ProgressBackend(QThread):
             if self.monitor.update_check_stop('csv', work_idx=idx, work_total=len(self.raw_file_paths),
                                                            task_idx=0, task_total=float('inf')): return
             ## Step 3. Create CSV Files ##
-            creator.run(packet_infos * 30000, csv_file_path)        # TODO: For Testing
+            creator.run(packet_infos * 10000, csv_file_path)        # TODO: For Testing
 
     def stop_progress(self):
         self.stopped = True
