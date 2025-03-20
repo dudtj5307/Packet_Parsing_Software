@@ -1,8 +1,5 @@
 import os
 import sys
-import time
-import copy
-import json
 import psutil
 import datetime
 import threading
@@ -20,11 +17,11 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from GUI.gui_main import MainWindow
 
 from utils.config import Config
-from utils.log import ParseHistoryLog
+from utils.parser.log import ParseHistoryLog
 
 
 # Distribution Info
-LAST_UPDATE, VERSION = "2025.03.13", "v0.0"
+LAST_UPDATE, VERSION = "2025.03.20", "v0.0"
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 

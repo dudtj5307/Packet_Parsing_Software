@@ -1,4 +1,4 @@
-from utils.log import ParseHistoryLog
+from utils.parser.log import ParseHistoryLog
 
 log = ParseHistoryLog()
 

@@ -9,24 +9,15 @@ from utils.monitor import ProgressMonitor
 
 
 # C 타입과 Python struct 모듈 포맷 코드 매핑 (필요에 따라 추가)
-KNOWN_TYPE_MAP = {
-    'char'          : 'c',
+KNOWN_CTYPE_MAP = {
+    'char' : 'c',  'int8' : 'c', 'signed char' : 'b',
+    'uchar' : 'B', 'octet' : 'B', 'unsigned char' : 'B',
 
-    'uchar'         : 'B',
-    'unsigned char' : 'B',
-    'octet'         : 'B',
+    'short' : 'h', 'signed short' : 'h',
+    'ushort' : 'H', 'unsigned short' : 'H',
 
-    'short'          : 'h',
-    'long'           : 'h',
-
-    'ushort'         : 'H',
-    'unsigned short' : 'H',
-    'unsigned long'  : 'h',
-
-
-    'int'   : 'i',
-    'uint'  : 'I',
-    'unsigned int' : 'I',
+    'int'   : 'i', 'long': 'i', 'signed int' : 'i', 'signed long' : 'i',
+    'uint'  : 'I', 'ulong' : 'I', 'unsigned long'  : 'I', 'unsigned int' : 'I',
 }
 
 COMPLETE, STOPPED = True, False
@@ -48,15 +39,15 @@ class ParsingFunctionGenerator:
         self.monitor = ProgressMonitor()
         self.idl_path, self.output_path = "", ""
         self.idl_name, self.output_name = "", ""
-        self.KNOWN_TYPE_MAP = KNOWN_TYPE_MAP        #  OS defined structs
-        self.IDL_TYPE_MAP   = {}                    # IDL defined structs
+        self.KNOWN_CTYPE_MAP = KNOWN_CTYPE_MAP        #  OS defined structs
+        self.IDL_CTYPE_MAP   = {}                    # IDL defined structs
         self.outputs = []
 
     def set_path(self, idl_path):
         # Initialize
         self.idl_path, self.output_path = "", ""
         self.idl_name, self.output_name = "", ""
-        self.IDL_TYPE_MAP = {}
+        self.IDL_CTYPE_MAP = {}
         # IDL path for parsing & code generation
         self.idl_path = idl_path
         # IDL filename --> Function filename
@@ -67,7 +58,7 @@ class ParsingFunctionGenerator:
     def reset(self):
         self.idl_path, self.output_path = "", ""
         self.idl_name, self.output_name = "", ""
-        self.IDL_TYPE_MAP = {}
+        self.IDL_CTYPE_MAP = {}
 
     def run(self, idl_path):
         # Reset attributes before running
@@ -102,25 +93,25 @@ class ParsingFunctionGenerator:
 
     # Recursive fmt function for nested structure
     def get_fmt_recursive(self, struct_name):
-        fields = self.IDL_TYPE_MAP.get(struct_name, [])
+        fields = self.IDL_CTYPE_MAP.get(struct_name, [])
         fmt = ""
         for ctype, field_name, comment in fields:
-            if ctype in self.KNOWN_TYPE_MAP:
-                fmt += self.KNOWN_TYPE_MAP[ctype]
-            elif ctype in self.IDL_TYPE_MAP:
+            if ctype in self.KNOWN_CTYPE_MAP:
+                fmt += self.KNOWN_CTYPE_MAP[ctype]
+            elif ctype in self.IDL_CTYPE_MAP:
                 fmt += self.get_fmt_recursive(ctype)     # Recursive
             else:
-                print(f"Warning: Struct({struct_name})-Field({field_name}) Unknown type: {ctype}")
+                print(f"Warning: Struct({struct_name})-Field({field_name}) Unknown ctype: {ctype}")
         return fmt
 
     def get_dict_recursive(self, struct_name, indent, index):
         lines = []
         current_index = index
-        for ctype, field_name, comment in self.IDL_TYPE_MAP[struct_name]:
-            if ctype in self.KNOWN_TYPE_MAP:
+        for ctype, field_name, comment in self.IDL_CTYPE_MAP[struct_name]:
+            if ctype in self.KNOWN_CTYPE_MAP:
                 lines.append(f"{indent}'{field_name}': data[{current_index}],")
                 current_index += 1
-            elif ctype in self.IDL_TYPE_MAP:
+            elif ctype in self.IDL_CTYPE_MAP:
                 nested_lines, next_index = self.get_dict_recursive(ctype, indent + "    ", current_index)
                 lines.append(f"{indent}'{field_name}': {{")
                 lines.extend(nested_lines)
@@ -151,7 +142,7 @@ class ParsingFunctionGenerator:
                     ctype, field_name, comment = (field_match.group(1), field_match.group(2),
                                                   field_match.group(3) if field_match.group(3) else "")
                     fields.append((ctype, field_name, comment))
-            self.IDL_TYPE_MAP[struct_name] = fields
+            self.IDL_CTYPE_MAP[struct_name] = fields
         return True
 
     def generate_parse_function(self, struct_name):
@@ -185,9 +176,9 @@ class ParsingFunctionGenerator:
         generated_code += f"# Auto-generated parsing function\n\n"
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
-        for idx, struct_name in enumerate(self.IDL_TYPE_MAP):
+        for idx, struct_name in enumerate(self.IDL_CTYPE_MAP):
             # Update monitoring and Check if Stopped
-            if self.monitor.update_check_stop('idl', task_idx=idx, task_total=len(self.IDL_TYPE_MAP), prior_status=0.5):
+            if self.monitor.update_check_stop('idl', task_idx=idx, task_total=len(self.IDL_CTYPE_MAP), prior_status=0.5):
                 return
 
             generated_code += self.generate_parse_function(struct_name) + "\n\n"
@@ -204,8 +195,8 @@ if __name__ == '__main__':
         def __init__(self):
             self.is_running = True
 
-    eie_file_path = "../IDL/EIE_Msg.idl"
-    tie_file_path = "../IDL/TIE_Msg.idl"
+    eie_file_path = "../../IDL/EIE_Msg.idl"
+    tie_file_path = "../../IDL/TIE_Msg.idl"
 
     parent = FAKEPARENT()
 

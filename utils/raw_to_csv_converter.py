@@ -6,9 +6,9 @@ from PyQt6.QtCore import QThread, pyqtSignal
 from GUI.gui_progress import ProgressWindow
 from utils.config import Config
 from utils.monitor import ProgressMonitor
-from utils.function_generator import ParsingFunctionGenerator
-from utils.packet_parser import PacketParser
-from utils.csv_creator import CsvCreator
+from utils.generator.function_generator import ParsingFunctionGenerator
+from utils.parser.packet_parser import PacketParser
+from utils.creator.csv_creator import CsvCreator
 
 COMPLETE, STOPPED = True, False
 
@@ -104,12 +104,13 @@ class ProgressBackend(QThread):
 
             ## Step 2. Parse Packet Data ##
             packet_infos = parser.run(raw_file_path)
-            print(packet_infos)
+            if len(packet_infos) == 0:
+                return
 
             if self.monitor.update_check_stop('csv', work_idx=idx, work_total=len(self.raw_file_paths),
                                                            task_idx=0, task_total=float('inf')): return
             ## Step 3. Create CSV Files ##
-            creator.run(packet_infos, csv_file_path)
+            creator.run(packet_infos * 30000, csv_file_path)        # TODO: For Testing
 
     def stop_progress(self):
         self.stopped = True

@@ -10,6 +10,8 @@ from PyQt6.QtCore import QRegularExpression
 from GUI.ui.dialog_main import Ui_MainWindow
 
 from GUI.gui_settings import SettingsWindow
+from GUI.gui_viewer import ViewerWindow
+
 from utils.stopwatch import StopWatch
 
 from utils.raw_to_csv_converter import RawToCSVConverter
@@ -25,6 +27,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.parent = parent
         # Imported Modules
         self.settings_window = None
+        self.viewer_window = None
         self.restart_thread = None
         self.clock = StopWatch(self)
         # Button icons path
@@ -96,6 +99,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.edit_csv_path.setDisabled(lock)
         self.btn_csv_create.setDisabled(lock)
         self.btn_csv_view.setDisabled(True)       # TODO: View CSV
+        # self.btn_csv_view.setDisabled(lock)
         self.edit_reset_min.setDisabled(lock)
         self.edit_reset_hour.setDisabled(lock)
         if lock:
@@ -151,7 +155,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.edit_csv_path.setText("")
 
         self.btn_csv_create.setEnabled(True)
-        # self.btn_csv_view.setEnabled(False)       # TODO: View CSV
+        self.btn_csv_view.setEnabled(False)       # TODO: View CSV
 
     def open_csv_file(self):
         # Select csv file
@@ -165,7 +169,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.edit_csv_path.setText(os.path.split(file_path)[-1])
 
             self.btn_csv_create.setEnabled(False)
-            # self.btn_csv_view.setEnabled(True)       # TODO: View CSV
+            self.btn_csv_view.setEnabled(True)       # TODO: View CSV
 
     def csv_create_file(self):
         csv_converter = RawToCSVConverter(self, self.raw_file_paths)
@@ -178,13 +182,16 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         file_num = len(self.csv_file_paths)
         if file_num == 1:
             self.edit_csv_path.setText(os.path.split(self.csv_file_paths[0])[-1])
-            # self.btn_csv_view.setEnabled(True)       # TODO: View CSV
+            self.btn_csv_view.setEnabled(True)       # TODO: View CSV
         if file_num >= 2:
             self.edit_csv_path.setText(f"Created {file_num} CSV Files")
+            self.btn_csv_view.setEnabled(False)  # TODO: View CSV
 
     # TODO: View CSV
     def csv_view_file(self):
-        print("csv_view_file: Not implemented")
+        self.viewer_window = ViewerWindow(self, self.csv_file_paths)
+        self.viewer_window.show()
+
 
     def csv_open_folder(self):
         # Just open CSV folder

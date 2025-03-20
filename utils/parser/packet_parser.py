@@ -6,14 +6,12 @@ from datetime import datetime
 from collections import defaultdict
 
 import scapy.all as scapy
-from scapy.layers.l2 import Ether, ARP
-from scapy.layers.inet import IP, TCP, UDP, ICMP
+from scapy.layers.inet import IP, UDP
 
 from utils.config import Config
 from utils.monitor import ProgressMonitor
-from utils.log import ParseHistoryLog
-from utils import packet_counter
-from utils.ndds import NDDS
+from utils.parser.log import ParseHistoryLog
+from utils.parser.ndds import NDDS
 
 
 LOCAL_IP_PREFIX = '10.30.7.'
@@ -120,8 +118,8 @@ class PacketParser:
                 # data = self.parse_data(msg_type, raw_data)
                 # # if data is None: continue
 
-                packet_info = {'DATE': f"{date}'", 'TIME': f"{_time}'",'SRC_IP': src_ip, 'DST_IP':dst_ip,
-                               'SRC_SYS':src_sys, 'DST_SYS':dst_sys, 'MSG_NAME':msg_name, 'DATA':data}
+                packet_info = {'DATE': f"{date}'", 'TIME': f"{_time}'",'SENDER': f"{src_sys}({src_ip})", 'RECEIVER': f"{dst_sys}({dst_ip})",
+                               'MSG_NAME':msg_name, 'DATA':data}
                 packet_infos.append(packet_info)
 
         # Updates raw file's total packet number
