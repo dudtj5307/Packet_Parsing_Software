@@ -2,25 +2,26 @@ import os
 import csv
 from collections import defaultdict
 
-from PyQt6.QtWidgets import QDialog, QAbstractItemView, QMainWindow
-from PyQt6.QtGui import QIcon, QBrush, QColor
+from PyQt6.QtWidgets import QAbstractItemView, QMainWindow, QTableView
+from PyQt6.QtGui import QIcon, QBrush, QColor, QFont
 from PyQt6.QtCore import QAbstractTableModel, QThread, pyqtSignal, Qt
+
+from utils.viewer.table_model import CSVTableModel
+from utils.viewer.csv_loader import CSVLoaderThread
+from utils.viewer.search_model import SearchModel
 
 from GUI.ui.dialog_viewer import Ui_ViewerWindow
 
 
-# class ViewerWindow(QDialog, Ui_ViewerWindow):
 class ViewerWindow(QMainWindow, Ui_ViewerWindow):
     def __init__(self, parent=None, csv_folder_path=None):
         super(ViewerWindow, self).__init__(parent)
         self.setupUi(self)
         self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_csv_view.png")))
-
-        # CSV Folder to View
         self.csv_folder_path = csv_folder_path[0]
-
         self.setWindowTitle(f"CSV Viewer - {os.path.basename(self.csv_folder_path)}")
 
+        # CSV Table default size
         self.table_csv.horizontalHeader().setDefaultSectionSize(80)     # cell width
         self.table_csv.verticalHeader().setDefaultSectionSize(20)       # cell height
         self.table_csv.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
@@ -38,9 +39,35 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         # Signal set
         self.list_csv_names.clicked.connect(self.clicked_csv_list)
 
+        # Search Widget
+        self.search_model = None
+        self.frame_search.setVisible(False)
+        self.button_close.clicked.connect(self.search_widget_hide)
+
+
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Escape:
+        # Ctrl+F Key Pressed
+        if event.key() == Qt.Key.Key_F and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            self.search_widget_show()
+            self.search_model = SearchModel(self.table_csv)
+            self.search_model.search_idx_count.connect(self.search_idx_count)
+            self.button_forward.clicked.connect(self.search_model.previous_match)
+            self.button_backward.clicked.connect(self.search_model.next_match)
+
+        # ESC Key Pressed & Search Widget On
+        elif event.key() == Qt.Key.Key_Escape and self.frame_search.isVisible():
+            self.search_widget_hide()
+        # ESC Key Pressed & Search Widget Off
+        elif event.key() == Qt.Key.Key_Escape and not self.frame_search.isVisible():
             self.close()
+        # Enter Key Pressed & Search Widget On
+        # elif event.key() == Qt.Key.Key_Enter and self.frame_search.isVisible():
+        elif ((event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter)
+              and self.frame_search.isVisible() and self.edit_text_input.hasFocus()):
+            print('Enter!!')
+            self.search_model.search(self.edit_text_input.text())
+        else:
+            super().keyPressEvent(event)
 
     def add_item(self, csv_name, csv_path):
         self.get_csv_path[csv_name] = csv_path
@@ -62,7 +89,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         csv_path = self.get_csv_path[csv_name]
         # Check if already in cache
         if csv_path in self.cache:
-            self.update_table(self.cache[csv_path])
+            self.update_table(self.cache[csv_path], csv_path)
         else:
             for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
                 item.setBackground(QBrush(QColor(220, 220, 220)))
@@ -72,66 +99,44 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
     def csv_load_complete(self, csv_path, data):
         # Save in cache
-        self.update_table(data)
+        self.update_table(data, csv_path)
         self.cache[csv_path] = data
 
         csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
             item.setBackground(QBrush(QColor(245, 255, 245)))
+            # item.setFont(QFont("맑은 고딕", 10, QFont.Weight.Bold))
 
-    def update_table(self, data):
-        model = CSVTableModel(data)
+    def csv_load_failed(self, csv_path):
+        csv_name = self.get_csv_name[csv_path]
+        for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
+            item.setBackground(QBrush(QColor(255, 245, 245)))
+
+    def update_table(self, data, csv_path=""):
+        model = CSVTableModel(data, csv_path)
+        model.load_fail.connect(self.csv_load_failed)
+
         self.table_csv.setModel(model)
-
         self.table_csv.horizontalHeader().setDefaultSectionSize(80)     # cell width
         self.table_csv.verticalHeader().setDefaultSectionSize(20)       # cell height
         self.table_csv.scrollTo(self.table_csv.model().index(0, 0), QAbstractItemView.ScrollHint.PositionAtTop)
 
+    def search_widget_show(self):
+        self.frame_search.setVisible(True)
+        self.edit_text_input.setFocus()
 
-class CSVLoaderThread(QThread):
-    load_complete = pyqtSignal(str, list)  # (파일경로, 데이터)
+    def search_widget_hide(self):
+        self.frame_search.setVisible(False)
 
-    def __init__(self, csv_path):
-        super().__init__()
-        self.csv_path = csv_path
-
-    def run(self, encoding='utf-8'):
-        try:
-            with open(self.csv_path, newline='', encoding='utf-8') as csvfile:      # TODO: Check if 'cp949' or 'euc-kr'
-                reader = csv.reader(csvfile)
-                data = list(reader)
-            self.load_complete.emit(self.csv_path, data)
-        except Exception as e:
-            print(f"Error loading {self.csv_path}: {e}")                           # TODO: Check if 'cp949' or 'euc-kr'
-            import chardet
-            with open(self.csv_path, 'rb') as f:
-                raw_data = f.read()
-                encoding_info = chardet.detect(raw_data)
-                print(f"Detected encoding: {encoding_info['encoding']}")
+    def search_idx_count(self, current_idx, total_count):
+        self.label_idx_count.setText(f"{current_idx}/{total_count}")
+        if total_count <= 1:
+            self.button_forward.setDisabled(True)
+            self.button_backward.setDisabled(True)
+        else:
+            self.button_forward.setDisabled(False)
+            self.button_backward.setDisabled(False)
 
 
-class CSVTableModel(QAbstractTableModel):
-    def __init__(self, data):
-        super().__init__()
-        self.headers = data[0]
-        self.data = data[1:]
 
-    def rowCount(self, parent=None):
-        return len(self.data)
-
-    def columnCount(self, parent=None):
-        return len(self.data[0]) if self.data else 0
-
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
-        if role == Qt.ItemDataRole.DisplayRole:
-            return self.data[index.row()][index.column()]
-        return None
-
-    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
-        if role == Qt.ItemDataRole.DisplayRole:
-            if orientation == Qt.Orientation.Horizontal:
-                return self.headers[section]
-            elif orientation == Qt.Orientation.Vertical:
-                return str(section + 1)  # 수직 헤더에서 행 번호 반환
-        return None
 
