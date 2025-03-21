@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_ViewerWindow(object):
     def setupUi(self, ViewerWindow):
         ViewerWindow.setObjectName("ViewerWindow")
-        ViewerWindow.resize(1028, 630)
+        ViewerWindow.resize(1018, 641)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -20,9 +20,44 @@ class Ui_ViewerWindow(object):
         ViewerWindow.setSizePolicy(sizePolicy)
         self.centralwidget = QtWidgets.QWidget(parent=ViewerWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.frame_3 = QtWidgets.QFrame(parent=self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
+        self.frame_3.setSizePolicy(sizePolicy)
+        self.frame_3.setMinimumSize(QtCore.QSize(10, 31))
+        self.frame_3.setMaximumSize(QtCore.QSize(10, 31))
+        self.frame_3.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame_3.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame_3.setObjectName("frame_3")
+        self.gridLayout_3.addWidget(self.frame_3, 0, 2, 1, 1)
+        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame.setObjectName("frame")
+        self.gridLayout = QtWidgets.QGridLayout(self.frame)
         self.gridLayout.setObjectName("gridLayout")
-        self.list_csv_names = QtWidgets.QListWidget(parent=self.centralwidget)
+        self.table_csv = QtWidgets.QTableView(parent=self.frame)
+        self.table_csv.setStyleSheet("QTableView::horizontalHeader QHeaderView::section {\n"
+"    border: 1px solid darkgray;      /* 열 헤더에만 굵은 빨간색 선 적용 */\n"
+"    background-color: #f0f0f0;  /* 열 헤더의 배경색 */\n"
+"}\n"
+"\n"
+"QHeaderView::section:horizontal {\n"
+"    padding-left: 4px; /* 열 헤더에 왼쪽 여백 적용 */\n"
+"    padding-right: 0px; /* 열 헤더는 오른쪽 여백 제거 */\n"
+"}\n"
+"\n"
+"QHeaderView::section:vertical {\n"
+"    padding-right: 4px; /* 행 헤더에 오른쪽 여백 적용 */\n"
+"    padding-left: 0px; /* 행 헤더는 왼쪽 여백 제거 */\n"
+"}")
+        self.table_csv.setObjectName("table_csv")
+        self.gridLayout.addWidget(self.table_csv, 0, 1, 1, 1)
+        self.list_csv_names = QtWidgets.QListWidget(parent=self.frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -30,12 +65,138 @@ class Ui_ViewerWindow(object):
         self.list_csv_names.setSizePolicy(sizePolicy)
         self.list_csv_names.setMinimumSize(QtCore.QSize(100, 0))
         self.list_csv_names.setMaximumSize(QtCore.QSize(100, 16777215))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.list_csv_names.setFont(font)
         self.list_csv_names.setObjectName("list_csv_names")
         self.gridLayout.addWidget(self.list_csv_names, 0, 0, 1, 1)
-        self.table_csv = QtWidgets.QTableView(parent=self.centralwidget)
-        self.table_csv.setStyleSheet("")
-        self.table_csv.setObjectName("table_csv")
-        self.gridLayout.addWidget(self.table_csv, 0, 1, 1, 1)
+        self.gridLayout_3.addWidget(self.frame, 1, 0, 1, 3)
+        self.frame_2 = QtWidgets.QFrame(parent=self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame_2.sizePolicy().hasHeightForWidth())
+        self.frame_2.setSizePolicy(sizePolicy)
+        self.frame_2.setMinimumSize(QtCore.QSize(0, 31))
+        self.frame_2.setMaximumSize(QtCore.QSize(16777215, 31))
+        self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame_2.setObjectName("frame_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame_2)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout_3.addWidget(self.frame_2, 0, 0, 1, 1)
+        self.frame_search = QtWidgets.QFrame(parent=self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame_search.sizePolicy().hasHeightForWidth())
+        self.frame_search.setSizePolicy(sizePolicy)
+        self.frame_search.setMinimumSize(QtCore.QSize(300, 31))
+        self.frame_search.setMaximumSize(QtCore.QSize(300, 31))
+        self.frame_search.setStyleSheet("QFrame {\n"
+"    border: 1px solid gray;\n"
+"    border-radius: 8px;\n"
+"    background-color: rgb(255, 255, 255);\n"
+"}")
+        self.frame_search.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame_search.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame_search.setObjectName("frame_search")
+        self.edit_text_input = QtWidgets.QLineEdit(parent=self.frame_search)
+        self.edit_text_input.setGeometry(QtCore.QRect(10, 5, 101, 21))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.edit_text_input.sizePolicy().hasHeightForWidth())
+        self.edit_text_input.setSizePolicy(sizePolicy)
+        self.edit_text_input.setStyleSheet("border: 0px;")
+        self.edit_text_input.setText("")
+        self.edit_text_input.setObjectName("edit_text_input")
+        self.button_forward = QtWidgets.QPushButton(parent=self.frame_search)
+        self.button_forward.setEnabled(False)
+        self.button_forward.setGeometry(QtCore.QRect(215, 4, 21, 21))
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        font.setBold(True)
+        self.button_forward.setFont(font)
+        self.button_forward.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
+        self.button_forward.setStyleSheet("QPushButton {\n"
+"    color: rgb(50, 50, 100);\n"
+"    background-color: white;\n"
+"    border: 0px;    \n"
+"    border-radius: 15px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: rgb(200,200,200);\n"
+"}")
+        self.button_forward.setObjectName("button_forward")
+        self.button_backward = QtWidgets.QPushButton(parent=self.frame_search)
+        self.button_backward.setEnabled(False)
+        self.button_backward.setGeometry(QtCore.QRect(240, 4, 21, 21))
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        font.setBold(True)
+        self.button_backward.setFont(font)
+        self.button_backward.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
+        self.button_backward.setStyleSheet("QPushButton {\n"
+"    color: rgb(50, 50, 100);\n"
+"    background-color: white;\n"
+"    border: 0px;    \n"
+"    border-radius: 15px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: rgb(200,200,200);\n"
+"}")
+        self.button_backward.setObjectName("button_backward")
+        self.button_close = QtWidgets.QPushButton(parent=self.frame_search)
+        self.button_close.setEnabled(True)
+        self.button_close.setGeometry(QtCore.QRect(270, 4, 21, 21))
+        font = QtGui.QFont()
+        font.setPointSize(15)
+        font.setBold(True)
+        self.button_close.setFont(font)
+        self.button_close.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
+        self.button_close.setStyleSheet("QPushButton {\n"
+"    color: rgb(100, 100, 100);\n"
+"    background-color: white;\n"
+"    border: 0px;    \n"
+"    border-radius: 15px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: lightgray;\n"
+"}")
+        self.button_close.setObjectName("button_close")
+        self.label_idx_count = QtWidgets.QLabel(parent=self.frame_search)
+        self.label_idx_count.setGeometry(QtCore.QRect(115, 5, 91, 21))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_idx_count.sizePolicy().hasHeightForWidth())
+        self.label_idx_count.setSizePolicy(sizePolicy)
+        self.label_idx_count.setMinimumSize(QtCore.QSize(31, 21))
+        self.label_idx_count.setMaximumSize(QtCore.QSize(100, 21))
+        self.label_idx_count.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
+        self.label_idx_count.setStyleSheet("color: rgb(50, 50, 50);\n"
+"border: 0px;")
+        self.label_idx_count.setScaledContents(False)
+        self.label_idx_count.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_idx_count.setObjectName("label_idx_count")
+        self.edit_text_input.raise_()
+        self.button_close.raise_()
+        self.button_backward.raise_()
+        self.button_forward.raise_()
+        self.label_idx_count.raise_()
+        self.gridLayout_3.addWidget(self.frame_search, 0, 1, 1, 1)
         ViewerWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(ViewerWindow)
@@ -44,3 +205,8 @@ class Ui_ViewerWindow(object):
     def retranslateUi(self, ViewerWindow):
         _translate = QtCore.QCoreApplication.translate
         ViewerWindow.setWindowTitle(_translate("ViewerWindow", "MainWindow"))
+        self.edit_text_input.setPlaceholderText(_translate("ViewerWindow", "Find Text"))
+        self.button_forward.setText(_translate("ViewerWindow", "<"))
+        self.button_backward.setText(_translate("ViewerWindow", ">"))
+        self.button_close.setText(_translate("ViewerWindow", "×"))
+        self.label_idx_count.setText(_translate("ViewerWindow", "0/0"))
