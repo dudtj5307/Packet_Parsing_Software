@@ -7,22 +7,22 @@ class CSVTableModel(QAbstractTableModel):
         self.csv_path = csv_path
 
         self.headers = data[0]
-        self.data = data[1:]
+        self.csv_data = data[1:]
         # Valid Flag
         self.valid = True
 
     def rowCount(self, parent=None):
-        return len(self.data)
+        return len(self.csv_data)
 
     def columnCount(self, parent=None):
-        return len(self.data[0]) if self.data else 0
+        return len(self.csv_data[0]) if self.csv_data else 0
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if not self.valid:
             return None
         try:
             if role == Qt.ItemDataRole.DisplayRole:
-                return self.data[index.row()][index.column()]
+                return self.csv_data[index.row()][index.column()]
             return None
         except Exception as e:
             print(f"Error loading CSV data: {e}")

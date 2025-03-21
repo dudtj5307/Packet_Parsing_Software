@@ -63,8 +63,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         # Enter Key Pressed & Search Widget On
         # elif event.key() == Qt.Key.Key_Enter and self.frame_search.isVisible():
         elif ((event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter)
-              and self.frame_search.isVisible() and self.edit_text_input.hasFocus()):
-            print('Enter!!')
+        and self.frame_search.isVisible() and self.edit_text_input.hasFocus()):
             self.search_model.search(self.edit_text_input.text())
         else:
             super().keyPressEvent(event)
@@ -95,6 +94,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
                 item.setBackground(QBrush(QColor(220, 220, 220)))
             self.loader_thread = CSVLoaderThread(csv_path)
             self.loader_thread.load_complete.connect(self.csv_load_complete)
+            self.loader_thread.load_failed.connect(self.csv_load_failed)
             self.loader_thread.start()
 
     def csv_load_complete(self, csv_path, data):
@@ -108,6 +108,9 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
             # item.setFont(QFont("맑은 고딕", 10, QFont.Weight.Bold))
 
     def csv_load_failed(self, csv_path):
+        # Save in cache
+        self.cache[csv_path] = [[]]
+
         csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
             item.setBackground(QBrush(QColor(255, 245, 245)))

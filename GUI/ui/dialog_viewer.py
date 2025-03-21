@@ -18,11 +18,13 @@ class Ui_ViewerWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ViewerWindow.sizePolicy().hasHeightForWidth())
         ViewerWindow.setSizePolicy(sizePolicy)
+        ViewerWindow.setStyleSheet("background-color: rgb(89, 89, 89);")
         self.centralwidget = QtWidgets.QWidget(parent=ViewerWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.frame_3 = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame_3.setEnabled(False)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -30,30 +32,41 @@ class Ui_ViewerWindow(object):
         self.frame_3.setSizePolicy(sizePolicy)
         self.frame_3.setMinimumSize(QtCore.QSize(10, 31))
         self.frame_3.setMaximumSize(QtCore.QSize(10, 31))
+        self.frame_3.setStyleSheet("background-color: transparent;\n"
+"border: 0px;")
         self.frame_3.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_3.setObjectName("frame_3")
         self.gridLayout_3.addWidget(self.frame_3, 0, 2, 1, 1)
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame.setStyleSheet("border: 0px;")
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
         self.gridLayout = QtWidgets.QGridLayout(self.frame)
         self.gridLayout.setObjectName("gridLayout")
         self.table_csv = QtWidgets.QTableView(parent=self.frame)
-        self.table_csv.setStyleSheet("QTableView::horizontalHeader QHeaderView::section {\n"
-"    border: 1px solid darkgray;      /* 열 헤더에만 굵은 빨간색 선 적용 */\n"
-"    background-color: #f0f0f0;  /* 열 헤더의 배경색 */\n"
+        self.table_csv.setStyleSheet("background-color: rgb(245, 245, 245);\n"
+"\n"
+"QTableView::horizontalHeader {\n"
+"    background-color: lightgray;\n"
+"    border-bottomr: 1px;\n"
+"}\n"
+"\n"
+"QTableView::verticalHeader {\n"
+"    background-color: lightgray;\n"
+"    border-right: 1px;\n"
 "}\n"
 "\n"
 "QHeaderView::section:horizontal {\n"
-"    padding-left: 4px; /* 열 헤더에 왼쪽 여백 적용 */\n"
-"    padding-right: 0px; /* 열 헤더는 오른쪽 여백 제거 */\n"
+"    border-right: 1px solid darkgray;\n"
+"    padding-left: 4px;\n"
+"    padding-right: 0px;\n"
 "}\n"
 "\n"
 "QHeaderView::section:vertical {\n"
-"    padding-right: 4px; /* 행 헤더에 오른쪽 여백 적용 */\n"
-"    padding-left: 0px; /* 행 헤더는 왼쪽 여백 제거 */\n"
+"    padding-right: 4px;\n"
+"    padding-left: 0px;\n"
 "}")
         self.table_csv.setObjectName("table_csv")
         self.gridLayout.addWidget(self.table_csv, 0, 1, 1, 1)
@@ -63,15 +76,22 @@ class Ui_ViewerWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.list_csv_names.sizePolicy().hasHeightForWidth())
         self.list_csv_names.setSizePolicy(sizePolicy)
-        self.list_csv_names.setMinimumSize(QtCore.QSize(100, 0))
-        self.list_csv_names.setMaximumSize(QtCore.QSize(100, 16777215))
+        self.list_csv_names.setMinimumSize(QtCore.QSize(110, 0))
+        self.list_csv_names.setMaximumSize(QtCore.QSize(110, 16777215))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.list_csv_names.setFont(font)
+        self.list_csv_names.setStyleSheet("background-color: rgb(245, 245, 245);\n"
+"\n"
+"QListWidget::item {\n"
+"    border-bottom: 1px solid gray;  /* 각 아이템 사이에 회색 구분선 추가 */\n"
+"    padding-left: 4px;  /* 아이템 내부 여백 */\n"
+"}")
         self.list_csv_names.setObjectName("list_csv_names")
         self.gridLayout.addWidget(self.list_csv_names, 0, 0, 1, 1)
         self.gridLayout_3.addWidget(self.frame, 1, 0, 1, 3)
         self.frame_2 = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame_2.setEnabled(False)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -79,6 +99,8 @@ class Ui_ViewerWindow(object):
         self.frame_2.setSizePolicy(sizePolicy)
         self.frame_2.setMinimumSize(QtCore.QSize(0, 31))
         self.frame_2.setMaximumSize(QtCore.QSize(16777215, 31))
+        self.frame_2.setStyleSheet("background-color: transparent;\n"
+"border: 0px;")
         self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_2.setObjectName("frame_2")
@@ -108,7 +130,8 @@ class Ui_ViewerWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.edit_text_input.sizePolicy().hasHeightForWidth())
         self.edit_text_input.setSizePolicy(sizePolicy)
-        self.edit_text_input.setStyleSheet("border: 0px;")
+        self.edit_text_input.setStyleSheet("border: 0px;\n"
+"background-color: rgb(255, 255, 255);")
         self.edit_text_input.setText("")
         self.edit_text_input.setObjectName("edit_text_input")
         self.button_forward = QtWidgets.QPushButton(parent=self.frame_search)
@@ -123,7 +146,7 @@ class Ui_ViewerWindow(object):
 "    color: rgb(50, 50, 100);\n"
 "    background-color: white;\n"
 "    border: 0px;    \n"
-"    border-radius: 15px;\n"
+"    border-radius: 10px;\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
@@ -146,7 +169,7 @@ class Ui_ViewerWindow(object):
 "    color: rgb(50, 50, 100);\n"
 "    background-color: white;\n"
 "    border: 0px;    \n"
-"    border-radius: 15px;\n"
+"    border-radius: 10px;\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
@@ -169,7 +192,7 @@ class Ui_ViewerWindow(object):
 "    color: rgb(100, 100, 100);\n"
 "    background-color: white;\n"
 "    border: 0px;    \n"
-"    border-radius: 15px;\n"
+"    border-radius: 10px;\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
