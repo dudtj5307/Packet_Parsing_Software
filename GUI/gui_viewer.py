@@ -9,6 +9,7 @@ from PyQt6.QtCore import QAbstractTableModel, QThread, pyqtSignal, Qt
 from utils.viewer.table_model import CSVTableModel
 from utils.viewer.csv_loader import CSVLoaderThread
 from utils.viewer.search_model import SearchModel
+from utils.viewer.filter_column import FilterHeaderView
 
 from GUI.ui.dialog_viewer import Ui_ViewerWindow
 
@@ -46,6 +47,9 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.button_backward.clicked.connect(self.search_model.next_match)
         self.button_close.clicked.connect(self.search_widget_hide)
         self.frame_search.setVisible(False)
+
+        # Filter Widget
+        self.table_csv.setHorizontalHeader(FilterHeaderView(Qt.Orientation.Horizontal, self.table_csv))
 
     def keyPressEvent(self, event):
         # Initial Ctrl+F Key Pressed
