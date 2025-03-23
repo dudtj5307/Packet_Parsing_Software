@@ -20,7 +20,9 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(89, 89, 89);</string>
+   <string notr="true">QMainWindow#ViewerWindow {
+    background-color: rgb(89, 89, 89);
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
@@ -57,120 +59,6 @@ border: 0px;</string>
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="3">
-     <widget class="QFrame" name="frame">
-      <property name="styleSheet">
-       <string notr="true">border: 0px;</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Shape::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Shadow::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="1">
-        <widget class="QTableView" name="table_csv">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(245, 245, 245);
-
-QTableView::horizontalHeader {
-	background-color: lightgray;
-    border-bottomr: 1px;
-}
-
-QTableView::verticalHeader {
-    background-color: lightgray;
-    border-right: 1px;
-}
-
-QHeaderView::section:horizontal {
-	border-right: 1px solid darkgray;
-    padding-left: 4px;
-    padding-right: 0px;
-}
-
-QHeaderView::section:vertical {
-    padding-right: 4px;
-    padding-left: 0px;
-}</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QListWidget" name="list_csv_names">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>110</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>110</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(245, 245, 245);
-
-QListWidget::item {
-    border-bottom: 1px solid gray;  /* 각 아이템 사이에 회색 구분선 추가 */
-    padding-left: 4px;  /* 아이템 내부 여백 */
-}</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QFrame" name="frame_2">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>31</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>31</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: transparent;
-border: 0px;</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Shape::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Shadow::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2"/>
      </widget>
     </item>
     <item row="0" column="1">
@@ -221,6 +109,9 @@ border: 0px;</string>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Find Text (Enter)</string>
+       </property>
        <property name="styleSheet">
         <string notr="true">border: 0px;
 background-color: rgb(255, 255, 255);</string>
@@ -229,7 +120,7 @@ background-color: rgb(255, 255, 255);</string>
         <string/>
        </property>
        <property name="placeholderText">
-        <string>Find Text</string>
+        <string>Find Text (Enter)</string>
        </property>
       </widget>
       <widget class="QPushButton" name="button_forward">
@@ -252,6 +143,9 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="focusPolicy">
         <enum>Qt::FocusPolicy::ClickFocus</enum>
+       </property>
+       <property name="toolTip">
+        <string>Previous (F2)</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton {
@@ -294,6 +188,9 @@ QPushButton:disabled {
        <property name="focusPolicy">
         <enum>Qt::FocusPolicy::ClickFocus</enum>
        </property>
+       <property name="toolTip">
+        <string>Next (F3)</string>
+       </property>
        <property name="styleSheet">
         <string notr="true">QPushButton {
 	color: rgb(50, 50, 100);
@@ -334,6 +231,9 @@ QPushButton:disabled {
        </property>
        <property name="focusPolicy">
         <enum>Qt::FocusPolicy::ClickFocus</enum>
+       </property>
+       <property name="toolTip">
+        <string>Close (ESC)</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton {
@@ -386,7 +286,7 @@ QPushButton:pressed {
 border: 0px;</string>
        </property>
        <property name="text">
-        <string>0/0</string>
+        <string/>
        </property>
        <property name="scaledContents">
         <bool>false</bool>
@@ -400,6 +300,120 @@ border: 0px;</string>
       <zorder>button_backward</zorder>
       <zorder>button_forward</zorder>
       <zorder>label_idx_count</zorder>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QFrame" name="frame_2">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>31</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>31</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: transparent;
+border: 0px;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Shape::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Shadow::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2"/>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="3">
+     <widget class="QFrame" name="frame">
+      <property name="styleSheet">
+       <string notr="true">border: 0px;</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Shape::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Shadow::Raised</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="1">
+        <widget class="QTableView" name="table_csv">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(245, 245, 245);
+
+QTableView::horizontalHeader {
+    background-color: lightgray;
+    border-bottom: 1px solid darkgray;
+}
+
+QTableView::verticalHeader {
+    background-color: lightgray;
+    border-right: 1px solid darkgray;
+}
+
+QHeaderView::section:horizontal {
+    border-right: 1px solid darkgray;
+    padding-left: 4px;
+    padding-right: 0px;
+}
+
+QHeaderView::section:vertical {
+    padding-right: 4px;
+    padding-left: 0px;
+}</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QListWidget" name="list_csv_names">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>110</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(245, 245, 245);
+
+QListWidget::item {
+    border-bottom: 1px solid darkgray;
+    padding-left: 4px;
+}</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>

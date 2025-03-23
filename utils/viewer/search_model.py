@@ -9,25 +9,35 @@ class SearchModel(QObject):
         super().__init__()
 
         self.table_view = table_view
-        self.model = table_view.model()
+        self.model = None
+
         self.matches = []           # (row, col) 튜플 리스트
         self.current_index = -1     # 현재 선택된 결과 인덱스
 
         self.is_running = False
 
     def search(self, search_text: str):
-        # 이미 검색 중이면 리턴
+        # Return if already searching
         if self.is_running:
             print("Already Searching")
             return
+        # Connect to model
+        self.model = self.table_view.model()
 
         self.matches.clear()
         self.current_index = -1
-        if not search_text or not self.model.valid:
+        if not search_text or not self.model or not self.model.valid:
             return
 
         self.is_running = True
-        # 전체 셀을 탐색
+
+        # Find in Row header
+        for col in range(self.model.columnCount()):
+            header_text = self.model.headerData(col, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
+            if header_text and search_text.lower() in str(header_text).lower():
+                self.matches.append((-1, col))
+
+        # Find in data cells
         for row in range(self.model.rowCount()):
             for col in range(self.model.columnCount()):
                 cell_value = self.model.data(self.model.index(row, col), Qt.ItemDataRole.DisplayRole)
@@ -43,7 +53,6 @@ class SearchModel(QObject):
         self.is_running = False
 
     def next_match(self):
-        """다음 검색 결과로 이동합니다."""
         if not self.matches:
             return
         self.current_index = (self.current_index + 1) % len(self.matches)
@@ -51,7 +60,6 @@ class SearchModel(QObject):
         self.send_result_to_gui()
 
     def previous_match(self):
-        """이전 검색 결과로 이동합니다."""
         if not self.matches:
             return
         self.current_index = (self.current_index - 1 + len(self.matches)) % len(self.matches)
@@ -62,9 +70,15 @@ class SearchModel(QObject):
         """현재 선택된 검색 결과를 테이블 뷰에 표시합니다."""
         if self.current_index >= 0 and self.matches:
             row, col = self.matches[self.current_index]
-            idx = self.model.index(row, col)  # (row, col) 튜플을 QModelIndex로 변환
-            self.table_view.setCurrentIndex(idx)
-            self.table_view.scrollTo(idx)
+            # If in Row Header
+            if row == -1:
+                self.table_view.scrollTo(self.model.index(0, col))
+                self.table_view.selectColumn(col)
+            # If in data
+            else:
+                idx = self.model.index(row, col)
+                self.table_view.setCurrentIndex(idx)
+                self.table_view.scrollTo(idx)
 
     def send_result_to_gui(self):
         # 현재 선택된 검색 결과 번호와 전체 결과 개수를 전달합니다.

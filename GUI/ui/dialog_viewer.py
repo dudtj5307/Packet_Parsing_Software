@@ -18,7 +18,9 @@ class Ui_ViewerWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ViewerWindow.sizePolicy().hasHeightForWidth())
         ViewerWindow.setSizePolicy(sizePolicy)
-        ViewerWindow.setStyleSheet("background-color: rgb(89, 89, 89);")
+        ViewerWindow.setStyleSheet("QMainWindow#ViewerWindow {\n"
+"    background-color: rgb(89, 89, 89);\n"
+"}")
         self.centralwidget = QtWidgets.QWidget(parent=ViewerWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
@@ -38,75 +40,6 @@ class Ui_ViewerWindow(object):
         self.frame_3.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_3.setObjectName("frame_3")
         self.gridLayout_3.addWidget(self.frame_3, 0, 2, 1, 1)
-        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setStyleSheet("border: 0px;")
-        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.frame.setObjectName("frame")
-        self.gridLayout = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout.setObjectName("gridLayout")
-        self.table_csv = QtWidgets.QTableView(parent=self.frame)
-        self.table_csv.setStyleSheet("background-color: rgb(245, 245, 245);\n"
-"\n"
-"QTableView::horizontalHeader {\n"
-"    background-color: lightgray;\n"
-"    border-bottomr: 1px;\n"
-"}\n"
-"\n"
-"QTableView::verticalHeader {\n"
-"    background-color: lightgray;\n"
-"    border-right: 1px;\n"
-"}\n"
-"\n"
-"QHeaderView::section:horizontal {\n"
-"    border-right: 1px solid darkgray;\n"
-"    padding-left: 4px;\n"
-"    padding-right: 0px;\n"
-"}\n"
-"\n"
-"QHeaderView::section:vertical {\n"
-"    padding-right: 4px;\n"
-"    padding-left: 0px;\n"
-"}")
-        self.table_csv.setObjectName("table_csv")
-        self.gridLayout.addWidget(self.table_csv, 0, 1, 1, 1)
-        self.list_csv_names = QtWidgets.QListWidget(parent=self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.list_csv_names.sizePolicy().hasHeightForWidth())
-        self.list_csv_names.setSizePolicy(sizePolicy)
-        self.list_csv_names.setMinimumSize(QtCore.QSize(110, 0))
-        self.list_csv_names.setMaximumSize(QtCore.QSize(110, 16777215))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.list_csv_names.setFont(font)
-        self.list_csv_names.setStyleSheet("background-color: rgb(245, 245, 245);\n"
-"\n"
-"QListWidget::item {\n"
-"    border-bottom: 1px solid gray;  /* 각 아이템 사이에 회색 구분선 추가 */\n"
-"    padding-left: 4px;  /* 아이템 내부 여백 */\n"
-"}")
-        self.list_csv_names.setObjectName("list_csv_names")
-        self.gridLayout.addWidget(self.list_csv_names, 0, 0, 1, 1)
-        self.gridLayout_3.addWidget(self.frame, 1, 0, 1, 3)
-        self.frame_2 = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame_2.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame_2.sizePolicy().hasHeightForWidth())
-        self.frame_2.setSizePolicy(sizePolicy)
-        self.frame_2.setMinimumSize(QtCore.QSize(0, 31))
-        self.frame_2.setMaximumSize(QtCore.QSize(16777215, 31))
-        self.frame_2.setStyleSheet("background-color: transparent;\n"
-"border: 0px;")
-        self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.frame_2.setObjectName("frame_2")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame_2)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.gridLayout_3.addWidget(self.frame_2, 0, 0, 1, 1)
         self.frame_search = QtWidgets.QFrame(parent=self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -211,6 +144,7 @@ class Ui_ViewerWindow(object):
         self.label_idx_count.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.label_idx_count.setStyleSheet("color: rgb(50, 50, 50);\n"
 "border: 0px;")
+        self.label_idx_count.setText("")
         self.label_idx_count.setScaledContents(False)
         self.label_idx_count.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_idx_count.setObjectName("label_idx_count")
@@ -220,6 +154,75 @@ class Ui_ViewerWindow(object):
         self.button_forward.raise_()
         self.label_idx_count.raise_()
         self.gridLayout_3.addWidget(self.frame_search, 0, 1, 1, 1)
+        self.frame_2 = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame_2.setEnabled(False)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.frame_2.sizePolicy().hasHeightForWidth())
+        self.frame_2.setSizePolicy(sizePolicy)
+        self.frame_2.setMinimumSize(QtCore.QSize(0, 31))
+        self.frame_2.setMaximumSize(QtCore.QSize(16777215, 31))
+        self.frame_2.setStyleSheet("background-color: transparent;\n"
+"border: 0px;")
+        self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame_2.setObjectName("frame_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame_2)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout_3.addWidget(self.frame_2, 0, 0, 1, 1)
+        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame.setStyleSheet("border: 0px;")
+        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame.setObjectName("frame")
+        self.gridLayout = QtWidgets.QGridLayout(self.frame)
+        self.gridLayout.setObjectName("gridLayout")
+        self.table_csv = QtWidgets.QTableView(parent=self.frame)
+        self.table_csv.setStyleSheet("background-color: rgb(245, 245, 245);\n"
+"\n"
+"QTableView::horizontalHeader {\n"
+"    background-color: lightgray;\n"
+"    border-bottom: 1px solid darkgray;\n"
+"}\n"
+"\n"
+"QTableView::verticalHeader {\n"
+"    background-color: lightgray;\n"
+"    border-right: 1px solid darkgray;\n"
+"}\n"
+"\n"
+"QHeaderView::section:horizontal {\n"
+"    border-right: 1px solid darkgray;\n"
+"    padding-left: 4px;\n"
+"    padding-right: 0px;\n"
+"}\n"
+"\n"
+"QHeaderView::section:vertical {\n"
+"    padding-right: 4px;\n"
+"    padding-left: 0px;\n"
+"}")
+        self.table_csv.setObjectName("table_csv")
+        self.gridLayout.addWidget(self.table_csv, 0, 1, 1, 1)
+        self.list_csv_names = QtWidgets.QListWidget(parent=self.frame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.list_csv_names.sizePolicy().hasHeightForWidth())
+        self.list_csv_names.setSizePolicy(sizePolicy)
+        self.list_csv_names.setMinimumSize(QtCore.QSize(110, 0))
+        self.list_csv_names.setMaximumSize(QtCore.QSize(110, 16777215))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.list_csv_names.setFont(font)
+        self.list_csv_names.setStyleSheet("background-color: rgb(245, 245, 245);\n"
+"\n"
+"QListWidget::item {\n"
+"    border-bottom: 1px solid darkgray;\n"
+"    padding-left: 4px;\n"
+"}")
+        self.list_csv_names.setObjectName("list_csv_names")
+        self.gridLayout.addWidget(self.list_csv_names, 0, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.frame, 1, 0, 1, 3)
         ViewerWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(ViewerWindow)
@@ -228,8 +231,11 @@ class Ui_ViewerWindow(object):
     def retranslateUi(self, ViewerWindow):
         _translate = QtCore.QCoreApplication.translate
         ViewerWindow.setWindowTitle(_translate("ViewerWindow", "MainWindow"))
-        self.edit_text_input.setPlaceholderText(_translate("ViewerWindow", "Find Text"))
+        self.edit_text_input.setToolTip(_translate("ViewerWindow", "Find Text (Enter)"))
+        self.edit_text_input.setPlaceholderText(_translate("ViewerWindow", "Find Text (Enter)"))
+        self.button_forward.setToolTip(_translate("ViewerWindow", "Previous (F2)"))
         self.button_forward.setText(_translate("ViewerWindow", "<"))
+        self.button_backward.setToolTip(_translate("ViewerWindow", "Next (F3)"))
         self.button_backward.setText(_translate("ViewerWindow", ">"))
+        self.button_close.setToolTip(_translate("ViewerWindow", "Close (ESC)"))
         self.button_close.setText(_translate("ViewerWindow", "×"))
-        self.label_idx_count.setText(_translate("ViewerWindow", "0/0"))

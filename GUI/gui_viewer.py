@@ -40,31 +40,40 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.list_csv_names.clicked.connect(self.clicked_csv_list)
 
         # Search Widget
-        self.search_model = None
-        self.frame_search.setVisible(False)
+        self.search_model = SearchModel(self.table_csv)
+        self.search_model.search_idx_count.connect(self.search_idx_count)
+        self.button_forward.clicked.connect(self.search_model.previous_match)
+        self.button_backward.clicked.connect(self.search_model.next_match)
         self.button_close.clicked.connect(self.search_widget_hide)
-
+        self.frame_search.setVisible(False)
 
     def keyPressEvent(self, event):
-        # Ctrl+F Key Pressed
+        # Initial Ctrl+F Key Pressed
         if event.key() == Qt.Key.Key_F and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            self.search_widget_init()
             self.search_widget_show()
-            self.search_model = SearchModel(self.table_csv)
-            self.search_model.search_idx_count.connect(self.search_idx_count)
-            self.button_forward.clicked.connect(self.search_model.previous_match)
-            self.button_backward.clicked.connect(self.search_model.next_match)
 
-        # ESC Key Pressed & Search Widget On
+        # 'ESC' Key Pressed & Search Widget On
         elif event.key() == Qt.Key.Key_Escape and self.frame_search.isVisible():
             self.search_widget_hide()
-        # ESC Key Pressed & Search Widget Off
+
+        # 'ESC' Key Pressed & Search Widget Off
         elif event.key() == Qt.Key.Key_Escape and not self.frame_search.isVisible():
             self.close()
-        # Enter Key Pressed & Search Widget On
-        # elif event.key() == Qt.Key.Key_Enter and self.frame_search.isVisible():
+
+        # 'Enter' Key Pressed & Search Widget On
         elif ((event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter)
-        and self.frame_search.isVisible() and self.edit_text_input.hasFocus()):
+               and self.frame_search.isVisible() and self.edit_text_input.hasFocus()):
             self.search_model.search(self.edit_text_input.text())
+
+        # 'F2' Key Pressed & 'Previous' Button Enabled
+        elif event.key() == Qt.Key.Key_F2:
+            self.search_model.previous_match()
+
+        # 'F3' Key Pressed & 'Next' Button Enabled
+        elif event.key() == Qt.Key.Key_F3:
+            self.search_model.next_match()
+
         else:
             super().keyPressEvent(event)
 
@@ -84,6 +93,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
                 self.add_item(csv_name, csv_path)
 
     def clicked_csv_list(self):
+        self.search_widget_hide()
         csv_name = self.list_csv_names.currentItem().text()
         csv_path = self.get_csv_path[csv_name]
         # Check if already in cache
@@ -99,23 +109,28 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
     def csv_load_complete(self, csv_path, data):
         # Save in cache
-        self.update_table(data, csv_path)
         self.cache[csv_path] = data
+        self.update_table(data, csv_path)
 
         csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
-            item.setBackground(QBrush(QColor(245, 255, 245)))
-            # item.setFont(QFont("맑은 고딕", 10, QFont.Weight.Bold))
+            item.setBackground(QBrush(QColor(245, 255, 245)))   # Green
 
     def csv_load_failed(self, csv_path):
         # Save in cache
-        self.cache[csv_path] = [[]]
+        self.cache[csv_path] = None
+        self.update_table(None, csv_path)
 
         csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
-            item.setBackground(QBrush(QColor(255, 245, 245)))
+            item.setBackground(QBrush(QColor(255, 245, 245)))   # Red
 
     def update_table(self, data, csv_path=""):
+        # CSV loading failed
+        if not self.cache[csv_path]:
+            self.table_csv.setModel(None)
+            return
+
         model = CSVTableModel(data, csv_path)
         model.load_fail.connect(self.csv_load_failed)
 
@@ -131,6 +146,12 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
     def search_widget_hide(self):
         self.frame_search.setVisible(False)
 
+    def search_widget_init(self):
+        self.edit_text_input.clear()
+        self.label_idx_count.clear()
+        self.button_backward.setDisabled(True)
+        self.button_forward.setDisabled(True)
+
     def search_idx_count(self, current_idx, total_count):
         self.label_idx_count.setText(f"{current_idx}/{total_count}")
         if total_count <= 1:
@@ -140,6 +161,10 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
             self.button_forward.setDisabled(False)
             self.button_backward.setDisabled(False)
 
+    def get_selected_cells(self):
+        indexes = self.table_csv.selectedIndexes()
+        for ind in indexes:
+            print(ind.row(), ind.column())
 
 
 
