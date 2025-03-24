@@ -1,9 +1,9 @@
 from PyQt6.QtWidgets import QTableView
-from PyQt6.QtCore import pyqtSignal, Qt, QObject
+from PyQt6.QtCore import pyqtSignal, Qt, QObject, QItemSelectionModel
 
 
 class SearchModel(QObject):
-    search_idx_count = pyqtSignal(int, int)
+    search_widget_update = pyqtSignal(int, int)
 
     def __init__(self, table_view: QTableView):
         super().__init__()
@@ -67,9 +67,9 @@ class SearchModel(QObject):
         self.send_result_to_gui()
 
     def select_current(self):
-        """현재 선택된 검색 결과를 테이블 뷰에 표시합니다."""
         if self.current_index >= 0 and self.matches:
             row, col = self.matches[self.current_index]
+            self.table_view.clearSelection()
             # If in Row Header
             if row == -1:
                 self.table_view.scrollTo(self.model.index(0, col))
@@ -77,9 +77,11 @@ class SearchModel(QObject):
             # If in data
             else:
                 idx = self.model.index(row, col)
-                self.table_view.setCurrentIndex(idx)
                 self.table_view.scrollTo(idx)
+                self.table_view.setCurrentIndex(idx)
+                self.table_view.setFocus()
+
 
     def send_result_to_gui(self):
         # 현재 선택된 검색 결과 번호와 전체 결과 개수를 전달합니다.
-        self.search_idx_count.emit(self.current_index + 1, len(self.matches))
+        self.search_widget_update.emit(self.current_index + 1, len(self.matches))
