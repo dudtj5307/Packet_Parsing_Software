@@ -1,5 +1,5 @@
 import csv
-from PyQt6.QtCore import QAbstractTableModel, QThread, pyqtSignal, Qt
+from PyQt6.QtCore import QThread, pyqtSignal
 
 class CSVLoaderThread(QThread):
     load_complete = pyqtSignal(str, list)  # (파일경로, 데이터)
@@ -18,15 +18,16 @@ class CSVLoaderThread(QThread):
                 # Data Validation
                 if self.is_valid(data):
                     self.load_complete.emit(self.csv_path, data)
-                    print(f"[Loader] Loading Success '{self.csv_path}' with {encode_type}")
+                    print(f"[Loader] Success opening '{self.csv_path}' with {encode_type}")
                     return
                 else:
                     self.load_failed.emit(self.csv_path)
+                    raise TypeError("Invalid CSV data ! (no match in row and data)")
 
             except Exception as e:
-                pass
-        print(f"Error: Cannot load '{self.csv_path}' with available encodings.")
+                print(f"[Loader] Failed opening '{self.csv_path}' with {encode_type} / {e}")
 
+        print(f"[Loader] Error: Cannot load '{self.csv_path}' with available encodings.")
 
     def is_valid(self, data):
         return all(len(row) == len(data[0]) for row in data)
