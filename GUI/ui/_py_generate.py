@@ -5,6 +5,7 @@ commands = [
     "pyuic6 -o dialog_settings.py dialog_settings.ui",
     "pyuic6 -o dialog_progress.py dialog_progress.ui",
     "pyuic6 -o dialog_viewer.py dialog_viewer.ui",
+    "pyuic6 -o dialog_filter.py dialog_filter.ui",
 ]
 
 for cmd in commands:
