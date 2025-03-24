@@ -1,10 +1,9 @@
 import os
-import csv
 from collections import defaultdict
 
-from PyQt6.QtWidgets import QAbstractItemView, QMainWindow, QTableView
-from PyQt6.QtGui import QIcon, QBrush, QColor, QFont
-from PyQt6.QtCore import QAbstractTableModel, QThread, pyqtSignal, Qt
+from PyQt6.QtWidgets import QAbstractItemView, QMainWindow
+from PyQt6.QtGui import QIcon, QBrush, QColor
+from PyQt6.QtCore import Qt
 
 from utils.viewer.table_model import CSVTableModel
 from utils.viewer.csv_loader import CSVLoaderThread
@@ -22,12 +21,6 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.csv_folder_path = csv_folder_path[0]
         self.setWindowTitle(f"CSV Viewer - {os.path.basename(self.csv_folder_path)}")
 
-        # CSV Table default size
-        self.table_csv.horizontalHeader().setDefaultSectionSize(80)     # cell width
-        self.table_csv.verticalHeader().setDefaultSectionSize(20)       # cell height
-        self.table_csv.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-        self.table_csv.verticalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
-
         # Load csv list
         self.loader_thread = None
         self.get_csv_path = defaultdict(str)
@@ -42,7 +35,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
         # Search Widget
         self.search_model = SearchModel(self.table_csv)
-        self.search_model.search_idx_count.connect(self.search_idx_count)
+        self.search_model.search_widget_update.connect(self.search_widget_update)
         self.button_forward.clicked.connect(self.search_model.previous_match)
         self.button_backward.clicked.connect(self.search_model.next_match)
         self.button_close.clicked.connect(self.search_widget_hide)
@@ -50,6 +43,12 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
         # Filter Widget
         self.table_csv.setHorizontalHeader(FilterHeaderView(Qt.Orientation.Horizontal, self.table_csv))
+
+        # CSV Table default size
+        self.table_csv.horizontalHeader().setDefaultSectionSize(80)     # cell width
+        self.table_csv.verticalHeader().setDefaultSectionSize(20)       # cell height
+        self.table_csv.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+        self.table_csv.verticalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
 
     def keyPressEvent(self, event):
         # Initial Ctrl+F Key Pressed
@@ -78,6 +77,12 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         elif event.key() == Qt.Key.Key_F3:
             self.search_model.next_match()
 
+        # 'Home' Key Pressed
+        elif event.key() == Qt.Key.Key_Home:
+            self.table_csv.scrollToTop()
+        # 'End' Key Pressed
+        elif event.key() == Qt.Key.Key_End:
+            self.table_csv.scrollToBottom()
         else:
             super().keyPressEvent(event)
 
@@ -114,11 +119,15 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
     def csv_load_complete(self, csv_path, data):
         # Save in cache
         self.cache[csv_path] = data
-        self.update_table(data, csv_path)
 
+        # Paint Green to list_csv
         csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
             item.setBackground(QBrush(QColor(245, 255, 245)))   # Green
+
+        # Update table if currently selected
+        if self.list_csv_names.currentItem().text() == csv_name:
+            self.update_table(data, csv_path)
 
     def csv_load_failed(self, csv_path):
         # Save in cache
@@ -156,7 +165,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.button_backward.setDisabled(True)
         self.button_forward.setDisabled(True)
 
-    def search_idx_count(self, current_idx, total_count):
+    def search_widget_update(self, current_idx, total_count):
         self.label_idx_count.setText(f"{current_idx}/{total_count}")
         if total_count <= 1:
             self.button_forward.setDisabled(True)

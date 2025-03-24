@@ -179,28 +179,7 @@ class Ui_ViewerWindow(object):
         self.gridLayout = QtWidgets.QGridLayout(self.frame)
         self.gridLayout.setObjectName("gridLayout")
         self.table_csv = QtWidgets.QTableView(parent=self.frame)
-        self.table_csv.setStyleSheet("background-color: rgb(245, 245, 245);\n"
-"\n"
-"QTableView::horizontalHeader {\n"
-"    background-color: lightgray;\n"
-"    border-bottom: 1px solid darkgray;\n"
-"}\n"
-"\n"
-"QTableView::verticalHeader {\n"
-"    background-color: lightgray;\n"
-"    border-right: 1px solid darkgray;\n"
-"}\n"
-"\n"
-"QHeaderView::section:horizontal {\n"
-"    border-right: 1px solid darkgray;\n"
-"    padding-left: 4px;\n"
-"    padding-right: 0px;\n"
-"}\n"
-"\n"
-"QHeaderView::section:vertical {\n"
-"    padding-right: 4px;\n"
-"    padding-left: 0px;\n"
-"}")
+        self.table_csv.setStyleSheet("")
         self.table_csv.setObjectName("table_csv")
         self.gridLayout.addWidget(self.table_csv, 0, 1, 1, 1)
         self.list_csv_names = QtWidgets.QListWidget(parent=self.frame)
@@ -214,7 +193,7 @@ class Ui_ViewerWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.list_csv_names.setFont(font)
-        self.list_csv_names.setStyleSheet("background-color: rgb(245, 245, 245);\n"
+        self.list_csv_names.setStyleSheet("background-color: rgb(253, 253, 253);\n"
 "\n"
 "QListWidget::item {\n"
 "    border-bottom: 1px solid darkgray;\n"

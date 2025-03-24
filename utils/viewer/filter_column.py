@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QHeaderView, QMenu, QVBoxLayout, QCheckBox, QWidget, QPushButton, QFrame, QWidgetAction
+from PyQt6.QtWidgets import QHeaderView, QMenu, QVBoxLayout, QCheckBox, QPushButton, QFrame, QWidgetAction
 from PyQt6.QtCore import Qt
 
 class FilterHeaderView(QHeaderView):
@@ -10,6 +10,8 @@ class FilterHeaderView(QHeaderView):
         self.customContextMenuRequested.connect(self.show_filter_menu)
         self.current_col = None
         self.filter_menu = None
+        self.setAutoFillBackground(True)
+        self.setStyleSheet("QHeaderView::section { background-color: rgb(240, 240, 240); }")    # TODO : change button style
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -72,8 +74,10 @@ class FilterHeaderView(QHeaderView):
             index = model.index(row, self.current_col)
             value = model.data(index, Qt.ItemDataRole.DisplayRole)
 
-            # 선택되지 않은 데이터는 숨김 처리
+            # Hide datas not selected
             self.table_view.setRowHidden(row, value not in selected_values)
+
+            # TODO : Filtering Effect to display
 
         # 필터 메뉴 닫기
         if self.filter_menu:
