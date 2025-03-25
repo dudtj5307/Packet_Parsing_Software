@@ -8,9 +8,9 @@ from PyQt6.QtCore import Qt
 from utils.viewer.table_model import CSVTableModel
 from utils.viewer.csv_loader import CSVLoaderThread
 from utils.viewer.search_model import SearchModel
-from utils.viewer.filter_column import FilterHeaderView
 
 from GUI.ui.dialog_viewer import Ui_ViewerWindow
+from GUI.gui_filter import FilterHeaderView
 
 
 class ViewerWindow(QMainWindow, Ui_ViewerWindow):
