@@ -22,11 +22,20 @@ MSG_TYPES.update({('ADOC','ADOC'): 'EIE', ('ADOC','WCC'): 'EIE', ('WCC','ADOC'):
                   ('WCC', 'DLU') : 'TIE', ('DLU', 'WCC'): 'TIE', ('DLU','DLU') : 'TIE',
                   ('MDIL', 'MDIL') : 'K_Msg', })
 
-RTPS_header_fmt = ">4s H H 12s"  # Big-endian (>)
+RTPS_header_fmt = ">4s H H 8s"          # Big-endian (>)
 RTPS_header_size = struct.calcsize(RTPS_header_fmt)
 
-RTPS_subheader_fmt = ["<B B H", ">B B H"]     # [0] Little-endian (<) / [1] : Big-endian (>)
-RTPS_subheader_size = struct.calcsize(RTPS_subheader_fmt[0])
+RTPS_subheader_1st_fmt = ">B B"         # subtype, endian
+RTPS_subheader_2nd_fmt = [">H", "<H"]   # data_len  ([0] Big-endian > / [1] : Little-endian < )
+RTPS_subheader_size = struct.calcsize("BBH")
+
+def subMsg_header_unpack(data):
+    subId, endian = struct.unpack(RTPS_subheader_1st_fmt, data[0:2])
+    if endian not in [0,1]:
+        return 'Invalid', None, None
+    data_len = struct.unpack(RTPS_subheader_2nd_fmt[endian], data[2:4])[0]
+    return subId, endian, data_len
+
 
 class PacketParser:
     def __init__(self):
@@ -91,10 +100,9 @@ class PacketParser:
                 if self.monitor.update_check_stop('parse', task_idx=idx, task_total=total_packets): return
 
                 # Filter Packets without data (ex. ACK, FIN, SYN msgs)
-                if not packet.haslayer('Raw'): continue
+                if not packet.haslayer('Raw'):continue
 
                 raw_data = packet['Raw'].load
-
                 date, _time = datetime.fromtimestamp(float(packet.time)).strftime("%Y-%m-%d %H:%M:%S.%f").split(" ")
                 src_ip,  dst_ip  = packet[IP].src, packet[IP].dst
                 src_sys, dst_sys = self.SYS_TYPES[src_ip], self.SYS_TYPES[dst_ip]
@@ -103,17 +111,10 @@ class PacketParser:
 
                 if packet.haslayer(UDP) and packet.haslayer(NDDS):
                     # print(packet.show())
-                    msg_name, data = self.parse_data('EIE', raw_data)
+                    msg_name, data = self.parse_RTPS(msg_type, raw_data)
                     print("data: ", data)
                 else:
                     continue
-
-                # if msg_type in ['EIE', 'TIE']:
-                #     self.parse_RTPS(msg_type, raw_data)
-                # elif msg_type in ['MDIL']:
-                #     self.parse_data(msg_type, raw_data)
-                # else:
-                #     continue
 
                 # data = self.parse_data(msg_type, raw_data)
                 # # if data is None: continue
@@ -129,32 +130,33 @@ class PacketParser:
         return packet_infos
 
     def parse_RTPS(self, msg_type, data):
-        results = []
-        HEAD_LEN = RTPS_header_size         # 20
-        SUBHEAD_LEN = RTPS_subheader_size   # 4
-        pkt_len = len(data)
+        HEAD_LEN, SUBHEAD_LEN = RTPS_header_size, RTPS_subheader_size  # 16, 4
+        parse_results = []
 
+        pkt_len = len(data)
         if pkt_len < HEAD_LEN + SUBHEAD_LEN:
             return None
 
-        # if data[0:4] != b'RTPS': return       # TODO: Delete after testing
+        if data[0:4] != b'RTPS': return       # TODO: Delete after testing
         idx = HEAD_LEN
-        while idx + SUBHEAD_LEN <= pkt_len-1:
+        while idx + SUBHEAD_LEN <= pkt_len:
             # Parse Sub-Msg Header
-            endian = data[idx+1] & 0x01
-            subMsg_header = struct.unpack(RTPS_subheader_fmt[endian], data[idx:idx+SUBHEAD_LEN])
-            print(subMsg_header)
-            # Sub-Message Header at least 4 bytes
-            subMsg_len = subMsg_header[2]
-            if subMsg_len < SUBHEAD_LEN: return
-            if idx + subMsg_len > pkt_len-1:
-                return
+            sub_id, endian, data_len = subMsg_header_unpack(data[idx:idx + SUBHEAD_LEN])    # [idx : idx + 4]
+            idx += SUBHEAD_LEN
 
-            result = self.parse_data(msg_type, data[idx+SUBHEAD_LEN:idx+subMsg_len])
-            if result: result.append(result)
+            # Check valid of subheader
+            if sub_id == 'Invalid': return          # Invalid Endian Value
+            if idx + data_len > pkt_len:  return    # Invalid data length
+            if data_len == 0: continue              # Skip if 'data_len == 0'
 
-            idx += subMsg_len
-        return results
+            # Parse data if 'sub_id = 0x03(NOKEY_DATA)'
+            if sub_id == 0x03:
+                result = self.parse_data(msg_type, data[idx:idx + data_len])  # TODO: memoryview apply?
+                if result:
+                    parse_results.append(result)
+
+            idx += data_len
+        return parse_results
 
     # Parse if EIE or TIE or K or X or J
     def parse_data(self, msg_type, data):
@@ -202,6 +204,9 @@ if __name__ == "__main__":
     #
     # raw_to_csv('a,', raw_file)
 
-    parsing_codes = ['parse_EIE_Msg.py', 'parse_TIE_Msg.py']
-
-    packet_parser = PacketParser(parsing_codes)
+    # parsing_codes = ['parse_EIE_Msg.py', 'parse_TIE_Msg.py']
+    #
+    # packet_parser = PacketParser(parsing_codes)
+    a = []
+    a.append(None)
+    print(a)
