@@ -1,35 +1,60 @@
 import sys
 from collections import defaultdict
 
-from PyQt6.QtWidgets import QWidget, QCheckBox, QSizePolicy, QHeaderView, QSpacerItem
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QCheckBox, QSizePolicy, QHeaderView, QSpacerItem, QApplication
+from PyQt6.QtCore import Qt, QEvent, QTimer
 
 from GUI.ui.dialog_filter import Ui_FilterForm
 
 
-class CheckboxLabelFrame(QWidget, Ui_FilterForm):
+class FilterWidget(QWidget, Ui_FilterForm):
     def __init__(self, data_set, parent=None):
         super().__init__(parent)
         self.setupUi(self)
 
+        self.parent = parent
+
         # Create the checkbox items in the scroll area's layout
         self.create_items(data_set)
-        self.button_close.clicked.connect(self.close)
+
+        # Install Global EventFilter for closing
+        QApplication.instance().installEventFilter(self)
+
+        # Set Focus to this widget
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setFocus()
+
+    def keyPressEvent(self, event):
+        # Key 'ESC' - Close widget
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+        else:
+            super().keyPressEvent(event)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.MouseButtonPress:
+            # Check if the click was outside the FilterWidget
+            if not self.rect().contains(event.pos()):
+                self.close()
+        return super().eventFilter(obj, event)
+
+    def closeEvent(self, event):
+        # Remove the event filter when the widget is closed
+        QApplication.instance().removeEventFilter(self)
+        super().closeEvent(event)
 
     def create_items(self, data_set):
         for item in data_set:
-            checkbox = QCheckBox(parent=self.widget)
+            checkbox = QCheckBox(parent=self.parent)
             checkbox.setChecked(True)
             checkbox.setText(item)
             self.verticalLayout.addWidget(checkbox)
 
-        spacerItem = QSpacerItem(20, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        spacerItem = QSpacerItem(20, 1, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.verticalLayout.addItem(spacerItem)
 
-    # Stop moving
-    def moveEvent(self, event):
-        if self.fixed_position:
-            self.move(self.fixed_position)
+        # Update widget size based on its content
+        self.scrollArea.setMinimumHeight(self.widget.sizeHint().height()+5)
 
 
 class FilterHeaderView(QHeaderView):
@@ -37,8 +62,6 @@ class FilterHeaderView(QHeaderView):
         super().__init__(orientation, parent)
         self.table_view = table_view
         self.setSectionsClickable(True)
-        # self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        # self.customContextMenuRequested.connect(self.show_filter_popup)
         self.current_col = None
         self.filter_popup = None
         self.setAutoFillBackground(True)
@@ -46,48 +69,33 @@ class FilterHeaderView(QHeaderView):
         # For saving unique values
         self.unique_values = defaultdict(lambda: False)
 
-    # def mousePressEvent(self, event):
-    #     if event.button() == Qt.MouseButton.LeftButton:
-    #         logical_index = self.logicalIndexAt(event.pos())
-    #         self.table_view.selectColumn(logical_index)
-    #
-    #     super().mousePressEvent(event)
-
     def contextMenuEvent(self, event):
         if self.filter_popup:
             self.filter_popup.close()
 
-        self.filter_popup = CheckboxLabelFrame(self.unique_values, self.table_view)
-        self.filter_popup.setWindowFlags(Qt.WindowType.Tool)
-
-        pos = self.mapToGlobal(event.pos())
-        self.filter_popup.move(pos)
-        self.filter_popup.show()
-
-
-    def show_filter_popup(self, pos):
-        self.current_col = self.logicalIndexAt(pos)
+        # Get current column & table model
+        self.current_col = self.logicalIndexAt(event.pos())
         model = self.table_view.model()
 
-        # Build unique values from the model for the selected column
+        # Unique values from selected column
         self.unique_values = defaultdict(lambda: False)
         for row in range(model.rowCount()):
             index = model.index(row, self.current_col)
             value = model.data(index, Qt.ItemDataRole.DisplayRole)
             self.unique_values[value] = True
 
-        # Create a standalone popup instance of CheckboxLabelFrame (no QMenu used)
-        self.filter_popup = CheckboxLabelFrame(self.unique_values)
-        # Set the window flag to Popup so it behaves like a popup window
-        self.filter_popup.setWindowFlags(Qt.WindowType.Popup)
+        self.filter_popup = FilterWidget(self.unique_values, self.table_view)
+        # self.filter_popup.setWindowFlags(Qt.WindowType.Tool | Qt.WindowType.CustomizeWindowHint)
+        self.filter_popup.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.CustomizeWindowHint)
+                                         # | Qt.WindowType.WindowTitleHint)
 
         # Connect signals for the apply and close buttons
         self.filter_popup.button_apply.clicked.connect(self.apply_filter)
         self.filter_popup.button_close.clicked.connect(self.filter_popup.close)
 
-        # Calculate the global position for the popup (displaying it below the header)
-        header_pos = self.mapToGlobal(pos)
-        self.filter_popup.move(header_pos.x(), header_pos.y())
+        # Display with fixed position
+        pos = self.table_view.mapToGlobal(event.pos())
+        self.filter_popup.move(pos)
         self.filter_popup.show()
 
     def apply_filter(self):
@@ -109,6 +117,6 @@ if __name__ == "__main__":
     from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     sample_data = {"EIE_0x4001", "EIE_0x4002", "EIE_0x4003", "EIE_0x4004"}
-    frame = CheckboxLabelFrame(sample_data)
+    frame = FilterWidget(sample_data)
     frame.show()
     sys.exit(app.exec())

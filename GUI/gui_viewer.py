@@ -43,7 +43,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.button_close.clicked.connect(self.search_widget_hide)
         self.frame_search.setVisible(False)
 
-        # Filter Widget
+        # Custom horizontal header with filtering
         self.table_csv.setHorizontalHeader(FilterHeaderView(Qt.Orientation.Horizontal, self.table_csv))
 
         # CSV Table default size
