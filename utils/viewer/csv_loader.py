@@ -18,7 +18,7 @@ class CSVLoaderThread(QThread):
                 # Data Validation
                 if self.is_valid(data):
                     self.load_complete.emit(self.csv_path, data)
-                    print(f"[Loader] Success opening '{self.csv_path}' with {encode_type}")
+                    print(f"[Loader] Success opening '{self.csv_path}' with {encode_type}\n")
                     return
                 else:
                     self.load_failed.emit(self.csv_path)
@@ -27,7 +27,7 @@ class CSVLoaderThread(QThread):
             except Exception as e:
                 print(f"[Loader] Failed opening '{self.csv_path}' with {encode_type} / {e}")
 
-        print(f"[Loader] Error: Cannot load '{self.csv_path}' with available encodings.")
+        print(f"[Loader] Error: Cannot load '{self.csv_path}' with available encodings.\n")
 
     def is_valid(self, data):
         return all(len(row) == len(data[0]) for row in data)

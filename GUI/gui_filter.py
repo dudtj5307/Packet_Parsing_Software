@@ -1,7 +1,7 @@
 import sys
 from collections import defaultdict
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QCheckBox, QSizePolicy, QHeaderView, QMenu, QPushButton, QFrame, QWidgetAction, QSizeGrip, QScrollArea
+from PyQt6.QtWidgets import QWidget, QCheckBox, QSizePolicy, QHeaderView, QSpacerItem
 from PyQt6.QtCore import Qt
 
 from GUI.ui.dialog_filter import Ui_FilterForm
@@ -12,46 +12,33 @@ class CheckboxLabelFrame(QWidget, Ui_FilterForm):
         super().__init__(parent)
         self.setupUi(self)
 
-        # Create a QScrollArea for the checkboxes
-        self.scroll_area = QScrollArea(self.frame)
-        self.scroll_area.setWidgetResizable(True)  # Allow scroll area to resize its widget
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-
-        # Create a widget to hold the checkboxes inside the scroll area
-        self.scroll_content = QWidget()
-        self.scroll_layout = QVBoxLayout(self.scroll_content)
-        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
-        self.scroll_layout.setSpacing(0)
-        self.scroll_area.setWidget(self.scroll_content)
-
-        # Main layout for the frame now holds the scroll area
-        self.main_layout = QVBoxLayout(self.frame)
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(3)
-        self.main_layout.addWidget(self.scroll_area)
-
         # Create the checkbox items in the scroll area's layout
         self.create_items(data_set)
         self.button_close.clicked.connect(self.close)
 
     def create_items(self, data_set):
         for item in data_set:
-            checkbox = QCheckBox(self.scroll_content)
+            checkbox = QCheckBox(parent=self.widget)
             checkbox.setChecked(True)
             checkbox.setText(item)
-            checkbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-            checkbox.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
-            checkbox.setStyleSheet("text-overflow: ellipsis; white-space: nowrap;")
-            self.scroll_layout.addWidget(checkbox)
+            self.verticalLayout.addWidget(checkbox)
+
+        spacerItem = QSpacerItem(20, 5, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalLayout.addItem(spacerItem)
+
+    # Stop moving
+    def moveEvent(self, event):
+        if self.fixed_position:
+            self.move(self.fixed_position)
+
 
 class FilterHeaderView(QHeaderView):
     def __init__(self, orientation, table_view, parent=None):
         super().__init__(orientation, parent)
         self.table_view = table_view
         self.setSectionsClickable(True)
-        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_filter_popup)
+        # self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        # self.customContextMenuRequested.connect(self.show_filter_popup)
         self.current_col = None
         self.filter_popup = None
         self.setAutoFillBackground(True)
@@ -59,17 +46,24 @@ class FilterHeaderView(QHeaderView):
         # For saving unique values
         self.unique_values = defaultdict(lambda: False)
 
-    # def contextMenuEvent(self, event):
-    #     pos = self.mapToGlobal(event.pos())
-    #     self.filter_menu.move(pos)
-    #     self.filter_menu.show()
+    # def mousePressEvent(self, event):
+    #     if event.button() == Qt.MouseButton.LeftButton:
+    #         logical_index = self.logicalIndexAt(event.pos())
+    #         self.table_view.selectColumn(logical_index)
+    #
+    #     super().mousePressEvent(event)
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            logical_index = self.logicalIndexAt(event.pos())
-            self.table_view.selectColumn(logical_index)
+    def contextMenuEvent(self, event):
+        if self.filter_popup:
+            self.filter_popup.close()
 
-        super().mousePressEvent(event)
+        self.filter_popup = CheckboxLabelFrame(self.unique_values, self.table_view)
+        self.filter_popup.setWindowFlags(Qt.WindowType.Tool)
+
+        pos = self.mapToGlobal(event.pos())
+        self.filter_popup.move(pos)
+        self.filter_popup.show()
+
 
     def show_filter_popup(self, pos):
         self.current_col = self.logicalIndexAt(pos)

@@ -20,6 +20,8 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_csv_view.png")))
         self.csv_folder_path = csv_folder_path[0]
         self.setWindowTitle(f"CSV Viewer - {os.path.basename(self.csv_folder_path)}")
+        self.table_csv.setStyleSheet("QTableView { background-color: white; }")
+        self.table_csv.verticalHeader().setStyleSheet("QHeaderView::section:vertical { background-color: rgb(240, 240, 240); }")
 
         # Load csv list
         self.loader_thread = None
@@ -123,7 +125,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         # Paint Green to list_csv
         csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
-            item.setBackground(QBrush(QColor(245, 255, 245)))   # Green
+            item.setBackground(QBrush(QColor(240, 255, 240)))   # Green
 
         # Update table if currently selected
         if self.list_csv_names.currentItem().text() == csv_name:
@@ -136,7 +138,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
         csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
-            item.setBackground(QBrush(QColor(255, 245, 245)))   # Red
+            item.setBackground(QBrush(QColor(255, 240, 240)))   # Red
 
     def update_table(self, data, csv_path=""):
         # CSV loading failed
