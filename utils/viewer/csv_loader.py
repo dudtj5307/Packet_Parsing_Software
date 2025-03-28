@@ -18,7 +18,7 @@ class CSVLoaderThread(QThread):
                 # Data Validation
                 if self.is_valid(data):
                     self.load_complete.emit(self.csv_path, data)
-                    print(f"[Loader] Success opening '{self.csv_path}' with {encode_type}\n")
+                    print(f"[Loader] Success opening '{self.csv_path}' with {encode_type}")
                     return
                 else:
                     self.load_failed.emit(self.csv_path)
