@@ -54,7 +54,7 @@ class FilterWidget(QWidget, Ui_FilterForm):
         self.verticalLayout.addItem(spacerItem)
 
         # Update widget size based on its content
-        self.scrollArea.setMinimumHeight(self.widget.sizeHint().height()+5)
+        self.scrollArea.setMinimumHeight(self.widget.sizeHint().height() + 25)
 
 
 class FilterHeaderView(QHeaderView):
@@ -84,10 +84,9 @@ class FilterHeaderView(QHeaderView):
             value = model.data(index, Qt.ItemDataRole.DisplayRole)
             self.unique_values[value] = True
 
+        # Pop up Filter UI as Dialog
         self.filter_popup = FilterWidget(self.unique_values, self.table_view)
-        # self.filter_popup.setWindowFlags(Qt.WindowType.Tool | Qt.WindowType.CustomizeWindowHint)
         self.filter_popup.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.CustomizeWindowHint)
-                                         # | Qt.WindowType.WindowTitleHint)
 
         # Connect signals for the apply and close buttons
         self.filter_popup.button_apply.clicked.connect(self.apply_filter)
@@ -109,8 +108,9 @@ class FilterHeaderView(QHeaderView):
             value = model.data(index, Qt.ItemDataRole.DisplayRole)
             self.table_view.setRowHidden(row, value not in selected_values)
 
+        # TODO: After applying - add "color"? or indicator
         # Close the popup after applying the filter
-        # self.filter_popup.close()     # TODO: How to deal with after apply
+        # self.filter_popup.close()
 
 
 if __name__ == "__main__":
