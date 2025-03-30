@@ -26,7 +26,7 @@ class SearchModel(QObject):
 
         self.matches.clear()
         self.current_index = -1
-        if not search_text or not self.model or not self.model.valid:
+        if not search_text or not self.model:
             return
 
         self.is_running = True
