@@ -7,25 +7,27 @@ class CSVTableModel(QAbstractTableModel):
         self.csv_path = csv_path
 
         self.headers = data[0]
-        self.csv_data = data[1:]
+        # Changed to saving each row by map (Speed issue)
+        # self.csv_data = data[1:]
+        self.csv_data_map = {row_idx: row for row_idx, row in enumerate(data[1:])}
         # Valid Flag
         self.valid = True
 
     def rowCount(self, parent=None):
-        return len(self.csv_data)
+        return len(self.csv_data_map)
 
     def columnCount(self, parent=None):
-        return len(self.csv_data[0]) if self.csv_data else 0
+        return len(self.headers) if self.headers else 0
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if not self.valid:
             return None
         try:
             if role == Qt.ItemDataRole.DisplayRole:
-                return self.csv_data[index.row()][index.column()]
+                return self.csv_data_map.get(index.row())[index.column()]
             return None
         except Exception as e:
-            print(f"Error loading CSV data: {e}")
+            print(f"[Model] Error loading CSV data: {e}")
             self.valid = False
             self.load_fail.emit(self.csv_path)
             return None
@@ -40,7 +42,7 @@ class CSVTableModel(QAbstractTableModel):
                 elif orientation == Qt.Orientation.Vertical:
                     return str(section + 1)
         except Exception as e:
-            print(f"Error loading CSV header: {e}")
+            print(f"[Model] Error loading CSV header: {e}")
             self.valid = False
             self.load_fail.emit(self.csv_path)
             return None
