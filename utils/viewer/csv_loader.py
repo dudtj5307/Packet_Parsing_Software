@@ -14,7 +14,9 @@ class CSVLoaderThread(QThread):
             try:
                 with open(self.csv_path, newline='', encoding=encode_type) as csvfile:      # TODO: Check if 'cp949' or 'euc-kr'
                     reader = csv.reader(csvfile)
-                    data = list(reader)
+
+                    data = [[str(cell) for cell in row] for row in reader]
+                    # data = list(reader)
                 # Data Validation
                 if self.is_valid(data):
                     self.load_complete.emit(self.csv_path, data)
