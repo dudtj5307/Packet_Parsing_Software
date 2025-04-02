@@ -131,8 +131,6 @@ class FilterHeaderView(QHeaderView):
 
         proxy_model = self.table_view.model()
         proxy_model.setFilterForColumn(self.current_col, col_filters)
-        print(self.current_col, col_filters)
-
 
         # TODO: After applying - add "color"? or indicator
         # Close the popup after applying the filter

@@ -26,12 +26,13 @@ conda activate 'yourEnvName'
 ### 5. Find your output on dist folder
 ###
 
-'''
+## 2. Cython commands (sh)
 
-data [0:4] = "RTPS"
-16바이트 = submsg ID : 0x03 일때
-flag last bit=0 (big endian)/b=1 (little endian)
-data 길이는 
-while문 쓸수밖에...
-
-''''
+### 1. Move path to virtual env python
+```
+cd C:\Users\yslee\anaconda3\envs\sniff_env
+```
+### 2. Build by setup_cython.py
+```
+python C:\Users\yslee\Project_PPS\utils\viewer\setup_cython.py build_ext --inplace
+```

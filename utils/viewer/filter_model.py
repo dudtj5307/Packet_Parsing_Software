@@ -9,23 +9,25 @@ class CSVFilterProxyModel(QSortFilterProxyModel):
         self.filter_conditions = {}  # {col: [filter texts]}
         self.filter_column = 0
         self.filtered_texts = set()
+        self.cached_data = {}
+
+    def setSourceModel(self, model):
+        super().setSourceModel(model)
+        # Get data from source model
+        self.cached_data = model.csv_data_map.copy()  # 얕은 복사
 
     def setFilterForColumn(self, column, texts):
         # Set filtering column
         self.filter_column = column
-        # Set filtered text to False
-        # self.col_filters = defaultdict(lambda: True)
-        # self.col_filters.update({text.lower(): False for text in texts})
 
-        self.filtered_texts = frozenset(text.lower() for text in texts)
-
-        print(self.filtered_texts)
+        self.filtered_texts = frozenset(text for text in texts)
 
         # Refresh Filter
         import time
         start = time.time()
         self.invalidateRowsFilter()
         print("complete time:", time.time() - start)
+
 
     def filterAcceptsRow(self, source_row, source_parent):
         # if self.source_model is None:
@@ -36,8 +38,14 @@ class CSVFilterProxyModel(QSortFilterProxyModel):
         # data_text = str(self.source_model.data(index)).lower()
         # return self.col_filters[data_text]  # Will return True by default unless the text is in filtered texts
 
-        source_model = self.sourceModel()
-        index = source_model.index(source_row, self.filter_column, source_parent)
-        data_text = str(source_model.data(index)).lower()
+        # source_model = self.sourceModel()
+        # index = source_model.index(source_row, self.filter_column, source_parent)
 
-        return data_text not in self.filtered_texts
+        # data_text = self.cached_data[source_row][self.filter_column]
+
+        # data_text = str(source_model.data(index)).lower()
+
+        if source_row == 0:
+            print(type(self.cached_data[source_row][self.filter_column]), self.filtered_texts)
+
+        return self.cached_data[source_row][self.filter_column] not in self.filtered_texts
