@@ -13,13 +13,13 @@ class Ui_FilterForm(object):
     def setupUi(self, FilterForm):
         FilterForm.setObjectName("FilterForm")
         FilterForm.setWindowModality(QtCore.Qt.WindowModality.NonModal)
-        FilterForm.resize(175, 54)
+        FilterForm.resize(175, 67)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(FilterForm.sizePolicy().hasHeightForWidth())
         FilterForm.setSizePolicy(sizePolicy)
-        FilterForm.setMaximumSize(QtCore.QSize(400, 400))
+        FilterForm.setMaximumSize(QtCore.QSize(600, 600))
         FilterForm.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         FilterForm.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         FilterForm.setStyleSheet("QWidget#FilterForm {\n"
@@ -39,6 +39,7 @@ class Ui_FilterForm(object):
         sizePolicy.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
         self.scrollArea.setSizePolicy(sizePolicy)
         self.scrollArea.setMinimumSize(QtCore.QSize(0, 10))
+        self.scrollArea.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.scrollArea.setStyleSheet("QScrollArea#scrollArea {\n"
 "    border: 1px solid rgb(158, 158, 158);\n"
 "    background-color: rgb(255, 255, 255);\n"
@@ -47,7 +48,7 @@ class Ui_FilterForm(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 167, 23))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 167, 36))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -75,6 +76,10 @@ class Ui_FilterForm(object):
         self.verticalLayout.setContentsMargins(5, 2, -1, -1)
         self.verticalLayout.setSpacing(1)
         self.verticalLayout.setObjectName("verticalLayout")
+        self.master_checkbox = QtWidgets.QCheckBox(parent=self.widget)
+        self.master_checkbox.setChecked(True)
+        self.master_checkbox.setObjectName("master_checkbox")
+        self.verticalLayout.addWidget(self.master_checkbox)
         self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
         self.gridLayout_2.addWidget(self.widget, 0, 0, 1, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -106,5 +111,6 @@ class Ui_FilterForm(object):
     def retranslateUi(self, FilterForm):
         _translate = QtCore.QCoreApplication.translate
         FilterForm.setWindowTitle(_translate("FilterForm", "Filter"))
+        self.master_checkbox.setText(_translate("FilterForm", "(Select All)"))
         self.button_apply.setText(_translate("FilterForm", "Apply"))
         self.button_close.setText(_translate("FilterForm", "Close"))

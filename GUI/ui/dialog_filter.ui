@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>175</width>
-    <height>54</height>
+    <height>67</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,8 +21,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>400</width>
-    <height>400</height>
+    <width>600</width>
+    <height>600</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -80,8 +80,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>400</width>
-       <height>400</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <property name="styleSheet">
@@ -102,7 +102,7 @@
         <x>0</x>
         <y>0</y>
         <width>167</width>
-        <height>23</height>
+        <height>36</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -168,6 +168,16 @@
             <property name="topMargin">
              <number>2</number>
             </property>
+            <item>
+             <widget class="QCheckBox" name="master_checkbox">
+              <property name="text">
+               <string>(Select All)</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
