@@ -2,7 +2,7 @@ import sys
 from collections import defaultdict
 
 from PyQt6.QtWidgets import QWidget, QCheckBox, QSizePolicy, QHeaderView, QSpacerItem, QApplication
-from PyQt6.QtCore import Qt, QEvent, QTimer
+from PyQt6.QtCore import Qt, QEvent, QTimer, QSize
 
 from GUI.ui.dialog_filter import Ui_FilterForm
 
@@ -15,15 +15,15 @@ class FilterWidget(QWidget, Ui_FilterForm):
         self.parent = parent
         if parent: self.parent.destroyed.connect(self.close)
 
-        # Create the checkbox items in the scroll area's layout
-        self.create_items(data_set)
-
-        # Install Global EventFilter for closing
+        # Global EventFilter for noticing clicked outside this widget -> this widget closing
         QApplication.instance().installEventFilter(self)
 
         # Set Focus to this widget
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setFocus()
+
+        # Create the checkbox items in the scroll area's layout
+        self.create_items(data_set)
 
     def keyPressEvent(self, event):
         # Key 'ESC' - Close widget
@@ -34,7 +34,7 @@ class FilterWidget(QWidget, Ui_FilterForm):
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Type.MouseButtonPress:
-            # Check if the click was outside the FilterWidget
+            # Check if the click was outside this widget
             if not self.rect().contains(event.pos()):
                 self.close()
         return super().eventFilter(obj, event)
@@ -45,18 +45,33 @@ class FilterWidget(QWidget, Ui_FilterForm):
         super().closeEvent(event)
 
     def create_items(self, data_set):
-        for item in data_set:
+        self.checkboxes = []
+        for item, status in data_set.items():
             checkbox = QCheckBox()
-            checkbox.setChecked(True)
             checkbox.setText(item)
+            checkbox.setChecked(status)
             self.verticalLayout.addWidget(checkbox)
+            self.checkboxes.append(checkbox)
+
+        # Connecting to the master check button
+        self.master_checkbox.stateChanged.connect(self.change_all_checkboxes)
 
         spacerItem = QSpacerItem(20, 1, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.verticalLayout.addItem(spacerItem)
 
         # Update widget size based on its content
-        scrollbox_height = min(self.widget.sizeHint().height() + 25, 130)
+        scrollbox_height = min(self.widget.sizeHint().height() + 20, 160)
         self.scrollArea.setMinimumHeight(scrollbox_height)
+
+        self.setMaximumSize(QSize(400, 400))
+
+    # Apply master checkbox state to all checkboxes
+    def change_all_checkboxes(self, state):
+        if   state == Qt.CheckState.Checked.value:   checked = True
+        elif state == Qt.CheckState.Unchecked.value: checked = False
+        else: return
+        for cb in self.checkboxes:
+            cb.setChecked(checked)
 
 
 class FilterHeaderView(QHeaderView):
@@ -103,16 +118,13 @@ class FilterHeaderView(QHeaderView):
         self.filter_popup.show()
 
     def apply_filter(self):
-        # Find all QCheckBox widgets within the popup and get their texts if checked
-        filtered_values = [cb.text() for cb in self.filter_popup.findChildren(QCheckBox) if not cb.isChecked()]
-        model = self.table_view.model()
+        # Find all unchecked boxes (to be filtered)
+        col_filters = [cb.text() for cb in self.filter_popup.checkboxes if not cb.isChecked()]
 
-        model.setFilterForColumn(self.current_col, filtered_values)
-        # # Hide rows that do not match the selected values
-        # for row in range(model.rowCount()):
-        #     index = model.index(row, self.current_col)
-        #     value = model.data(index, Qt.ItemDataRole.DisplayRole)
-        #     self.table_view.setRowHidden(row, value in filtered_values)
+        proxy_model = self.table_view.model()
+        proxy_model.setFilterForColumn(self.current_col, col_filters)
+        print(self.current_col, col_filters)
+
 
         # TODO: After applying - add "color"? or indicator
         # Close the popup after applying the filter
@@ -130,9 +142,13 @@ class FilterHeaderView(QHeaderView):
 
 
 if __name__ == "__main__":
-    from PyQt6.QtWidgets import QApplication
-    app = QApplication(sys.argv)
-    sample_data = {"EIE_0x4001", "EIE_0x4002", "EIE_0x4003", "EIE_0x4004"}
-    frame = FilterWidget(sample_data)
-    frame.show()
-    sys.exit(app.exec())
+    # from PyQt6.QtWidgets import QApplication
+    # app = QApplication(sys.argv)
+    # sample_data = {"EIE_0x4001111111111111":True, "EIE_0x4002":True, "EIE_0x4003":True, "EIE_0x4004":True}
+    # frame = FilterWidget(sample_data)
+    # frame.show()
+    # sys.exit(app.exec())
+    from collections import defaultdict
+
+    d = defaultdict(lambda: True)
+    print(d[None])
