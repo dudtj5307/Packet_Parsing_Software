@@ -50,11 +50,12 @@ class FilterWidget(QWidget, Ui_FilterForm):
             checkbox = QCheckBox()
             checkbox.setText(item)
             checkbox.setChecked(status)
+            checkbox.stateChanged.connect(self.checkboxes_to_master)
             self.verticalLayout.addWidget(checkbox)
             self.checkboxes.append(checkbox)
 
         # Connecting to the master check button
-        self.master_checkbox.stateChanged.connect(self.change_all_checkboxes)
+        self.master_checkbox.stateChanged.connect(self.master_to_checkboxes)
 
         spacerItem = QSpacerItem(20, 1, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.verticalLayout.addItem(spacerItem)
@@ -65,8 +66,15 @@ class FilterWidget(QWidget, Ui_FilterForm):
 
         self.setMaximumSize(QSize(400, 400))
 
+    # Check all checkboxes -> update master checkbox
+    def checkboxes_to_master(self, state):
+        state = all(cb.isChecked() for cb in self.checkboxes)
+        self.master_checkbox.blockSignals(True)
+        self.master_checkbox.setChecked(state)
+        self.master_checkbox.blockSignals(False)
+
     # Apply master checkbox state to all checkboxes
-    def change_all_checkboxes(self, state):
+    def master_to_checkboxes(self, state):
         if   state == Qt.CheckState.Checked.value:   checked = True
         elif state == Qt.CheckState.Unchecked.value: checked = False
         else: return
