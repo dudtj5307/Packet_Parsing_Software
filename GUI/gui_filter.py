@@ -68,10 +68,13 @@ class FilterWidget(QWidget, Ui_FilterForm):
 
     # Check all checkboxes -> update master checkbox
     def checkboxes_to_master(self, state):
-        state = all(cb.isChecked() for cb in self.checkboxes)
+        state_master = all(cb.isChecked() for cb in self.checkboxes)
         self.master_checkbox.blockSignals(True)
-        self.master_checkbox.setChecked(state)
+        self.master_checkbox.setChecked(state_master)
         self.master_checkbox.blockSignals(False)
+
+        state_apply = any(cb.isChecked() for cb in self.checkboxes)
+        self.button_apply.setEnabled(state_apply)
 
     # Apply master checkbox state to all checkboxes
     def master_to_checkboxes(self, state):
@@ -110,6 +113,10 @@ class FilterHeaderView(QHeaderView):
         for row in range(origin_model.rowCount()):
             index = origin_model.index(row, self.current_col)
             value = origin_model.data(index, Qt.ItemDataRole.DisplayRole)
+            unique_values[value] = False
+        for row in range(model.rowCount()):
+            index = model.index(row, self.current_col)
+            value = model.data(index, Qt.ItemDataRole.DisplayRole)
             unique_values[value] = True
 
         # Pop up Filter UI as Dialog
@@ -120,10 +127,12 @@ class FilterHeaderView(QHeaderView):
         self.filter_popup.button_apply.clicked.connect(self.apply_filter)
         self.filter_popup.button_close.clicked.connect(self.filter_popup.close)
 
-        # Display with fixed position
-        pos = self.table_view.mapToGlobal(event.pos())
-        self.filter_popup.move(pos)
+        # Display popup by mouse click position
+        popup_x = event.globalPos().x()  # Mouse click global x-coordinate
+        popup_y = event.globalPos().y()  # Mouse click global y-coordinate
+        self.filter_popup.move(popup_x, popup_y)
         self.filter_popup.show()
+
 
     def apply_filter(self):
         # Find all unchecked boxes (to be filtered)
