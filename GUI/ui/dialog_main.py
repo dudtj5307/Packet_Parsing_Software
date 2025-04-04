@@ -196,7 +196,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_0_1.sizePolicy().hasHeightForWidth())
         self.frame_0_1.setSizePolicy(sizePolicy)
-        self.frame_0_1.setStyleSheet("QFrame {\n"
+        self.frame_0_1.setStyleSheet("QFrame#frame0_1 {\n"
 "    border: 1px solid gray;\n"
 "    border-radius: 10px;\n"
 "}")
@@ -204,7 +204,7 @@ class Ui_MainWindow(object):
         self.frame_0_1.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_0_1.setObjectName("frame_0_1")
         self.btn_csv_open = QtWidgets.QPushButton(parent=self.frame_0_1)
-        self.btn_csv_open.setGeometry(QtCore.QRect(10, 30, 41, 22))
+        self.btn_csv_open.setGeometry(QtCore.QRect(260, 31, 41, 20))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -213,9 +213,18 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setBold(True)
         self.btn_csv_open.setFont(font)
+        self.btn_csv_open.setStyleSheet("QPushButton {\n"
+"    border: 1px solid black;\n"
+"    border-radius: 2px;\n"
+"    background-color: rgb(221, 221, 221);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(200, 200, 200); /* 눌렀을 때 조금 더 어두운 색 */\n"
+"}")
         self.btn_csv_open.setObjectName("btn_csv_open")
         self.btn_raw_open = QtWidgets.QPushButton(parent=self.frame_0_1)
-        self.btn_raw_open.setGeometry(QtCore.QRect(10, 8, 41, 22))
+        self.btn_raw_open.setGeometry(QtCore.QRect(260, 9, 41, 20))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -224,12 +233,20 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setBold(True)
         self.btn_raw_open.setFont(font)
-        self.btn_raw_open.setStyleSheet("")
+        self.btn_raw_open.setStyleSheet("QPushButton {\n"
+"    border: 1px solid black;\n"
+"    border-radius: 2px;\n"
+"    background-color: rgb(221, 221, 221);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(200, 200, 200); /* 눌렀을 때 조금 더 어두운 색 */\n"
+"}")
         self.btn_raw_open.setAutoDefault(False)
         self.btn_raw_open.setObjectName("btn_raw_open")
         self.edit_csv_path = QtWidgets.QLineEdit(parent=self.frame_0_1)
         self.edit_csv_path.setEnabled(False)
-        self.edit_csv_path.setGeometry(QtCore.QRect(51, 31, 250, 20))
+        self.edit_csv_path.setGeometry(QtCore.QRect(10, 31, 250, 20))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -244,7 +261,7 @@ class Ui_MainWindow(object):
         self.edit_csv_path.setObjectName("edit_csv_path")
         self.edit_raw_path = QtWidgets.QLineEdit(parent=self.frame_0_1)
         self.edit_raw_path.setEnabled(False)
-        self.edit_raw_path.setGeometry(QtCore.QRect(51, 9, 250, 20))
+        self.edit_raw_path.setGeometry(QtCore.QRect(10, 9, 250, 20))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)

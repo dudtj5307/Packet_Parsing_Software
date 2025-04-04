@@ -445,7 +445,7 @@
      </sizepolicy>
     </property>
     <property name="styleSheet">
-     <string notr="true">QFrame {
+     <string notr="true">QFrame#frame0_1 {
     border: 1px solid gray;
     border-radius: 10px;
 }</string>
@@ -459,10 +459,10 @@
     <widget class="QPushButton" name="btn_csv_open">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>30</y>
+       <x>260</x>
+       <y>31</y>
        <width>41</width>
-       <height>22</height>
+       <height>20</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -479,6 +479,17 @@
      <property name="toolTip">
       <string>Open CSV folder</string>
      </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+    border: 1px solid black;
+    border-radius: 2px;
+    background-color: rgb(221, 221, 221);
+}
+
+QPushButton:pressed {
+    background-color: rgb(200, 200, 200); /* 눌렀을 때 조금 더 어두운 색 */
+}</string>
+     </property>
      <property name="text">
       <string>CSV</string>
      </property>
@@ -486,10 +497,10 @@
     <widget class="QPushButton" name="btn_raw_open">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>8</y>
+       <x>260</x>
+       <y>9</y>
        <width>41</width>
-       <height>22</height>
+       <height>20</height>
       </rect>
      </property>
      <property name="sizePolicy">
@@ -507,7 +518,15 @@
       <string>Open Raw file</string>
      </property>
      <property name="styleSheet">
-      <string notr="true"/>
+      <string notr="true">QPushButton {
+    border: 1px solid black;
+    border-radius: 2px;
+    background-color: rgb(221, 221, 221);
+}
+
+QPushButton:pressed {
+    background-color: rgb(200, 200, 200); /* 눌렀을 때 조금 더 어두운 색 */
+}</string>
      </property>
      <property name="text">
       <string>RAW</string>
@@ -522,7 +541,7 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>51</x>
+       <x>10</x>
        <y>31</y>
        <width>250</width>
        <height>20</height>
@@ -553,7 +572,7 @@ border-radius: 2px;
      </property>
      <property name="geometry">
       <rect>
-       <x>51</x>
+       <x>10</x>
        <y>9</y>
        <width>250</width>
        <height>20</height>
