@@ -46,7 +46,7 @@ class FilterWidget(QWidget, Ui_FilterForm):
 
     def create_items(self, data_set):
         self.checkboxes = []
-        for item, status in data_set.items():
+        for item, status in sorted(data_set.items(), key=lambda x:x[0]):
             checkbox = QCheckBox()
             checkbox.setText(item)
             checkbox.setChecked(status)
