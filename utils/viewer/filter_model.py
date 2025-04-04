@@ -13,10 +13,6 @@ class CSVFilterProxyModel(QSortFilterProxyModel):
 
         self.setDynamicSortFilter(False)
 
-        # Sorting disabled
-        # self.setSortRole(Qt.ItemDataRole.UserRole)
-        # self.sort(-1)
-
     def setSourceModel(self, model, QAbstractItemModel=None):
         super().setSourceModel(model)
         # Get data from source model

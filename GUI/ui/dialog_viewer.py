@@ -191,12 +191,27 @@ class Ui_ViewerWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.list_csv_names.setFont(font)
-        self.list_csv_names.setStyleSheet("background-color: rgb(253, 253, 253);\n"
+        self.list_csv_names.setStyleSheet("QListView {\n"
+"    background-color: rgb(253, 253, 253);\n"
+"}\n"
+"/*\n"
+"QListView::item {\n"
+"    border-bottom: 1px solid rgb(225, 225, 225);     // 아이템 사이 회색 구분선\n"
+"    padding-left: 2px;         // 텍스트와 구분선 사이 여백\n"
+"    background: none;\n"
+"}\n"
+"*/\n"
 "\n"
-"QListWidget::item {\n"
-"    border-bottom: 1px solid darkgray;\n"
-"    padding-left: 4px;\n"
-"}")
+"QListView::item:selected { \n"
+"    background-color: rgb(100, 149, 237); \n"
+"    color: white;\n"
+"}\n"
+"\n"
+"QListView::item:hover { \n"
+"    background-color: rgb(230, 230, 255); \n"
+"    color: black;\n"
+"}\n"
+"")
         self.list_csv_names.setObjectName("list_csv_names")
         self.gridLayout.addWidget(self.list_csv_names, 0, 0, 1, 1)
         self.gridLayout_3.addWidget(self.frame, 1, 0, 1, 3)

@@ -1,9 +1,10 @@
 import os
+import time
 from collections import defaultdict
 
-from PyQt6.QtWidgets import QAbstractItemView, QMainWindow
+from PyQt6.QtWidgets import QAbstractItemView, QMainWindow, QListWidgetItem, QWidget
 from PyQt6.QtGui import QIcon, QBrush, QColor
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 
 from utils.viewer.table_model import CSVTableModel
 from utils.viewer.filter_model import CSVFilterProxyModel
@@ -11,6 +12,8 @@ from utils.viewer.csv_loader import CSVLoaderThread
 from utils.viewer.search_model import SearchModel
 
 from GUI.ui.dialog_viewer import Ui_ViewerWindow
+from GUI.ui.widget_esc import Ui_WidgetESC
+
 from GUI.gui_filter import FilterHeaderView
 
 
@@ -30,14 +33,20 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.get_csv_name = defaultdict(str)
         self.load_csv_list()
 
-        # CSV Table Cache
-        self.cache = defaultdict(lambda: {'table_model': None, 'table_data': None,
-                                          'search_model': None, 'search_setting':[],
-                                          'filter_model': None, 'filter_setting':[],})
-
         # CSV List
         self.current_csv_path = None
-        self.list_csv_names.clicked.connect(self.clicked_csv_list)
+        # self.list_csv_names.clicked.connect(self.clicked_csv_list)    # TODO: delete
+        self.list_csv_names.currentItemChanged.connect(self.clicked_csv_list)
+
+        # Internal cache data
+        self.cache = defaultdict(lambda: {'table_model': None, 'table_data': None, 'filter_setting':{},
+                                          'search_model': None, 'search_setting':[], })
+        # ESC widget for closing this window
+        self.last_esc_time = 0
+        self.widget_esc = QWidget(self)
+        self.ui_esc = Ui_WidgetESC()
+        self.ui_esc.setupUi(self.widget_esc)
+        self.widget_esc.hide()
 
         # Search Widget
         self.search_model = SearchModel(self.table_csv)
@@ -50,9 +59,11 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         # Custom horizontal header with filtering
         self.table_csv.setHorizontalHeader(FilterHeaderView(Qt.Orientation.Horizontal, self))
 
-        # CSV Table default size
+        # CSV table headers - size
         self.table_csv.horizontalHeader().setDefaultSectionSize(80)     # cell width
         self.table_csv.verticalHeader().setDefaultSectionSize(20)       # cell height
+        self.table_csv.verticalHeader().setFixedWidth(48)
+        # CSV table headers - alignment
         self.table_csv.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.table_csv.verticalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
 
@@ -68,7 +79,10 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
         # 'ESC' Key Pressed & Search Widget Off
         elif event.key() == Qt.Key.Key_Escape and not self.frame_search.isVisible():
-            self.close()
+            if time.time() - self.last_esc_time < 1:  # ESC pressed interval time < 1sec
+                self.close()
+            self.last_esc_time = time.time()    # Update last esc pressed time
+            self.show_esc_message()
 
         # 'Enter' Key Pressed & Search Widget On
         elif ((event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter)
@@ -92,10 +106,23 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         else:
             super().keyPressEvent(event)
 
+    def show_esc_message(self):
+        pos_x = (self.width() - self.widget_esc.width()) // 2
+        pos_y = (self.height() - self.widget_esc.height()) // 2
+        self.widget_esc.setGeometry(pos_x, pos_y, self.widget_esc.width(), self.widget_esc.height(),)
+        self.widget_esc.show()
+        QTimer.singleShot(1000, self.widget_esc.hide)  # 1000 (ms)
+
     def add_item(self, csv_name, csv_path):
         self.get_csv_path[csv_name] = csv_path
         self.get_csv_name[csv_path] = csv_name
         self.list_csv_names.addItem(csv_name)
+
+        # TODO: 구분선 표시...
+        # item = QListWidgetItem(csv_name)
+        # item.setData(Qt.ItemDataRole.UserRole, "border-bottom: 1px solid rgb(225, 225, 225); padding-left: 2px;")
+        # self.list_csv_names.addItem(item)
+
 
     def paint_list_csv(self, csv_path, color):
         csv_name = self.get_csv_name[csv_path]
@@ -138,13 +165,13 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         # Save in cache
         self.cache[csv_path]['table_data'] = data
         self.update_table(csv_path)
-        self.paint_list_csv(csv_path, (240, 255, 240))  # Green
+        self.paint_list_csv(csv_path, (230, 255, 230))  # Green
 
     def csv_load_failed(self, csv_path):
         # Save in cache
         self.cache[csv_path]['table_data'] = None
         self.update_table(csv_path)
-        self.paint_list_csv(csv_path, (255, 240, 240))  # Red
+        self.paint_list_csv(csv_path, (255, 230, 230))  # Red
 
     def update_table(self, csv_path=""):
         # Return if not currently selected

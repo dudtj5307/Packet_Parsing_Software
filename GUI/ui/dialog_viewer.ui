@@ -382,12 +382,27 @@ border: 0px;</string>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(253, 253, 253);
+          <string notr="true">QListView {
+	background-color: rgb(253, 253, 253);
+}
+/*
+QListView::item {
+    border-bottom: 1px solid rgb(225, 225, 225); 	// 아이템 사이 회색 구분선
+    padding-left: 2px; 		// 텍스트와 구분선 사이 여백
+	background: none;
+}
+*/
 
-QListWidget::item {
-    border-bottom: 1px solid darkgray;
-    padding-left: 4px;
-}</string>
+QListView::item:selected { 
+	background-color: rgb(100, 149, 237); 
+	color: white;
+}
+
+QListView::item:hover { 
+	background-color: rgb(230, 230, 255); 
+	color: black;
+}
+</string>
          </property>
         </widget>
        </item>
