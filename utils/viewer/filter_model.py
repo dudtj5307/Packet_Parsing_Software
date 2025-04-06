@@ -19,13 +19,12 @@ class CSVFilterProxyModel(QSortFilterProxyModel):
         self.cached_data = model.csv_data_map.copy()  # 얕은 복사
 
     def setFilterForColumn(self, column, hide_texts):
-
         # Set filtering column
         self.filter_column = column
-
         self.filtered_texts = frozenset(text for text in hide_texts)
 
         # Refresh Filter
+        self.layoutAboutToBeChanged.emit()
         self.blockSignals(True)
         self.invalidateRowsFilter()
         self.blockSignals(False)
