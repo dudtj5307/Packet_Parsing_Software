@@ -144,16 +144,6 @@ class FilterHeaderView(QHeaderView):
         # TODO: After applying - add "color"? or indicator
         # Close the popup after applying the filter
         # self.filter_popup.close()
-        self.save_filter_settings(self.filter_setting)
-
-    def set_filter_setting(self, filter_setting):
-        self.filter_setting = filter_setting
-
-    def save_filter_settings(self, filter_setting):
-        self.parent.cache[self.parent.current_csv_path]['filter_setting'] = filter_setting
-        self.set_filter_setting(filter_setting)
-        pass
-
 
 
 if __name__ == "__main__":

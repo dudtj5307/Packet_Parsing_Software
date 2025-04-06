@@ -41,7 +41,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.list_csv_names.currentItemChanged.connect(self.clicked_csv_list)
 
         # Internal cache data
-        self.cache = defaultdict(lambda: {'table_model': None, 'table_data': None, 'filter_setting':{},
+        self.cache = defaultdict(lambda: {'table_model': None, 'table_data': None,
                                           'search_model': None, 'search_setting':[], })
         # ESC widget for closing this window
         self.last_esc_time = 0
