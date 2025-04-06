@@ -24,6 +24,8 @@ class Ui_ViewerWindow(object):
         self.centralwidget = QtWidgets.QWidget(parent=ViewerWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_3.setContentsMargins(-1, -1, -1, 9)
+        self.gridLayout_3.setVerticalSpacing(0)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.frame_3 = QtWidgets.QFrame(parent=self.centralwidget)
         self.frame_3.setEnabled(False)
@@ -155,19 +157,132 @@ class Ui_ViewerWindow(object):
         self.label_idx_count.raise_()
         self.gridLayout_3.addWidget(self.frame_search, 0, 1, 1, 1)
         self.frame_2 = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame_2.setEnabled(False)
+        self.frame_2.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_2.sizePolicy().hasHeightForWidth())
         self.frame_2.setSizePolicy(sizePolicy)
-        self.frame_2.setMinimumSize(QtCore.QSize(0, 31))
-        self.frame_2.setMaximumSize(QtCore.QSize(16777215, 31))
-        self.frame_2.setStyleSheet("background-color: transparent;\n"
-"border: 0px;")
+        self.frame_2.setMinimumSize(QtCore.QSize(0, 40))
+        self.frame_2.setMaximumSize(QtCore.QSize(16777215, 40))
+        self.frame_2.setStyleSheet("QFrame#frame_2 {\n"
+"    background-color: transparent;\n"
+"    border: 0px\n"
+"}")
         self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_2.setObjectName("frame_2")
+        self.button_yellow = QtWidgets.QPushButton(parent=self.frame_2)
+        self.button_yellow.setEnabled(True)
+        self.button_yellow.setGeometry(QtCore.QRect(260, 20, 39, 19))
+        self.button_yellow.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(255, 247, 1);\n"
+"    border: 1px solid black;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"   \n"
+"    background-color: rgb(208, 208, 0);\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: rgb(200,200,200);\n"
+"}")
+        self.button_yellow.setText("")
+        self.button_yellow.setObjectName("button_yellow")
+        self.button_green = QtWidgets.QPushButton(parent=self.frame_2)
+        self.button_green.setEnabled(True)
+        self.button_green.setGeometry(QtCore.QRect(300, 20, 39, 19))
+        self.button_green.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(0, 255, 60);\n"
+"    border: 1px solid black;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    \n"
+"    background-color: rgb(55, 166, 0);\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: rgb(200,200,200);\n"
+"}")
+        self.button_green.setText("")
+        self.button_green.setObjectName("button_green")
+        self.button_blue = QtWidgets.QPushButton(parent=self.frame_2)
+        self.button_blue.setEnabled(True)
+        self.button_blue.setGeometry(QtCore.QRect(340, 20, 39, 19))
+        self.button_blue.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(0, 89, 255);\n"
+"    border: 1px solid black;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(0, 15, 149);\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: rgb(200,200,200);\n"
+"}")
+        self.button_blue.setText("")
+        self.button_blue.setObjectName("button_blue")
+        self.button_white = QtWidgets.QPushButton(parent=self.frame_2)
+        self.button_white.setEnabled(True)
+        self.button_white.setGeometry(QtCore.QRect(180, 20, 39, 19))
+        self.button_white.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(253, 253, 253);\n"
+"    border: 1px solid black;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: rgb(200,200,200);\n"
+"}")
+        self.button_white.setText("")
+        self.button_white.setObjectName("button_white")
+        self.button_red = QtWidgets.QPushButton(parent=self.frame_2)
+        self.button_red.setEnabled(True)
+        self.button_red.setGeometry(QtCore.QRect(220, 20, 39, 19))
+        self.button_red.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(223, 20, 23);\n"
+"    border: 1px solid black;\n"
+"    border-radius: 4px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"   background-color: rgb(172, 2, 5);\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: rgb(200,200,200);\n"
+"}")
+        self.button_red.setText("")
+        self.button_red.setObjectName("button_red")
+        self.button_none = QtWidgets.QPushButton(parent=self.frame_2)
+        self.button_none.setEnabled(True)
+        self.button_none.setGeometry(QtCore.QRect(160, 22, 16, 16))
+        font = QtGui.QFont()
+        font.setBold(True)
+        self.button_none.setFont(font)
+        self.button_none.setStyleSheet("QPushButton {\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 8px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    color: rgb(200,200,200);\n"
+"}")
+        self.button_none.setObjectName("button_none")
         self.gridLayout_3.addWidget(self.frame_2, 0, 0, 1, 1)
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
         self.frame.setStyleSheet("border: 0px;")
@@ -231,3 +346,4 @@ class Ui_ViewerWindow(object):
         self.button_backward.setText(_translate("ViewerWindow", ">"))
         self.button_close.setToolTip(_translate("ViewerWindow", "Close (ESC)"))
         self.button_close.setText(_translate("ViewerWindow", "×"))
+        self.button_none.setText(_translate("ViewerWindow", "X"))

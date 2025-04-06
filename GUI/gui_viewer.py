@@ -42,7 +42,9 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
         # Internal cache data
         self.cache = defaultdict(lambda: {'table_model': None, 'table_data': None,
-                                          'search_model': None, 'search_setting':[], })
+                                          'search_model': None, 'search_setting':[],
+                                          'filter_header': None     # TODO: swap filter header
+                                          })
         # ESC widget for closing this window
         self.last_esc_time = 0
         self.widget_esc = QWidget(self)
@@ -68,6 +70,27 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         # CSV table headers - alignment
         self.table_csv.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.table_csv.verticalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
+
+        # Cell Highlight
+        self.button_none.clicked.connect(self.highlight_cell)
+        self.button_white.clicked.connect(self.highlight_cell)
+        self.button_red.clicked.connect(self.highlight_cell)
+        self.button_yellow.clicked.connect(self.highlight_cell)
+        self.button_green.clicked.connect(self.highlight_cell)
+        self.button_blue.clicked.connect(self.highlight_cell)
+
+    def highlight_cell(self, event):
+        button_name = self.sender().objectName()
+        proxy_indexes = self.table_csv.selectedIndexes()
+
+        # Set on the model
+        proxy_model = self.cache[self.current_csv_path]['table_model']
+        if proxy_model:
+            # Convert to origin indexes
+            source_indexes = [proxy_model.mapToSource(proxy_index) for proxy_index in proxy_indexes]
+            source_model = proxy_model.sourceModel()
+            source_model.highlight_cell(button_name, source_indexes)
+            self.table_csv.clearSelection()
 
     def keyPressEvent(self, event):
         # Initial Ctrl+F Key Pressed
@@ -222,11 +245,6 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         else:
             self.button_forward.setDisabled(False)
             self.button_backward.setDisabled(False)
-
-    def get_selected_cells(self):
-        indexes = self.table_csv.selectedIndexes()
-        for ind in indexes:
-            print(ind.row(), ind.column())
 
     def closeEvent(self, event):
         self.deleteLater()  # 창이 닫힐 때 객체를 완전히 삭제
