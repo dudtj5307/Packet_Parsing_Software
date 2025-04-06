@@ -19,8 +19,11 @@ from GUI.gui_filter import FilterHeaderView
 
 class ViewerWindow(QMainWindow, Ui_ViewerWindow):
     def __init__(self, parent=None, csv_folder_path=None):
-        super(ViewerWindow, self).__init__(parent)
+        super(ViewerWindow, self).__init__(None)
         self.setupUi(self)
+
+        self.setWindowFlags(Qt.WindowType.Window)
+
         self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_csv_view.png")))
         self.csv_folder_path = csv_folder_path[0]
         self.setWindowTitle(f"CSV Viewer - {os.path.basename(self.csv_folder_path)}")
@@ -35,7 +38,6 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
         # CSV List
         self.current_csv_path = None
-        # self.list_csv_names.clicked.connect(self.clicked_csv_list)    # TODO: delete
         self.list_csv_names.currentItemChanged.connect(self.clicked_csv_list)
 
         # Internal cache data

@@ -27,7 +27,6 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         self.parent = parent
         # Imported Modules
         self.settings_window = None
-        self.viewer_window = None
         self.restart_thread = None
         self.clock = StopWatch(self)
         # Button icons path
@@ -35,6 +34,8 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         # Created CSV file paths
         self.raw_file_paths = []
         self.csv_file_paths = []
+        # CSV Viewers - prevent garbage collection
+        self.csv_viewers = []
 
         # Set Signal Functions
         self.btn_settings.clicked.connect(self.open_settings)
@@ -189,8 +190,9 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
 
     # TODO: View CSV
     def csv_view_file(self):
-        self.viewer_window = ViewerWindow(self, self.csv_file_paths)
-        self.viewer_window.show()
+        csv_viewer = ViewerWindow(self, self.csv_file_paths)
+        csv_viewer.show()
+        self.csv_viewers.append(csv_viewer)
 
 
     def csv_open_folder(self):
@@ -199,6 +201,13 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
         os.makedirs(csv_root_folder_path, exist_ok=True)
         os.startfile(csv_root_folder_path)
 
+    def closeEvent(self, event):
+        # Close child viewers
+        for viewer in self.csv_viewers:
+            try: viewer.close()
+            except: pass
+        # Override super
+        super().closeEvent(event)
 
 if __name__ == "__main__" :
     pass
