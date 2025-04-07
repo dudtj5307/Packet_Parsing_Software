@@ -4,13 +4,14 @@
 import struct
 
 # Parse struct 'TIE_0x443'
-def parse_TIE_0x443(data):
+def parse_TIE_0x443(endian, data):
     size = 14
     if len(data) != size:
-        print(f'data: {len(data)} / size: 14')
+        print(f'[parse_TIE_0x443] Invalid data size: {len(data)} (14)')
         return None
-    fmt  = '>IHBihc'
-    data = struct.unpack(fmt, data)
+    fmt  = ['>IHBihc',
+            '<IHBihc',]
+    data = struct.unpack(fmt[endian], data)
     result = {
     'type1': data[0],
     'type2': data[1],
@@ -22,13 +23,14 @@ def parse_TIE_0x443(data):
     return result
 
 # Parse struct 'TIE_0x445'
-def parse_TIE_0x445(data):
+def parse_TIE_0x445(endian, data):
     size = 14
     if len(data) != size:
-        print(f'data: {len(data)} / size: 14')
+        print(f'[parse_TIE_0x445] Invalid data size: {len(data)} (14)')
         return None
-    fmt  = '>IHBihc'
-    data = struct.unpack(fmt, data)
+    fmt  = ['>IHBihc',
+            '<IHBihc',]
+    data = struct.unpack(fmt[endian], data)
     result = {
     'type1': data[0],
     'type2': data[1],
@@ -40,13 +42,14 @@ def parse_TIE_0x445(data):
     return result
 
 # Parse struct 'TIE_0x455'
-def parse_TIE_0x455(data):
+def parse_TIE_0x455(endian, data):
     size = 14
     if len(data) != size:
-        print(f'data: {len(data)} / size: 14')
+        print(f'[parse_TIE_0x455] Invalid data size: {len(data)} (14)')
         return None
-    fmt  = '>IHBihc'
-    data = struct.unpack(fmt, data)
+    fmt  = ['>IHBihc',
+            '<IHBihc',]
+    data = struct.unpack(fmt[endian], data)
     result = {
     'type1': data[0],
     'type2': data[1],

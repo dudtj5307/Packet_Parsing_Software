@@ -158,13 +158,14 @@ class ParsingFunctionGenerator:
 
         func_lines = list()
         func_lines.append(f"# Parse struct '{struct_name}'")
-        func_lines.append(f"def parse_{struct_name}(data):")
+        func_lines.append(f"def parse_{struct_name}(endian, data):")
         func_lines.append(f"    size = {size}")
         func_lines.append(f"    if len(data) != size:")
-        func_lines.append(f"        print(f\'data: {{len(data)}} / size: {size}')")
+        func_lines.append(f"        print(f\'[parse_{struct_name}] Invalid data size: {{len(data)}} ({size})')")
         func_lines.append(f"        return None")
-        func_lines.append(f"    fmt  = '>{fmt}'")                    # > : Big Endian / < : Little Endian
-        func_lines.append("    data = struct.unpack(fmt, data)")
+        func_lines.append(f"    fmt  = ['>{fmt}',")                    # > : Big Endian / < : Little Endian
+        func_lines.append(f"            '<{fmt}',]")
+        func_lines.append("    data = struct.unpack(fmt[endian], data)")
         func_lines.append("    result = {")
         func_lines.extend(dict_lines)
         func_lines.append("    }")
