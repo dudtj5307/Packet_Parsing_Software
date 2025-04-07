@@ -173,6 +173,7 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.btn_csv_view.setEnabled(True)       # TODO: View CSV
 
     def csv_create_file(self):
+        os.makedirs(os.path.join(os.getcwd(), 'IDL'), exist_ok=True)
         idl_folder_path = os.path.join(os.getcwd(), 'IDL')
         if not os.path.isdir(idl_folder_path) or not [f for f in os.listdir(idl_folder_path)]:
             messagebox.showerror("File Error", "Please insert IDL files")
