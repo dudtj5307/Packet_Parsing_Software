@@ -1,6 +1,6 @@
 import os
 import sys
-import importlib
+import importlib.util
 import struct
 from datetime import datetime
 from collections import defaultdict
@@ -14,7 +14,7 @@ from utils.parser.log import ParseHistoryLog
 from utils.parser.ndds import NDDS
 
 
-LOCAL_IP_PREFIX = '10.30.7.'
+LOCAL_IP_PREFIX = '192.168.0.'
 NEAR_IP_PREFIX = '192.168.'
 
 MSG_TYPES = defaultdict(lambda: "Undefined")
@@ -44,20 +44,38 @@ class PacketParser:
         self.log = ParseHistoryLog()
         self.monitor = ProgressMonitor()
         self.parsing_function_paths = []
+        self.imported_modules = {}
 
     # Dynamic Import of generated-parsing functions
     def import_functions(self, parsing_function_paths):
+        # for parsing_code_path in parsing_function_paths:
+        #     module_name = f"IDL.{parsing_code_path.split('.py')[0]}"
+        #     if module_name in sys.modules:
+        #         globals()[module_name] = importlib.reload(sys.modules[module_name])
+        #     else:
+        #         globals()[module_name] = importlib.import_module(module_name)
         for parsing_code_path in parsing_function_paths:
-            module_name = f"IDL.{parsing_code_path.split('.py')[0]}"
-            if module_name in sys.modules:
-                globals()[module_name] = importlib.reload(sys.modules[module_name])
-            else:
-                globals()[module_name] = importlib.import_module(module_name)
+            module_filename = os.path.basename(parsing_code_path)
+            module_name = f"{os.path.splitext(module_filename)[0]}"
+            full_path = os.path.abspath(os.path.join('IDL', parsing_code_path))
+
+            if not os.path.exists(full_path):
+                raise FileNotFoundError(f"Parsing module file not found: {full_path}")
+
+            # Load the module from the file path
+            spec = importlib.util.spec_from_file_location(module_name, full_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            # Add to globals and sys.modules if needed
+            globals()[module_name] = module
+            sys.modules[module_name] = module
+            self.imported_modules[module_name] = module
 
     # Update IP infos from config_data
     def update_system_type(self, config_data):
         # Local IPs
-        local = {key: LOCAL_IP_PREFIX + val for key, val in config_data['IP_local'].items()}
+        local = {key: LOCAL_IP_PREFIX + str(val) for key, val in config_data['IP_local'].items()}
         self.SYS_TYPES.update({local['adoc_ip1']:'ADOC', local['adoc_ip2']:'ADOC', local['adoc_ip3']:'ADOC',
                                local['wcc_ip1']: 'WCC',  local['wcc_ip2']: 'WCC',  local['wcc_ip3']: 'WCC',
                                local['dlu_ip1']: 'DLU',  local['dlu_ip2']: 'DLU',  local['dlu_ip3']: 'DLU'})
@@ -65,10 +83,6 @@ class PacketParser:
         range_mdil = range(int(config_data['IP_near']['mdil_ip1']), int(config_data['IP_near']['mdil_ip2']) + 1)
         near = {NEAR_IP_PREFIX + str(IP_C) + '.' + config_data['IP_near']['mdil_ip3'] : 'MDIL' for IP_C in range_mdil}
         self.SYS_TYPES.update(near)
-
-        self.SYS_TYPES['10.30.7.255'] = 'WCC'    # TODO: For Testing
-        self.SYS_TYPES['10.30.7.255'] = 'WCC'    # TODO: For Testing
-        self.SYS_TYPES['10.30.7.66'] = 'WCC'    # TODO: For Testing
 
     def estimated_packet_num(self, file_path):
         os.path.getsize(file_path)
@@ -110,18 +124,17 @@ class PacketParser:
                 # if msg_type == 'Undefined': continue      # TODO: For testing
 
                 if packet.haslayer(UDP) and packet.haslayer(NDDS):
+                    hex_str = raw_data.hex()
+                    print(hex_str)
                     # print(packet.show())
-                    msg_name, data = self.parse_RTPS(msg_type, raw_data)
-                    print("data: ", data)
+                    results = self.parse_RTPS(msg_type, raw_data)
                 else:
                     continue
 
-                # data = self.parse_data(msg_type, raw_data)
-                # # if data is None: continue
-
-                packet_info = {'DATE': f"{date}'", 'TIME': f"{_time}'",'SENDER': f"{src_sys}({src_ip})", 'RECEIVER': f"{dst_sys}({dst_ip})",
-                               'MSG_NAME':msg_name, 'DATA':data}
-                packet_infos.append(packet_info)
+                for msg_name, data in results:
+                    packet_info = {'DATE': f"{date}'", 'TIME': f"{_time}'",'SENDER': f"{src_sys}({src_ip})", 'RECEIVER': f"{dst_sys}({dst_ip})",
+                                   'MSG_NAME':msg_name, 'DATA':data}
+                    packet_infos.append(packet_info)
 
         # Updates raw file's total packet number
         total_packets = idx + 1
@@ -134,27 +147,32 @@ class PacketParser:
         parse_results = []
 
         pkt_len = len(data)
-        if pkt_len < HEAD_LEN + SUBHEAD_LEN:
-            return None
+        # if pkt_len < HEAD_LEN + SUBHEAD_LEN:  # TODO: Delete
+        if pkt_len < SUBHEAD_LEN:
+            return []
 
-        if data[0:4] != b'RTPS': return       # TODO: Delete after testing
-        idx = HEAD_LEN
+        # print(data[0:4])                       # TODO: Delete
+        # if data[0:4] != b'RTPS': return []
+        # print('bRTPS passed!')
+
+        idx = 0
         while idx + SUBHEAD_LEN <= pkt_len:
             # Parse Sub-Msg Header
             sub_id, endian, data_len = subMsg_header_unpack(data[idx:idx + SUBHEAD_LEN])    # [idx : idx + 4]
+            print(sub_id, endian, data_len)
             idx += SUBHEAD_LEN
 
             # Check valid of subheader
-            if sub_id == 'Invalid': return          # Invalid Endian Value
-            if idx + data_len > pkt_len:  return    # Invalid data length
+            if sub_id == 'Invalid': return parse_results         # Invalid Endian Value
+            if idx + data_len > pkt_len:  return parse_results   # Invalid data length
             if data_len == 0: continue              # Skip if 'data_len == 0'
 
             # Parse data if 'sub_id = 0x03(NOKEY_DATA)'
             if sub_id == 0x03:
-                result = self.parse_data(msg_type, data[idx:idx + data_len])  # TODO: memoryview apply?
-                if result:
+                result = self.parse_data(msg_type, data[idx + 16 : idx + 16 + data_len])  # TODO: 16 byte from etc infos
+                print(f'parse_RTPS result : {result}')
+                if result[0]:
                     parse_results.append(result)
-
             idx += data_len
         return parse_results
 
@@ -166,33 +184,41 @@ class PacketParser:
             return func(data)
         else:
             print(f"Can not find msg type '{msg_type}'")
-            return None
+            return None, None
 
     # noinspection PyUnresolvedReferences
     def parse_EIE(self, data):
-        import IDL
-        eie_type = struct.unpack('>H', data[24:26])[0]      # TODO: Find right eie_type
+        # Find EIE type from EIE header
+        eie_type = struct.unpack('>H', data[0:2])[0]        # Find right EIE header name
         eie_name = f'EIE_0x{eie_type:04X}'
+
         EIE_function_name = f'parse_{eie_name}'
-        if EIE_function_name in IDL.parse_EIE_Msg.__dict__:
-            return eie_name, IDL.parse_EIE_Msg.__dict__[EIE_function_name](data)
+        EIE_module = self.imported_modules.get("parse_EIE_Msg", None)
+        print(EIE_function_name)
+
+        if EIE_module and hasattr(EIE_module, EIE_function_name):
+            return getattr(EIE_module, EIE_function_name)(data)
         else:
-            print(f"Can not find function '{EIE_function_name}'")
+            print(f"Can not find type '{eie_name}'")
             return None, None
 
     # noinspection PyUnresolvedReferences
     def parse_TIE(self, data):
-        import IDL
+        print(data.hex())
         # Find TIE type from TIE header
-        tie_type = struct.unpack('>H', data[0:2])[0]        # TODO: Find right tie_type
-        # print(tie_type)
-        tie_type = 0x301
-        TIE_function_name = f'parse_TIE_{hex(tie_type)}'
-        if TIE_function_name in IDL.parse_TIE_Msg.__dict__:
-            return IDL.parse_TIE_Msg.__dict__[TIE_function_name](data)
+        tie_type = struct.unpack('>H', data[0:2])[0]
+        tie_name = f'TIE_0x{tie_type:03X}'
+
+        TIE_function_name = f'parse_{tie_name}'
+        TIE_module = self.imported_modules.get("parse_TIE_Msg", None)
+        print(TIE_function_name)
+
+        if TIE_module and hasattr(TIE_module, TIE_function_name):
+            return getattr(TIE_module, TIE_function_name)(data)
+
         else:
-            print(f"Can not find type 'TIE_{hex(tie_type)}'")
-            return None
+            print(f"Can not find type '{tie_name}'")
+            return None, None
 
     def parse_MDIL(self, data):
         mdil_type = struct.unpack('H', data[0:2])[0]
@@ -207,6 +233,10 @@ if __name__ == "__main__":
     # parsing_codes = ['parse_EIE_Msg.py', 'parse_TIE_Msg.py']
     #
     # packet_parser = PacketParser(parsing_codes)
-    a = []
-    a.append(None)
-    print(a)
+    a = (None, None)
+    b = (123, None)
+    if a[0]:
+        print(a)
+
+    if b[0]:
+        print(b)

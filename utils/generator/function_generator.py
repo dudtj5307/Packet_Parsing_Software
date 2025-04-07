@@ -6,25 +6,14 @@ import hashlib
 import struct
 
 from utils.monitor import ProgressMonitor
+from utils.generator.ctype_map import KNOWN_CTYPE_MAP
 
-
-# C 타입과 Python struct 모듈 포맷 코드 매핑 (필요에 따라 추가)
-KNOWN_CTYPE_MAP = {
-    'char' : 'c',  'int8' : 'c', 'signed char' : 'b',
-    'uchar' : 'B', 'octet' : 'B', 'unsigned char' : 'B',
-
-    'short' : 'h', 'signed short' : 'h',
-    'ushort' : 'H', 'unsigned short' : 'H',
-
-    'int'   : 'i', 'long': 'i', 'signed int' : 'i', 'signed long' : 'i',
-    'uint'  : 'I', 'ulong' : 'I', 'unsigned long'  : 'I', 'unsigned int' : 'I',
-}
-
-COMPLETE, STOPPED = True, False
+STOPPED = False
 
 # Regular Expressions
+typedef_pattern = re.compile(r'typedef\s+struct\s+(\w+)?\s*\{([\s\S]*?)\}\s*(\w+)\s*;', re.MULTILINE)   # 'typedef struct'
 struct_pattern = re.compile(r'struct\s+(\w+)\s*\{([^}]+)}', re.MULTILINE | re.DOTALL)  # 'struct <name> { ... }'
-field_pattern = re.compile(r'\s*(\w+)\s+(\w+)\s*(?:;?\s*(//.*))?')                           # "uchar valid, // 100~200"
+field_pattern = re.compile(r'\s*((?:\w+\s+)*\w+)\s+(\w+)\s*(?:;?\s*(//.*))?')
 
 def calculate_hash(filepath, algorithm='sha256'):
     hash_func = hashlib.new(algorithm)
@@ -64,7 +53,7 @@ class ParsingFunctionGenerator:
         # Reset attributes before running
         self.set_path(idl_path)
         if self.is_up_to_date(): return
-        if self.parse_idl_file() == STOPPED: return
+        if self.parse_idl_structs() == STOPPED: return
         if self.generate_code()  == STOPPED: return
 
         self.outputs.append(self.output_name)
@@ -121,17 +110,28 @@ class ParsingFunctionGenerator:
                 lines.append(f"{indent}# Unknown type {ctype} for field {field_name}")
         return lines, current_index
 
-    def parse_idl_file(self):
+    def parse_idl_structs(self):
         with open(self.idl_path, 'r') as f:
             content = f.read()
         # Parse all structs in IDL file
+        typedef_matches = list(typedef_pattern.finditer(content))
         struct_matches = list(struct_pattern.finditer(content))         # TODO: check if memory is ok
-        for idx, struct_match in enumerate(struct_matches):
-            if self.monitor.update_check_stop('idl', task_idx=idx, task_total=len(struct_matches) * 2):
-                return
-            struct_name, struct_body = struct_match.group(1), struct_match.group(2)
-            fields = []
+        total_structs = typedef_matches + struct_matches
+
+        for idx, struct_match in enumerate(total_structs):
+            if self.monitor.update_check_stop('idl', task_idx=idx, task_total=len(total_structs) * 2):
+                return STOPPED
+
+            # 'typedef struct' or 'struct'
+            if struct_match.re == struct_pattern:
+                struct_name = struct_match.group(1)
+                struct_body = struct_match.group(2)
+            else:
+                struct_name = struct_match.group(3)     # typedef struct name
+                struct_body = struct_match.group(2)
+
             # Parse by each line
+            fields = []
             for line in struct_body.splitlines():
                 line = line.strip()
                 if not line:
@@ -157,7 +157,7 @@ class ParsingFunctionGenerator:
         dict_lines, _ = self.get_dict_recursive(struct_name, "    ", 0)
 
         func_lines = list()
-        func_lines.append(f"# Parse {struct_name} data")
+        func_lines.append(f"# Parse struct '{struct_name}'")
         func_lines.append(f"def parse_{struct_name}(data):")
         func_lines.append(f"    size = {size}")
         func_lines.append(f"    if len(data) != size:")
@@ -179,7 +179,7 @@ class ParsingFunctionGenerator:
         for idx, struct_name in enumerate(self.IDL_CTYPE_MAP):
             # Update monitoring and Check if Stopped
             if self.monitor.update_check_stop('idl', task_idx=idx, task_total=len(self.IDL_CTYPE_MAP), prior_status=0.5):
-                return
+                return STOPPED
 
             generated_code += self.generate_parse_function(struct_name) + "\n\n"
 

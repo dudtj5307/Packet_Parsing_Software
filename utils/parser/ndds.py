@@ -11,7 +11,8 @@ class NDDS(Packet):
         XIntField("magic", 0x52545053),  # 'RTPS' in ASCII
         ByteField("version_major", 2),   # RTPS 버전 (예: 2.3 -> major=2, minor=3)
         ByteField("version_minor", 3),
-        XShortField("vendor_id", 0x0101),  # 기본 공급업체 ID (예제: 0x0101)
+        ByteField("vendor_id_major", 1),
+        ByteField("vendor_id_minor", 2),
         StrFixedLenField("guid_prefix", b"\x00" * 8, 8)  # 8바이트 GUID Prefix
     ]
 
