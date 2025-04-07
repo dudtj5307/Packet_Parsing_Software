@@ -145,6 +145,10 @@ class FilterHeaderView(QHeaderView):
         # Close the popup after applying the filter
         # self.filter_popup.close()
 
+        # Update Search model if visible
+        if self.parent.frame_search.isVisible():
+            self.parent.search_model.search(self.parent.edit_text_input.text())
+
 
 if __name__ == "__main__":
     # from PyQt6.QtWidgets import QApplication
