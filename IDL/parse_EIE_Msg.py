@@ -1,9 +1,9 @@
-# EIE_Msg.idl : 94b053f3c4e75b9b66760ec41c83bacf5499926853c5afbdd2feb720d322bbc5
+# EIE_Msg.idl : 0671b934a4cfc7a32f86c1e3b3dbd697a339aba843c9fa32fe5ea1d7b73dc35f
 # Auto-generated parsing function
 
 import struct
 
-# Parse trkNo data
+# Parse struct 'trkNo'
 def parse_trkNo(data):
     size = 12
     if len(data) != size:
@@ -19,7 +19,23 @@ def parse_trkNo(data):
     }
     return result
 
-# Parse EIE_header data
+# Parse struct '_trkNo'
+def parse__trkNo(data):
+    size = 12
+    if len(data) != size:
+        print(f'data: {len(data)} / size: 12')
+        return None
+    fmt  = '>HHII'
+    data = struct.unpack(fmt, data)
+    result = {
+    'trkNo1': data[0],
+    'trkNo2': data[1],
+    'trkNo3': data[2],
+    'trkNo4': data[3],
+    }
+    return result
+
+# Parse struct 'EIE_header'
 def parse_EIE_header(data):
     size = 26
     if len(data) != size:
@@ -44,7 +60,7 @@ def parse_EIE_header(data):
     }
     return result
 
-# Parse EIE_0x0301 data
+# Parse struct 'EIE_0x0301'
 def parse_EIE_0x0301(data):
     size = 29
     if len(data) != size:
@@ -73,7 +89,7 @@ def parse_EIE_0x0301(data):
     }
     return result
 
-# Parse EIE_0x0302 data
+# Parse struct 'EIE_0x0302'
 def parse_EIE_0x0302(data):
     size = 40
     if len(data) != size:
@@ -106,7 +122,7 @@ def parse_EIE_0x0302(data):
     }
     return result
 
-# Parse EIE_0x0303 data
+# Parse struct 'EIE_0x0303'
 def parse_EIE_0x0303(data):
     size = 40
     if len(data) != size:

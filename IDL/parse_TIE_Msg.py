@@ -3,7 +3,7 @@
 
 import struct
 
-# Parse TIE_0x443 data
+# Parse struct 'TIE_0x443'
 def parse_TIE_0x443(data):
     size = 14
     if len(data) != size:
@@ -21,7 +21,7 @@ def parse_TIE_0x443(data):
     }
     return result
 
-# Parse TIE_0x445 data
+# Parse struct 'TIE_0x445'
 def parse_TIE_0x445(data):
     size = 14
     if len(data) != size:
@@ -39,7 +39,7 @@ def parse_TIE_0x445(data):
     }
     return result
 
-# Parse TIE_0x455 data
+# Parse struct 'TIE_0x455'
 def parse_TIE_0x455(data):
     size = 14
     if len(data) != size:

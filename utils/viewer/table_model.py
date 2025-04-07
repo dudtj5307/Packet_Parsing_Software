@@ -16,7 +16,7 @@ class CSVTableModel(QAbstractTableModel):
         # Highlight cells
         self.highlight_cells = {}
         self.highlight_color = {'button_white': QColor("white"),
-                                'button_red': QColor(255, 100, 100),
+                                'button_red': QColor(255, 150, 150),
                                 'button_yellow': QColor("yellow"),
                                 'button_green': QColor(185, 255, 163),
                                 'button_blue': QColor(121, 220, 255)}

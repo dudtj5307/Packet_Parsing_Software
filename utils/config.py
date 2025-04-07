@@ -25,7 +25,7 @@ class Config:
 
     def __init__(self):
         self.load_config_file()
-        print("[Config] 'settings.conf' loaded!")
+        # print("[Config] 'settings.conf' loaded!")
 
     def same_keys_recursive(self, dict1, dict2):
         if set(dict1.keys()) != set(dict2.keys()):

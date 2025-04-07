@@ -1,9 +1,9 @@
-struct trkNo {
+typedef struct _trkNo {
     ushort  trkNo1;
     ushort  trkNo2;
     uint    trkNo3;
     uint    trkNo4;
-}
+} trkNo;
 
 struct EIE_header {         // 26
     trkNo   srcTN;          // 12

@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from PyQt6.QtWidgets import QAbstractItemView, QMainWindow, QListWidgetItem, QWidget
 from PyQt6.QtGui import QIcon, QBrush, QColor
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, QEvent
 
 from utils.viewer.table_model import CSVTableModel
 from utils.viewer.filter_model import CSVFilterProxyModel
@@ -54,10 +54,10 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
         # Search Widget
         self.search_model = SearchModel(self.table_csv)
-        self.search_model.search_widget_update.connect(self.search_widget_update)
+        self.search_model.search_widget_update.connect(self.search_gui_update)
         self.button_forward.clicked.connect(self.search_model.previous_match)
         self.button_backward.clicked.connect(self.search_model.next_match)
-        self.button_close.clicked.connect(self.search_widget_hide)
+        self.button_close.clicked.connect(self.search_gui_hide)
         self.frame_search.setVisible(False)
 
         # Custom horizontal header with filtering
@@ -79,6 +79,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.button_green.clicked.connect(self.highlight_cell)
         self.button_blue.clicked.connect(self.highlight_cell)
 
+
     def highlight_cell(self, event):
         button_name = self.sender().objectName()
         proxy_indexes = self.table_csv.selectedIndexes()
@@ -95,12 +96,12 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
     def keyPressEvent(self, event):
         # Initial Ctrl+F Key Pressed
         if event.key() == Qt.Key.Key_F and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            self.search_widget_init()
-            self.search_widget_show()
+            self.search_gui_init()
+            self.search_gui_show()
 
         # 'ESC' Key Pressed & Search Widget On
         elif event.key() == Qt.Key.Key_Escape and self.frame_search.isVisible():
-            self.search_widget_hide()
+            self.search_gui_hide()
 
         # 'ESC' Key Pressed & Search Widget Off
         elif event.key() == Qt.Key.Key_Escape and not self.frame_search.isVisible():
@@ -148,7 +149,6 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         # item.setData(Qt.ItemDataRole.UserRole, "border-bottom: 1px solid rgb(225, 225, 225); padding-left: 2px;")
         # self.list_csv_names.addItem(item)
 
-
     def paint_list_csv(self, csv_path, color):
         csv_name = self.get_csv_name[csv_path]
         for item in self.list_csv_names.findItems(csv_name, Qt.MatchFlag.MatchExactly):
@@ -166,7 +166,7 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
 
     def clicked_csv_list(self):
         # Close Search Widget
-        self.search_widget_hide()
+        self.search_gui_hide()
         # Close Filter Widget
         header = self.table_csv.horizontalHeader()
         if hasattr(header, "filter_popup") and header.filter_popup:
@@ -216,7 +216,6 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
             model.load_fail.connect(self.csv_load_failed)
             proxy_model = CSVFilterProxyModel()
             proxy_model.setSourceModel(model)
-
             self.cache[csv_path]['table_model'] = proxy_model
             self.table_csv.setModel(proxy_model)
 
@@ -224,20 +223,20 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.table_csv.verticalHeader().setDefaultSectionSize(20)       # cell height
         self.table_csv.scrollTo(self.table_csv.model().index(0, 0), QAbstractItemView.ScrollHint.PositionAtTop)
 
-    def search_widget_show(self):
+    def search_gui_show(self):
         self.frame_search.setVisible(True)
         self.edit_text_input.setFocus()
 
-    def search_widget_hide(self):
+    def search_gui_hide(self):
         self.frame_search.setVisible(False)
 
-    def search_widget_init(self):
+    def search_gui_init(self):
         self.edit_text_input.clear()
         self.label_idx_count.clear()
         self.button_backward.setDisabled(True)
         self.button_forward.setDisabled(True)
 
-    def search_widget_update(self, current_idx, total_count):
+    def search_gui_update(self, current_idx, total_count):
         self.label_idx_count.setText(f"{current_idx}/{total_count}")
         if total_count <= 1:
             self.button_forward.setDisabled(True)
