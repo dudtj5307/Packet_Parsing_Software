@@ -13,7 +13,9 @@ STOPPED = False
 # Regular Expressions
 typedef_pattern = re.compile(r'typedef\s+struct\s+(\w+)?\s*\{([\s\S]*?)\}\s*(\w+)\s*;', re.MULTILINE)   # 'typedef struct'
 struct_pattern = re.compile(r'struct\s+(\w+)\s*\{([^}]+)}', re.MULTILINE | re.DOTALL)  # 'struct <name> { ... }'
-field_pattern = re.compile(r'\s*((?:\w+\s+)*\w+)\s+(\w+)\s*(?:;?\s*(//.*))?')
+# field_pattern = re.compile(r'\s*((?:\w+\s+)*\w+)\s+(\w+)\s*(?:;?\s*(//.*))?')
+field_pattern = re.compile(r'\s*((?:\w+\s+)*\w+)\s+(\w+)(\s*\[\s*(\d+)\s*\])?\s*;?\s*(//.*)?')
+
 
 def calculate_hash(filepath, algorithm='sha256'):
     hash_func = hashlib.new(algorithm)
@@ -82,13 +84,12 @@ class ParsingFunctionGenerator:
 
     # Recursive fmt function for nested structure
     def get_fmt_recursive(self, struct_name):
-        fields = self.IDL_CTYPE_MAP.get(struct_name, [])
         fmt = ""
-        for ctype, field_name, comment in fields:
+        for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
             if ctype in self.KNOWN_CTYPE_MAP:
-                fmt += self.KNOWN_CTYPE_MAP[ctype]
+                fmt += self.KNOWN_CTYPE_MAP[ctype] * array_size
             elif ctype in self.IDL_CTYPE_MAP:
-                fmt += self.get_fmt_recursive(ctype)     # Recursive
+                fmt += self.get_fmt_recursive(ctype) * array_size
             else:
                 print(f"Warning: Struct({struct_name})-Field({field_name}) Unknown ctype: {ctype}")
         return fmt
@@ -96,16 +97,20 @@ class ParsingFunctionGenerator:
     def get_dict_recursive(self, struct_name, indent, index):
         lines = []
         current_index = index
-        for ctype, field_name, comment in self.IDL_CTYPE_MAP[struct_name]:
+        for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
             if ctype in self.KNOWN_CTYPE_MAP:
-                lines.append(f"{indent}'{field_name}': data[{current_index}],")
-                current_index += 1
+                for i in range(array_size):
+                    key = f"{field_name}[{i}]" if array_size > 1 else field_name
+                    lines.append(f"{indent}'{key}': data[{current_index}],")
+                    current_index += 1
             elif ctype in self.IDL_CTYPE_MAP:
-                nested_lines, next_index = self.get_dict_recursive(ctype, indent + "    ", current_index)
-                lines.append(f"{indent}'{field_name}': {{")
-                lines.extend(nested_lines)
-                lines.append(f"{indent}}},")
-                current_index = next_index
+                for i in range(array_size):
+                    nested_lines, next_index = self.get_dict_recursive(ctype, indent + "    ", current_index)
+                    key = f"{field_name}[{i}]" if array_size > 1 else field_name
+                    lines.append(f"{indent}'{key}': {{")
+                    lines.extend(nested_lines)
+                    lines.append(f"{indent}}},")
+                    current_index = next_index
             else:
                 lines.append(f"{indent}# Unknown type {ctype} for field {field_name}")
         return lines, current_index
@@ -122,13 +127,12 @@ class ParsingFunctionGenerator:
             if self.monitor.update_check_stop('idl', task_idx=idx, task_total=len(total_structs) * 2):
                 return STOPPED
 
-            # 'typedef struct' or 'struct'
+            # 'struct' or 'typedef struct'
             if struct_match.re == struct_pattern:
-                struct_name = struct_match.group(1)
-                struct_body = struct_match.group(2)
+                struct_name = struct_match.group(1)     # struct name
             else:
                 struct_name = struct_match.group(3)     # typedef struct name
-                struct_body = struct_match.group(2)
+            struct_body = struct_match.group(2)
 
             # Parse by each line
             fields = []
@@ -139,9 +143,10 @@ class ParsingFunctionGenerator:
                 line = line.rstrip(',')
                 field_match = field_pattern.match(line)
                 if field_match:
-                    ctype, field_name, comment = (field_match.group(1), field_match.group(2),
-                                                  field_match.group(3) if field_match.group(3) else "")
-                    fields.append((ctype, field_name, comment))
+                    ctype, field_name = field_match.group(1), field_match.group(2)
+                    comment = field_match.group(3).strip() if field_match.group(3) else ""
+                    array_size = int(field_match.group(4)) if field_match.group(4) else 1
+                    fields.append((ctype, field_name, comment, array_size))
             self.IDL_CTYPE_MAP[struct_name] = fields
         return True
 

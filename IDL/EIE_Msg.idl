@@ -6,8 +6,8 @@ typedef struct _trkNo {
 } trkNo;
 
 struct EIE_header {         // 26
-    trkNo   srcTN;          // 12
-    trkNo   dstTN;          // 12
+    trkNo   srcTN [2];          // 12
+    trkNo   dstTN[2];          // 12
     ushort   msgType;       // 2
 }
  typedef struct _EIE_0xD001 {
@@ -15,19 +15,9 @@ uint type1[39];
 
 } EIE_0xD001;
 
-
-
 struct EIE_0xD010 {
-ushort type1[200];
-ushort type2 [300];
-ushort type3;
-ushort type4;
-ushort type5;
-ushort type6;
-ushort type7;
-ushort type8;
-ushort type9;
-ushort type10;
+ushort type1[5];
+ushort type2 [5];
 }
 
 struct EIE_0x0301{
