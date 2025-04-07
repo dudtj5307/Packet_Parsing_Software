@@ -29,7 +29,7 @@ RTPS_SUBHEADER_FMT_1ST = ">B B"         # subtype, endian
 RTPS_SUBHEADER_FMT_2ND = [">H", "<H"]   # data_len  ([0] Big-endian > / [1] : Little-endian < )
 RTPS_SUBHEADER_LEN = struct.calcsize("BBH")
 
-def subMsg_header_unpack(data):
+def sub_header_unpack(data):
     subId, endian = struct.unpack(RTPS_SUBHEADER_FMT_1ST, data[0:2])
     if endian not in [0,1]:
         return 'Invalid', None, None
@@ -47,12 +47,6 @@ class PacketParser:
 
     # Dynamic Import of generated-parsing functions
     def import_functions(self, parsing_function_paths):
-        # for parsing_code_path in parsing_function_paths:
-        #     module_name = f"IDL.{parsing_code_path.split('.py')[0]}"
-        #     if module_name in sys.modules:
-        #         globals()[module_name] = importlib.reload(sys.modules[module_name])
-        #     else:
-        #         globals()[module_name] = importlib.import_module(module_name)
         for parsing_code_path in parsing_function_paths:
             module_filename = os.path.basename(parsing_code_path)
             module_name = f"{os.path.splitext(module_filename)[0]}"
@@ -67,8 +61,6 @@ class PacketParser:
             spec.loader.exec_module(module)
 
             # Add to globals and sys.modules if needed
-            # globals()[module_name] = module
-            # sys.modules[module_name] = module
             self.imported_modules[module_name] = module
 
     # Update IP infos from config_data
@@ -152,7 +144,7 @@ class PacketParser:
         idx = 0
         while idx + SUBHEAD_LEN <= pkt_len:
             # Parse Sub-Msg Header
-            sub_id, endian, data_len = subMsg_header_unpack(data[idx:idx + SUBHEAD_LEN])    # [idx : idx + 4]
+            sub_id, endian, data_len = sub_header_unpack(data[idx:idx + SUBHEAD_LEN])    # [idx : idx + 4]
             print(sub_id, endian, data_len)
             idx += SUBHEAD_LEN
 
