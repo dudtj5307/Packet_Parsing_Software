@@ -1,7 +1,7 @@
 import os
 import threading
 
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QIcon, QIntValidator, QRegularExpressionValidator
@@ -173,6 +173,12 @@ class MainWindow(QMainWindow, Ui_MainWindow) :
             self.btn_csv_view.setEnabled(True)       # TODO: View CSV
 
     def csv_create_file(self):
+        idl_folder_path = os.path.join(os.getcwd(), 'IDL')
+        if not os.path.isdir(idl_folder_path) or not [f for f in os.listdir(idl_folder_path)]:
+            messagebox.showerror("File Error", "Please insert IDL files")
+            os.startfile(idl_folder_path)
+            return
+
         csv_converter = RawToCSVConverter(self, self.raw_file_paths)
         csv_converter.run()
         if csv_converter.progress_backend.stopped:
