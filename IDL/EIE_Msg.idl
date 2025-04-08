@@ -3,6 +3,8 @@ typedef struct _trkNo {
     ushort  trkNo2;
     uint    trkNo3;
     uint    trkNo4;
+    uchar    trkNo5;
+    int     trkNo6;
 } trkNo;
 
 struct EIE_header {         // 26

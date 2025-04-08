@@ -157,7 +157,7 @@ class ParsingFunctionGenerator:
 
         # Recursive for Nested Structures
         fmt = self.get_fmt_recursive(struct_name)
-        size = struct.calcsize("="+fmt)             # TODO: Check if real packet is sent with 'padding'
+        size = struct.calcsize(fmt)
 
         dict_lines, _ = self.get_dict_recursive(struct_name, "    ", 0)
 
