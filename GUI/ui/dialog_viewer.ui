@@ -554,6 +554,9 @@ QPushButton:disabled {
          <property name="styleSheet">
           <string notr="true"/>
          </property>
+         <property name="autoScroll">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="0" column="0">
