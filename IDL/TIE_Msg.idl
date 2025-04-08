@@ -1,26 +1,14 @@
-struct TIE_0x443{
-uint	type1,  // 0~200
-ushort type2,
-uchar type3,
-int 	type4,
-short type5,
-char type6,
-}
+//Header for TIE
+typedef struct _TIE_HEADER {
+	octet MESSAGE_LEVEL;
+	octet MESSAGE_SUBLEVEL;
+	unsigned short MESSAGE_LENGTH;
+	octet ORIGINATOR;
+	octet SEQUENCE_NUMBER;
+} TIE_HEADER;
 
-struct TIE_0x445{
-uint	type1,
-ushort type2,
-uchar type3,
-int 	type4,
-short type5,
-char type6,
-}
+struct IEM_SYS_005 {
+	TIE_HEADER HEADER_FRAME;
 
-struct TIE_0x455{
-uint	type1,
-ushort type2,
-uchar type3,
-int 	type4,
-short type5,
-char type6,
-}
+	unsigned short CBIT_RESULT;             //0~65535
+};

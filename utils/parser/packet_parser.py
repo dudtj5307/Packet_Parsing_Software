@@ -12,7 +12,7 @@ from utils.config import Config
 from utils.monitor import ProgressMonitor
 from utils.parser.log import ParseHistoryLog
 from utils.parser.ndds import NDDS
-
+from utils.parser.message_map import TIE_LABEL_NAME
 
 LOCAL_IP_PREFIX = '192.168.0.'
 NEAR_IP_PREFIX = '192.168.'
@@ -112,21 +112,20 @@ class PacketParser:
                 src_ip,  dst_ip  = packet[IP].src, packet[IP].dst
                 src_sys, dst_sys = self.SYS_TYPES[src_ip], self.SYS_TYPES[dst_ip]
                 msg_type = MSG_TYPES[(src_sys, dst_sys)]
-                print(date, _time, src_ip,  dst_ip, src_sys, dst_sys, msg_type)
-                # if msg_type == 'Undefined': continue      # TODO: For testing
+                if msg_type == 'Undefined':
+                    continue      # TODO: For testing
+
+                print(date, _time, src_ip, dst_ip, src_sys, dst_sys, msg_type)
 
                 if packet.haslayer(UDP) and packet.haslayer(NDDS):
-                    print(raw_data.hex())   # TODO: Delete
                     results = self.parse_RTPS(msg_type, raw_data)
-                else:
+                else:   # TODO: [TCP] MDIL, J-Msg, X-Msg, JREAP case
                     continue
 
                 for msg_name, data in results:
                     packet_info = {'DATE': f"{date}'", 'TIME': f"{_time}'",'SENDER': f"{src_sys}({src_ip})", 'RECEIVER': f"{dst_sys}({dst_ip})",
                                    'MSG_NAME':msg_name, 'DATA':data}
                     packet_infos.append(packet_info)
-        for p in packet_infos:
-            print(p)
 
         # Updates raw file's total packet number
         total_packets = idx + 1
@@ -145,7 +144,6 @@ class PacketParser:
         while idx + SUBHEAD_LEN <= pkt_len:
             # Parse Sub-Msg Header
             sub_id, endian, data_len = sub_header_unpack(data[idx:idx + SUBHEAD_LEN])    # [idx : idx + 4]
-            print(sub_id, endian, data_len)
             idx += SUBHEAD_LEN
 
             # Check valid of subheader
@@ -156,7 +154,6 @@ class PacketParser:
             # Parse data if 'sub_id = 0x03(NOKEY_DATA)'
             if sub_id == 0x03:
                 result = self.parse_data(msg_type, endian, data[idx + 16 : idx + 16 + data_len])  # TODO: 16 byte from etc infos
-                print(f'parse_RTPS result : {result}')
                 if result[1]:
                     parse_results.append(result)
             idx += data_len
@@ -179,29 +176,28 @@ class PacketParser:
         eie_type = struct.unpack(type_fmt[endian], data[0:2])[0]        # Find right EIE header name
         eie_name = f'EIE_0x{eie_type:04X}'
 
-        EIE_function_name = f'parse_{eie_name}'
         EIE_module = self.imported_modules.get("parse_EIE_Msg", None)
-        print(EIE_function_name)
+        EIE_func_name = f'parse_{eie_name}'
 
-        if EIE_module and hasattr(EIE_module, EIE_function_name):
-            return eie_name, getattr(EIE_module, EIE_function_name)(endian, data)
+        if EIE_module and hasattr(EIE_module, EIE_func_name):
+            return eie_name, getattr(EIE_module, EIE_func_name)(endian, data)
         else:
             print(f"[parse_EIE] Can not find EIE type '{eie_name}'")
             return None, None
 
     # noinspection PyUnresolvedReferences
     def parse_TIE(self, endian, data):
-        print(data.hex())
         # Find TIE type from TIE header
-        tie_type = struct.unpack('>H', data[0:2])[0]
-        tie_name = f'TIE_0x{tie_type:03X}'
+        label = struct.unpack('B', data[0:1])[0]
+        sublabel = struct.unpack('B', data[1:2])[0]
 
-        TIE_function_name = f'parse_{tie_name}'
+        tie_name = f'IEM_{TIE_LABEL_NAME[label]}_{sublabel:03X}'
+
         TIE_module = self.imported_modules.get("parse_TIE_Msg", None)
-        print(TIE_function_name)
+        TIE_func_name = f'parse_{tie_name}'
 
-        if TIE_module and hasattr(TIE_module, TIE_function_name):
-            return tie_name, getattr(TIE_module, TIE_function_name)(endian, data)
+        if TIE_module and hasattr(TIE_module, TIE_func_name):
+            return tie_name, getattr(TIE_module, TIE_func_name)(endian, data)
         else:
             print(f"[parse_TIE] Can not find TIE type '{tie_name}'")
             return None, None

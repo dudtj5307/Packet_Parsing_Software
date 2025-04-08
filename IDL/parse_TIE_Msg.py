@@ -1,62 +1,62 @@
-# TIE_Msg.idl : 1b809091394987652a0c645a88e0003aa4e3bf09f927ce98980808af06d05b3d
+# TIE_Msg.idl : 63658ddf41ed6fe9a75ab3bf92864d52f912166281e5cf6ee2a1acfcc3cd16c3
 # Auto-generated parsing function
 
 import struct
 
-# Parse struct 'TIE_0x443'
-def parse_TIE_0x443(endian, data):
-    size = 14
+# Parse struct 'TIE_HEADER'
+def parse_TIE_HEADER(endian, data):
+    size = 6
     if len(data) != size:
-        print(f'[parse_TIE_0x443] Invalid data size: {len(data)} (14)')
+        print(f'[parse_TIE_HEADER] Invalid data size: {len(data)} (6)')
         return None
-    fmt  = ['>IHBihc',
-            '<IHBihc',]
+    fmt  = ['>BBHBB',
+            '<BBHBB',]
     data = struct.unpack(fmt[endian], data)
     result = {
-    'type1': data[0],
-    'type2': data[1],
-    'type3': data[2],
-    'type4': data[3],
-    'type5': data[4],
-    'type6': data[5],
+    'MESSAGE_LEVEL': data[0],
+    'MESSAGE_SUBLEVEL': data[1],
+    'MESSAGE_LENGTH': data[2],
+    'ORIGINATOR': data[3],
+    'SEQUENCE_NUMBER': data[4],
     }
     return result
 
-# Parse struct 'TIE_0x445'
-def parse_TIE_0x445(endian, data):
-    size = 14
+# Parse struct '_TIE_HEADER'
+def parse__TIE_HEADER(endian, data):
+    size = 6
     if len(data) != size:
-        print(f'[parse_TIE_0x445] Invalid data size: {len(data)} (14)')
+        print(f'[parse__TIE_HEADER] Invalid data size: {len(data)} (6)')
         return None
-    fmt  = ['>IHBihc',
-            '<IHBihc',]
+    fmt  = ['>BBHBB',
+            '<BBHBB',]
     data = struct.unpack(fmt[endian], data)
     result = {
-    'type1': data[0],
-    'type2': data[1],
-    'type3': data[2],
-    'type4': data[3],
-    'type5': data[4],
-    'type6': data[5],
+    'MESSAGE_LEVEL': data[0],
+    'MESSAGE_SUBLEVEL': data[1],
+    'MESSAGE_LENGTH': data[2],
+    'ORIGINATOR': data[3],
+    'SEQUENCE_NUMBER': data[4],
     }
     return result
 
-# Parse struct 'TIE_0x455'
-def parse_TIE_0x455(endian, data):
-    size = 14
+# Parse struct 'IEM_SYS_005'
+def parse_IEM_SYS_005(endian, data):
+    size = 8
     if len(data) != size:
-        print(f'[parse_TIE_0x455] Invalid data size: {len(data)} (14)')
+        print(f'[parse_IEM_SYS_005] Invalid data size: {len(data)} (8)')
         return None
-    fmt  = ['>IHBihc',
-            '<IHBihc',]
+    fmt  = ['>BBHBBH',
+            '<BBHBBH',]
     data = struct.unpack(fmt[endian], data)
     result = {
-    'type1': data[0],
-    'type2': data[1],
-    'type3': data[2],
-    'type4': data[3],
-    'type5': data[4],
-    'type6': data[5],
+    'HEADER_FRAME': {
+        'MESSAGE_LEVEL': data[0],
+        'MESSAGE_SUBLEVEL': data[1],
+        'MESSAGE_LENGTH': data[2],
+        'ORIGINATOR': data[3],
+        'SEQUENCE_NUMBER': data[4],
+    },
+    'CBIT_RESULT': data[5],
     }
     return result
 
