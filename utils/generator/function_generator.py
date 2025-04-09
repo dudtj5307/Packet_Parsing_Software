@@ -56,7 +56,7 @@ class ParsingFunctionGenerator:
         # Reset attributes before running
         self.set_path(idl_path)
         if self.is_up_to_date(): return
-        if self.parse_idl_structs() == STOPPED: return
+        if self.find_idl_structs() == STOPPED: return
         if self.generate_code()  == STOPPED: return
 
         self.outputs.append(self.output_name)
@@ -84,41 +84,34 @@ class ParsingFunctionGenerator:
         else:
             return False
 
-    # Recursive fmt function for nested structure
-    def get_fmt_recursive(self, struct_name):
+    def parse_struct_recursive(self, struct_name, indent="", current_index=0):
         fmt = ""
+        lines = []
         for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
+
             if ctype in self.KNOWN_CTYPE_MAP:
                 fmt += self.KNOWN_CTYPE_MAP[ctype] * array_size
-            elif ctype in self.IDL_CTYPE_MAP:
-                fmt += self.get_fmt_recursive(ctype) * array_size
-            else:
-                print(f"Warning: Struct({struct_name})-Field({field_name}) Unknown ctype: {ctype}")
-        return fmt
-
-    # Recursive generate function for nested structure
-    def get_dict_recursive(self, struct_name, indent, index):
-        lines = []
-        current_index = index
-        for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
-            if ctype in self.KNOWN_CTYPE_MAP:
                 for i in range(array_size):
                     key = f"{field_name}[{i}]" if array_size > 1 else field_name
                     lines.append(f"{indent}'{key}': data[{current_index}],")
                     current_index += 1
+
             elif ctype in self.IDL_CTYPE_MAP:
                 for i in range(array_size):
-                    nested_lines, next_index = self.get_dict_recursive(ctype, indent + "    ", current_index)
+                    nested_fmt, nested_lines, next_index = self.parse_struct_recursive(ctype, indent + "    ", current_index)
+                    fmt += nested_fmt
                     key = f"{field_name}[{i}]" if array_size > 1 else field_name
                     lines.append(f"{indent}'{key}': {{")
                     lines.extend(nested_lines)
                     lines.append(f"{indent}}},")
                     current_index = next_index
             else:
+                print(f"[parse_struct_recursive] Struct({struct_name})-Field({field_name}) Unknown ctype: {ctype}")
                 lines.append(f"{indent}# Unknown type {ctype} for field {field_name}")
-        return lines, current_index
 
-    def parse_idl_structs(self):
+        return fmt, lines, current_index
+
+    def find_idl_structs(self):
         with open(self.idl_path, 'r') as f:
             content = f.read()
         # Parse all structs in IDL file
@@ -160,12 +153,10 @@ class ParsingFunctionGenerator:
         # fields = self.IDL_TYPE_MAP.get(struct_name, [])
         # range_comments = {name: comment.strip() for ctype, name, comment in fields if comment}
 
-        # Recursive for Nested Structures
-        fmt = self.get_fmt_recursive(struct_name)
+        # Get 'fmt' & 'dict_line' recursively (for nested struct)
+        fmt, dict_lines, _ = self.parse_struct_recursive(struct_name, "    ")
         fmt = add_fmt_padding(fmt)      # Add padding
         size = struct.calcsize(fmt)
-
-        dict_lines, _ = self.get_dict_recursive(struct_name, "    ", 0)
 
         func_lines = list()
         func_lines.append(f"# Parse struct '{struct_name}'")
@@ -184,7 +175,7 @@ class ParsingFunctionGenerator:
         return "\n".join(func_lines)
 
     def generate_code(self):
-        generated_code = f"# {self.idl_name} : {calculate_hash(self.idl_path)}\n"
+        generated_code  = f"# {self.idl_name} : {calculate_hash(self.idl_path)}\n"
         generated_code += f"# Auto-generated parsing function\n\n"
         generated_code += "import struct\n\n"
         # Auto-generate code by struct name
