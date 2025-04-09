@@ -3,7 +3,8 @@ import re
 # C data type map
 KNOWN_CTYPE_MAP = {
     'char' : 'c',   'signed char' : 'c',
-    'int8' : 'c',   'INT8' : 'c',
+
+    'int8' : 'b',   'INT8' : 'b',
 
     'uchar' : 'B',  'unsigned char' : 'B',
     'uint8' : 'B',  'UINT8' : 'B',
@@ -55,7 +56,6 @@ def add_fmt_padding(fmt):
         count = int(count_str) if count_str else 1
         size, alignment = ctype_info[ctype]
         # Add padding
-        # pad = get_padding_size(offset, alignment)
         if pad := get_padding_size(offset, alignment):
             new_fmt += (f"{pad}x" if pad > 1 else "x")
             offset += pad
@@ -64,25 +64,30 @@ def add_fmt_padding(fmt):
         new_fmt += f"{count_str}{ctype}"
         offset += size * count
 
-    # TODO: How to do last padding
-    max_alignment = 0
-    for _, ctype in ctypes:
-        max_alignment = max(max_alignment, ctype_info[ctype][1])
-    if max_alignment:
-        if last_pad := get_padding_size(offset, max_alignment) :
-            new_fmt += (f"{last_pad}x" if last_pad > 1 else "x")
-            offset += last_pad
+    # Last Padding (32-bit system)
+    last_alignment = 4
+    if last_pad := get_padding_size(offset, last_alignment):
+        new_fmt += (f"{last_pad}x" if last_pad > 1 else "x")
+        offset += last_pad
 
     return new_fmt
 
 if __name__ == "__main__":
     import struct
 
-    orig_fmt = "HHIIBid"
-    new_fmt = add_fmt_padding(orig_fmt)
+    str1 = b'\xef1\x00\x0c\r\x04\x00\x00\x00\x00\x00\x00\x02'
 
-    orig_size = struct.calcsize(orig_fmt)
-    new_size = struct.calcsize(new_fmt)
+    fmt = ['>HHBBic',
+           '<HHBBcic',]
 
-    print("Origin fmt :", orig_fmt, orig_size)
-    print("Padded fmt :", new_fmt, new_size)
+    orig_size = struct.calcsize(fmt[1])
+    print(orig_size)
+
+    new_str = add_fmt_padding(fmt[1])
+    new_str1 = ">" + new_str
+    new_str2 = "<" + new_str
+    print(struct.calcsize(new_str), new_str)
+    print(struct.calcsize(new_str1), new_str1)
+    print(struct.calcsize(new_str2), new_str2)
+
+
