@@ -71,7 +71,6 @@ class ProgressBackend(QThread):
         # Generate functions from IDL files
         generator = ParsingFunctionGenerator()
         idl_file_paths = get_idl_files()
-        # idl_file_paths = ["IDL/EIE_Msg.idl", "IDL/TIE_Msg.idl"] * 1  # TODO: For Testing
 
         # TODO: what to do if no idl_paths
         if len(idl_file_paths) == 0:

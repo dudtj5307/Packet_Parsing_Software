@@ -5,12 +5,12 @@ import struct
 
 # Parse struct 'TIE_HEADER'
 def parse_TIE_HEADER(endian, data):
-    size = 6
+    size = 8
     if len(data) != size:
-        print(f'[parse_TIE_HEADER] Invalid data size: {len(data)} (6)')
+        print(f'[parse_TIE_HEADER] Invalid data size: {len(data)} (8)')
         return None
-    fmt  = ['>BBHBB',
-            '<BBHBB',]
+    fmt  = ['>BBHBB2x',
+            '<BBHBB2x',]
     data = struct.unpack(fmt[endian], data)
     result = {
     'MESSAGE_LEVEL': data[0],
@@ -23,12 +23,12 @@ def parse_TIE_HEADER(endian, data):
 
 # Parse struct '_TIE_HEADER'
 def parse__TIE_HEADER(endian, data):
-    size = 6
+    size = 8
     if len(data) != size:
-        print(f'[parse__TIE_HEADER] Invalid data size: {len(data)} (6)')
+        print(f'[parse__TIE_HEADER] Invalid data size: {len(data)} (8)')
         return None
-    fmt  = ['>BBHBB',
-            '<BBHBB',]
+    fmt  = ['>BBHBB2x',
+            '<BBHBB2x',]
     data = struct.unpack(fmt[endian], data)
     result = {
     'MESSAGE_LEVEL': data[0],

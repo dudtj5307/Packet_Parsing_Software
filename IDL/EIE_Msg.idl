@@ -37,7 +37,7 @@ int 	type4;
 short type5;
 char type6;
 }
-
+/*
 struct EIE_0x0303{
 EIE_header  header;
 uint	type1;
@@ -47,3 +47,26 @@ int 	type4;
 short type5;
 char type6;
 }
+*/
+
+struct strHeader  {
+	ushort type;
+	ushort size;
+	uchar id;
+	uchar unit;	// 1, 2, 3, 4, 5, 6, 7, 240
+};
+
+struct trkNoSys	 { 
+	ushort	trkNo;
+	ushort	trkNo_MDIL;	// 0~65023 
+	ushort	trkNo_TDIL_B;	// 0, 1~62, 64~4094 
+	uchar	trkNoMITS;
+	uchar	trkNoMFR;
+	int		trkNo_TDIL_J;	// 0~524287
+};
+
+struct EIE_0x70F3  { 
+	strHeader	header;
+	ushort	statusId;
+	char		statusString[41];	// string
+}; 
