@@ -6,11 +6,12 @@ import hashlib
 import struct
 
 from utils.monitor import ProgressMonitor
-from utils.generator.ctype_map import KNOWN_CTYPE_MAP
+from utils.generator.ctype_map import KNOWN_CTYPE_MAP, add_fmt_padding
 
 STOPPED = False
 
 # Regular Expressions
+comment_del_pattern = re.compile(r'/\*[\s\S]*?\*/|^\s*//.*$', re.MULTILINE)
 typedef_pattern = re.compile(r'typedef\s+struct\s+(\w+)?\s*\{([\s\S]*?)\}\s*(\w+)\s*;', re.MULTILINE)   # 'typedef struct'
 struct_pattern = re.compile(r'struct\s+(\w+)\s*\{([^}]+)}', re.MULTILINE | re.DOTALL)  # 'struct <name> { ... }'
 # field_pattern = re.compile(r'\s*((?:\w+\s+)*\w+)\s+(\w+)\s*(?:;?\s*(//.*))?')
@@ -59,25 +60,26 @@ class ParsingFunctionGenerator:
         if self.generate_code()  == STOPPED: return
 
         self.outputs.append(self.output_name)
+        print(f"[IDL] '{self.output_name}' generated !")
 
     def is_hash_same(self):
         with open(self.output_path, 'r', encoding='utf-8') as f:
             first_line = f.readline().strip()
-        # Read stored hash-value from '{output_path}'
-        if ':' in first_line:
-            stored_name = first_line.split(':', 1)[0].strip()
+        try:
+            # Read stored hash-value from '{output_path}'
+            stored_name = first_line.split(':', 1)[0].strip().split(' ')[1]
             stored_hash = first_line.split(':', 1)[1].strip()
-        else:
-            print("No hash-value found : {output_path}")
+            current_hash = calculate_hash(self.idl_path)
+            # Compare file name & hash value
+            return (self.idl_name == stored_name) and (current_hash == stored_hash)
+        except:
             return False
-
-        current_hash = calculate_hash(self.idl_path)
-        return (self.idl_name == stored_name) and (current_hash == stored_hash)
 
     # Check if parse functions are up-to-date
     def is_up_to_date(self):
         if os.path.exists(self.output_path) and self.is_hash_same():
             print(f"[IDL] '{self.output_name}' up-to-date !")
+            self.outputs.append(self.output_name)
             return True
         else:
             return False
@@ -94,6 +96,7 @@ class ParsingFunctionGenerator:
                 print(f"Warning: Struct({struct_name})-Field({field_name}) Unknown ctype: {ctype}")
         return fmt
 
+    # Recursive generate function for nested structure
     def get_dict_recursive(self, struct_name, indent, index):
         lines = []
         current_index = index
@@ -119,8 +122,9 @@ class ParsingFunctionGenerator:
         with open(self.idl_path, 'r') as f:
             content = f.read()
         # Parse all structs in IDL file
-        typedef_matches = list(typedef_pattern.finditer(content))
-        struct_matches = list(struct_pattern.finditer(content))         # TODO: check if memory is ok
+        content = comment_del_pattern.sub('', content)              # Clean useless comments
+        typedef_matches = list(typedef_pattern.finditer(content))   # Find typedef structs  (C style)
+        struct_matches = list(struct_pattern.finditer(content))     # Find   all   structs  (C++ style)
         total_structs = typedef_matches + struct_matches
 
         for idx, struct_match in enumerate(total_structs):
@@ -132,6 +136,7 @@ class ParsingFunctionGenerator:
                 struct_name = struct_match.group(1)     # struct name
             else:
                 struct_name = struct_match.group(3)     # typedef struct name
+            # struct body
             struct_body = struct_match.group(2)
 
             # Parse by each line
@@ -157,6 +162,7 @@ class ParsingFunctionGenerator:
 
         # Recursive for Nested Structures
         fmt = self.get_fmt_recursive(struct_name)
+        fmt = add_fmt_padding(fmt)      # Add padding
         size = struct.calcsize(fmt)
 
         dict_lines, _ = self.get_dict_recursive(struct_name, "    ", 0)
@@ -196,17 +202,18 @@ class ParsingFunctionGenerator:
 
 
 if __name__ == '__main__':
+    comment_re = re.compile(r'/\*[\s\S]*?\*/|^\s*//.*$', re.MULTILINE)
 
-    class FAKEPARENT:
-        def __init__(self):
-            self.is_running = True
+    # 예시: 원본 C 코드
+    code = """
+    // typedef struct Foo {      // 이 entire struct는 주석!
+    typedef struct Foo {
+        int a;       //
+        // float b;  // 이 필드는 주석
+        char name[32];
+    } Foo;
+    """
 
-    eie_file_path = "../../IDL/EIE_Msg.idl"
-    tie_file_path = "../../IDL/TIE_Msg.idl"
-
-    parent = FAKEPARENT()
-
-    code_generator = ParsingFunctionGenerator()
-    code_generator.run(eie_file_path)
-    code_generator.run(tie_file_path)
-    print(code_generator.results)
+    # 2) 주석 제거
+    code_clean = comment_re.sub('', code)
+    print(code_clean)
