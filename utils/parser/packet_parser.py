@@ -115,21 +115,25 @@ class PacketParser:
                 if msg_type == 'Undefined':
                     continue      # TODO: For testing
 
-                print(date, _time, src_ip, dst_ip, src_sys, dst_sys, msg_type)
+                try:
+                    if packet.haslayer(UDP) and packet.haslayer(NDDS):
+                        results = self.parse_RTPS(msg_type, raw_data)
+                    else:   # TODO: [TCP] MDIL, J-Msg, X-Msg, JREAP case
+                        continue
 
-                if packet.haslayer(UDP) and packet.haslayer(NDDS):
-                    results = self.parse_RTPS(msg_type, raw_data)
-                else:   # TODO: [TCP] MDIL, J-Msg, X-Msg, JREAP case
+                    for msg_name, data in results:
+                        packet_infos.append({'DATE': f"{date}'", 'TIME': f"{_time}'",'SENDER': f"{src_sys}({src_ip})", 'RECEIVER': f"{dst_sys}({dst_ip})",
+                                             'MSG_NAME':msg_name, 'DATA':data})
+
+                except Exception as e:
+                    print(date, _time, src_ip, dst_ip, src_sys, dst_sys, msg_type)
+                    print(f'[Parser(run)] : {e}')
+                    packet_infos.append({'DATE': f"{date}'", 'TIME': f"{_time}'", 'SENDER': f"{src_sys}({src_ip})",'RECEIVER': f"{dst_sys}({dst_ip})",
+                                         'MSG_NAME': 'ERROR', 'DATA': raw_data})
                     continue
 
-                for msg_name, data in results:
-                    packet_info = {'DATE': f"{date}'", 'TIME': f"{_time}'",'SENDER': f"{src_sys}({src_ip})", 'RECEIVER': f"{dst_sys}({dst_ip})",
-                                   'MSG_NAME':msg_name, 'DATA':data}
-                    packet_infos.append(packet_info)
-
         # Updates raw file's total packet number
-        total_packets = idx + 1
-        self.log.update(raw_file_path, total_packets)
+        self.log.update(raw_file_path, idx + 1)
 
         return packet_infos
 
@@ -169,37 +173,37 @@ class PacketParser:
             print(f"[parse_data] Can not find msg type '{msg_type}'")
             return None, None
 
-    # noinspection PyUnresolvedReferences
+    # Parse EIE Messages
     def parse_EIE(self, endian, data):
         # Find EIE type from EIE header
-        type_fmt = ['>H', '<H']
-        eie_type = struct.unpack(type_fmt[endian], data[0:2])[0]        # Find right EIE header name
-        eie_name = f'EIE_0x{eie_type:04X}'
+        eie_type_fmt = ['>H', '<H']
+        EIE_type = struct.unpack(eie_type_fmt[endian], data[0:2])[0]
+        EIE_name = f'EIE_0x{EIE_type:04X}'
+        EIE_func_name = f'parse_{EIE_name}'
 
-        EIE_module = self.imported_modules.get("parse_EIE_Msg", None)
-        EIE_func_name = f'parse_{eie_name}'
-
+        EIE_module = self.imported_modules.get("parse_EIE_Msg", None)   # TODO: more smarter finding
         if EIE_module and hasattr(EIE_module, EIE_func_name):
-            return eie_name, getattr(EIE_module, EIE_func_name)(endian, data)
+            return EIE_name, getattr(EIE_module, EIE_func_name)(endian, data)
+        elif not EIE_module:
+            print(f"[parse_EIE] No file name 'EIE_Msg.idl'")
         else:
-            print(f"[parse_EIE] Can not find EIE type '{eie_name}'")
+            print(f"[parse_EIE] Can not find EIE name '{EIE_name}'")
             return None, None
 
-    # noinspection PyUnresolvedReferences
+    # Parse TIE Messages
     def parse_TIE(self, endian, data):
         # Find TIE type from TIE header
-        label = struct.unpack('B', data[0:1])[0]
-        sublabel = struct.unpack('B', data[1:2])[0]
+        label, sublabel = struct.unpack('BB', data[0:2])
+        TIE_name = f'IEM_{TIE_LABEL_NAME[label]}_{label:X}{sublabel:02}'
+        TIE_func_name = f'parse_{TIE_name}'
 
-        tie_name = f'IEM_{TIE_LABEL_NAME[label]}_{sublabel:03X}'
-
-        TIE_module = self.imported_modules.get("parse_TIE_Msg", None)
-        TIE_func_name = f'parse_{tie_name}'
-
+        TIE_module = self.imported_modules.get("parse_TIE_Msg", None)   # TODO: more smarter finding
         if TIE_module and hasattr(TIE_module, TIE_func_name):
-            return tie_name, getattr(TIE_module, TIE_func_name)(endian, data)
+            return TIE_name, getattr(TIE_module, TIE_func_name)(endian, data)
+        elif not TIE_module:
+            print(f"[parse_TIE] No file name 'TIE_Msg.idl'")
         else:
-            print(f"[parse_TIE] Can not find TIE type '{tie_name}'")
+            print(f"[parse_TIE] Can not find TIE name '{TIE_name}'")
             return None, None
 
     def parse_MDIL(self, data):
