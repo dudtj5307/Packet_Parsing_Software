@@ -222,7 +222,6 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
         self.table_csv.horizontalHeader().setDefaultSectionSize(80)     # cell width
         self.table_csv.verticalHeader().setDefaultSectionSize(20)       # cell height
         self.table_csv.scrollTo(self.table_csv.model().index(0, 0), QAbstractItemView.ScrollHint.PositionAtTop)
-        custom_scrollTo(self.table_csv)
 
     def search_gui_show(self):
         self.frame_search.setVisible(True)
@@ -249,18 +248,3 @@ class ViewerWindow(QMainWindow, Ui_ViewerWindow):
     def closeEvent(self, event):
         self.deleteLater()  # 창이 닫힐 때 객체를 완전히 삭제
         super().closeEvent(event)
-
-
-def custom_scrollTo(view: QTableView):
-    original_scrollTo = view.scrollTo
-    def patched_scrollTo(self, index, hint=QTableView.ScrollHint.PositionAtCenter):
-        # Horizontal move
-        if index.column() == self.model().columnCount() - 1:
-            return
-        original_scrollTo(index, QTableView.ScrollHint.EnsureVisible)
-
-
-
-
-    # scrollTo 메서드 교체!
-    view.scrollTo = patched_scrollTo.__get__(view, QTableView)

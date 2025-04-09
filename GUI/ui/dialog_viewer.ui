@@ -557,6 +557,9 @@ QPushButton:disabled {
          <property name="autoScroll">
           <bool>true</bool>
          </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
+         </property>
         </widget>
        </item>
        <item row="0" column="0">

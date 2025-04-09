@@ -294,6 +294,7 @@ class Ui_ViewerWindow(object):
         self.table_csv = QtWidgets.QTableView(parent=self.frame)
         self.table_csv.setStyleSheet("")
         self.table_csv.setAutoScroll(True)
+        self.table_csv.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.table_csv.setObjectName("table_csv")
         self.gridLayout.addWidget(self.table_csv, 0, 1, 1, 1)
         self.list_csv_names = QtWidgets.QListWidget(parent=self.frame)
