@@ -186,6 +186,7 @@ class PacketParser:
             return EIE_name, getattr(EIE_module, EIE_func_name)(endian, data)
         elif not EIE_module:
             print(f"[parse_EIE] No file name 'EIE_Msg.idl'")
+            return None, None
         else:
             print(f"[parse_EIE] Can not find EIE name '{EIE_name}'")
             return None, None
@@ -202,6 +203,7 @@ class PacketParser:
             return TIE_name, getattr(TIE_module, TIE_func_name)(endian, data)
         elif not TIE_module:
             print(f"[parse_TIE] No file name 'TIE_Msg.idl'")
+            return None, None
         else:
             print(f"[parse_TIE] Can not find TIE name '{TIE_name}'")
             return None, None

@@ -16,6 +16,5 @@ def get_packet_count(raw_file_path):
 
     return total_packets
 
-def estimate_packet_count(raw_file_path):
-
+def estimate_packet_count(raw_file_path):   # TODO: make estimate count
     return 66000

@@ -84,12 +84,18 @@ class ParsingFunctionGenerator:
         else:
             return False
 
+    GROUP =  {'EIE_0xD001' : ['type1'],
+              'EIE_0xD901' : ['result'],
+              'EIE_0xD903' : ['result'],}
+
     def parse_struct_recursive(self, struct_name, indent="", current_index=0):
         fmt = ""
         lines = []
+        group_fields = self.GROUP.get('struct_name', [])
         for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
-
             if ctype in self.KNOWN_CTYPE_MAP:
+
+                # TODO: 여기에 GROUP 내용 받아와서 추가
                 fmt += self.KNOWN_CTYPE_MAP[ctype] * array_size
                 for i in range(array_size):
                     key = f"{field_name}[{i}]" if array_size > 1 else field_name

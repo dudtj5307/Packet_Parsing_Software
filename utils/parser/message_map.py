@@ -25,24 +25,24 @@ def get_MDIL_STR(num):
     alpha1, alpha2 = divmod(alpha, 8)
     return f"{MDIL_ALPHABETS[alpha1]}{MDIL_ALPHABETS[alpha2]}{octet:03o}"
 
-def get_TDILB_STR(num):
+def get_TDIL_B_STR(num):
     if type(num) != int: return f"ErrorType({num}({type(num)})";
     if num > 4095: return f"ErrorNum({num})"
     return f"{num:04o}"
 
-TDILJ_ALPHABETS = '01234567ABCDEFGHJKLMNPQRSTUVWXYZ'
-def get_TDILJ_STR(num):
+TDIL_J_ALPHABETS = '01234567ABCDEFGHJKLMNPQRSTUVWXYZ'
+def get_TDIL_J_STR(num):
     if type(num) != int: return f"ErrorType({num}({type(num)})";
     if num > 524287: return f"ErrorNum({num})"
 
     alpha, octet = divmod(num, 512)
     alpha1, alpha2 = divmod(alpha, 32)
-    return f"{TDILJ_ALPHABETS[alpha1]}{TDILJ_ALPHABETS[alpha2]}{octet:03o}"
+    return f"{TDIL_J_ALPHABETS[alpha1]}{TDIL_J_ALPHABETS[alpha2]}{octet:03o}"
 
 if __name__ == "__main__":
     print(get_MDIL_STR(65535))
-    print(get_TDILB_STR(4095))
-    print(get_TDILJ_STR(524287))
+    print(get_TDIL_B_STR(4095))
+    print(get_TDIL_J_STR(524287))
 
 
 # if __name__ == '__main__':
