@@ -1,4 +1,4 @@
-# EIE_Msg.idl : c8b1c864e7a551ba12df95370a119d3f989f3b860b45521812f7c9929f376240
+# EIE_Msg.idl : f5ba4d014a5ab09f055c249cdf8bb7bdba05cec6d1eeec930f3f24ce12cd7e32
 # Auto-generated parsing function
 
 import struct
@@ -28,49 +28,12 @@ def parse_EIE_0xD001(endian, data):
     if len(data) != size:
         print(f'[parse_EIE_0xD001] Invalid data size: {len(data)} (156)')
         return None
-    fmt  = ['>IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII',
-            '<IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII',]
+    fmt  = ['>38I4B',
+            '<38I4B',]
     data = struct.unpack(fmt[endian], data)
     result = {
-    'type1[0]': data[0],
-    'type1[1]': data[1],
-    'type1[2]': data[2],
-    'type1[3]': data[3],
-    'type1[4]': data[4],
-    'type1[5]': data[5],
-    'type1[6]': data[6],
-    'type1[7]': data[7],
-    'type1[8]': data[8],
-    'type1[9]': data[9],
-    'type1[10]': data[10],
-    'type1[11]': data[11],
-    'type1[12]': data[12],
-    'type1[13]': data[13],
-    'type1[14]': data[14],
-    'type1[15]': data[15],
-    'type1[16]': data[16],
-    'type1[17]': data[17],
-    'type1[18]': data[18],
-    'type1[19]': data[19],
-    'type1[20]': data[20],
-    'type1[21]': data[21],
-    'type1[22]': data[22],
-    'type1[23]': data[23],
-    'type1[24]': data[24],
-    'type1[25]': data[25],
-    'type1[26]': data[26],
-    'type1[27]': data[27],
-    'type1[28]': data[28],
-    'type1[29]': data[29],
-    'type1[30]': data[30],
-    'type1[31]': data[31],
-    'type1[32]': data[32],
-    'type1[33]': data[33],
-    'type1[34]': data[34],
-    'type1[35]': data[35],
-    'type1[36]': data[36],
-    'type1[37]': data[37],
-    'type1[38]': data[38],
+    'type1': data[0:38],
+    'type2': data[1:5],
     }
     return result
 
@@ -145,8 +108,8 @@ def parse__EIE_0xD001(endian, data):
     if len(data) != size:
         print(f'[parse__EIE_0xD001] Invalid data size: {len(data)} (156)')
         return None
-    fmt  = ['>IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII',
-            '<IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII',]
+    fmt  = ['>IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIBBBB',
+            '<IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIBBBB',]
     data = struct.unpack(fmt[endian], data)
     result = {
     'type1[0]': data[0],
@@ -187,7 +150,10 @@ def parse__EIE_0xD001(endian, data):
     'type1[35]': data[35],
     'type1[36]': data[36],
     'type1[37]': data[37],
-    'type1[38]': data[38],
+    'type2[0]': data[38],
+    'type2[1]': data[39],
+    'type2[2]': data[40],
+    'type2[3]': data[41],
     }
     return result
 

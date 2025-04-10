@@ -13,7 +13,8 @@ struct EIE_header {         // 26
     ushort   msgType;       // 2
 }
  typedef struct _EIE_0xD001 {
-uint type1[39];
+uint type1[38];
+uchar type2[4]
 
 } EIE_0xD001;
 
