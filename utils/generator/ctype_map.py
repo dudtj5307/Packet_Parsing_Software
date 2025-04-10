@@ -34,6 +34,7 @@ KNOWN_CTYPE_MAP = {
 ctype_info = {
     'c': (1, 1),
     'B': (1, 1),
+    's': (1, 1),
     'h': (2, 2),
     'H': (2, 2),
     'i': (4, 4),
@@ -48,7 +49,7 @@ def get_padding_size(offset, alignment):
 
 def add_fmt_padding(fmt):
     # Regular Expression : 'num' + 'letter'
-    ctypes = re.findall(r'(\d*)([cBhHiIfd])', fmt)
+    ctypes = re.findall(r'(\d*)([cBhHiIfds])', fmt)
 
     new_fmt = ""
     offset = 0
