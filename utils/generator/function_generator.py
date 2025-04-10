@@ -84,27 +84,41 @@ class ParsingFunctionGenerator:
         else:
             return False
 
-    GROUP =  {'EIE_0xD001' : ['type1'],
-              'EIE_0xD901' : ['result'],
+    STRING =  {'EIE_0xD901' : ['result'],
               'EIE_0xD903' : ['result'],}
+
+    BIT_GROUP = {'EIE_0xD001' : ['type1', 'type2'],
+                 }
+
 
     def parse_struct_recursive(self, struct_name, indent="", current_index=0):
         fmt = ""
         lines = []
-        group_fields = self.GROUP.get('struct_name', [])
+        string_fields = self.STRING.get(struct_name, [])
+        group_fields = self.BIT_GROUP.get(struct_name, [])
         for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
             if ctype in self.KNOWN_CTYPE_MAP:
-
-                # TODO: 여기에 GROUP 내용 받아와서 추가
-                fmt += self.KNOWN_CTYPE_MAP[ctype] * array_size
-                for i in range(array_size):
-                    key = f"{field_name}[{i}]" if array_size > 1 else field_name
-                    lines.append(f"{indent}'{key}': data[{current_index}],")
+                # String-type fields
+                if field_name in string_fields and array_size >= 1:
+                    fmt += f'{array_size}s'
+                    lines.append(f"{indent}'{field_name}': data[{current_index}].decode(),")
+                    print(fmt)
                     current_index += 1
+                # GroupBit-type fields
+                elif field_name in group_fields and array_size >= 1:
+                    fmt += f'{array_size}{self.KNOWN_CTYPE_MAP[ctype]}'
+                    lines.append(f"{indent}'{field_name}': data[{current_index}:{current_index+array_size}],")
+                    current_index += 1
+                else:
+                    fmt += self.KNOWN_CTYPE_MAP[ctype] * array_size
+                    for i in range(array_size):
+                        key = f'{field_name}[{i}]' if array_size > 1 else field_name
+                        lines.append(f"{indent}'{key}': data[{current_index}],")
+                        current_index += 1
 
             elif ctype in self.IDL_CTYPE_MAP:
                 for i in range(array_size):
-                    nested_fmt, nested_lines, next_index = self.parse_struct_recursive(ctype, indent + "    ", current_index)
+                    nested_fmt, nested_lines, next_index = self.parse_struct_recursive(ctype, indent+"    ", current_index)
                     fmt += nested_fmt
                     key = f"{field_name}[{i}]" if array_size > 1 else field_name
                     lines.append(f"{indent}'{key}': {{")
