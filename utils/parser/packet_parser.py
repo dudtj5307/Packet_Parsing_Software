@@ -8,7 +8,7 @@ from collections import defaultdict
 import scapy.all as scapy
 from scapy.layers.inet import IP, UDP
 
-from utils.config import Config
+from utils.ip_config import IP_Config
 from utils.monitor import ProgressMonitor
 from utils.parser.log import ParseHistoryLog
 from utils.parser.ndds import NDDS
@@ -39,7 +39,7 @@ def sub_header_unpack(data):
 class PacketParser:
     def __init__(self):
         self.SYS_TYPES = defaultdict(lambda: "Unknown")
-        self.config = Config()
+        self.ip_config = IP_Config()
         self.log = ParseHistoryLog()
         self.monitor = ProgressMonitor()
         self.parsing_function_paths = []
@@ -81,7 +81,7 @@ class PacketParser:
 
     def run(self, raw_file_path):
         packet_infos = []
-        self.update_system_type(self.config.get())
+        self.update_system_type(self.ip_config.get())
         import time
         start = time.time()
 

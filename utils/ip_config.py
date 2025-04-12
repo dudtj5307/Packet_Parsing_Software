@@ -1,8 +1,7 @@
-
 import json
 from copy import deepcopy
 
-DEFAULT_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
+DEFAULT_IP_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
                        'IP_local': {'adoc_ip1':  "2", 'adoc_ip2':  "3", 'adoc_ip3':  "",
                                     'wcc_ip1' :  "8", 'wcc_ip2' : "10", 'wcc_ip3' : "11", 'wcc_ip4': "13",
                                     'dlu_ip1' : "27", 'dlu_ip2' : "28", 'dlu_ip3' : "30"},
@@ -10,22 +9,22 @@ DEFAULT_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
                        'IP_ext'  : {'kicc_ip1' : "", 'kicc_ip2' : "", 'kicc_ip3' : "", 'kicc_ip4' : "",
                                     'kamd_ip1' : "", 'kamd_ip2' : "", 'kamd_ip3' : "", 'kamd_ip4' : "",
                                     'picc_ip1' : "", 'picc_ip2' : "", 'picc_ip3' : "", 'picc_ip4' : ""},
-                       'raw_file_paths': [""], 'csv_file_paths' : [""]}
+                          }
 
-CONFIG_FILE_NAME = 'settings.conf'
+CONFIG_FILE_NAME = 'ip_settings.conf'
 
 # Singleton Configuration
-class Config:
+class IP_Config:
     __instance = None
     def __new__(cls):
         if cls.__instance is None:
-            cls.__instance = super(Config, cls).__new__(cls)
-            cls.__instance._settings = deepcopy(DEFAULT_CONFIG_DATA)
+            cls.__instance = super(IP_Config, cls).__new__(cls)
+            cls.__instance._settings = deepcopy(DEFAULT_IP_CONFIG_DATA)
         return cls.__instance
 
     def __init__(self):
         self.load_config_file()
-        # print("[Config] 'settings.conf' loaded!")
+        # print("[IP_Config] 'ip_settings.conf' loaded!")
 
     def same_keys_recursive(self, dict1, dict2):
         if set(dict1.keys()) != set(dict2.keys()):
@@ -43,18 +42,18 @@ class Config:
         try:
             with open(path if path else CONFIG_FILE_NAME, "r") as file:
                 self._settings = json.load(file)
-                if not self.same_keys_recursive(self._settings, DEFAULT_CONFIG_DATA):
+                if not self.same_keys_recursive(self._settings, DEFAULT_IP_CONFIG_DATA):
                     raise KeyError("[Error] Invalid Dictionary Keys")
         except Exception as e:
-            print(f"[Config] {e}! / 'settings.conf' reset!")
+            print(f"[IP_Config] {e}! / 'ip_settings.conf' reset!")
             # Reset configuration
-            self._settings = deepcopy(DEFAULT_CONFIG_DATA)
+            self._settings = deepcopy(DEFAULT_IP_CONFIG_DATA)
             self.save_config_file()
 
     def save_config_file(self):
-        with open("settings.conf", "w") as file:
+        with open("ip_settings.conf", "w") as file:
             json.dump(self._settings, file, indent=4)
-        print("[Config] 'settings.conf' saved!")
+        print("[IP_Config] 'ip_settings.conf' saved!")
 
     def get(self, key=None):
         self.load_config_file()

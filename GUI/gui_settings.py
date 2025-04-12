@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QDialog
 from PyQt6.QtGui import QIcon
 from GUI.ui.dialog_settings import Ui_SettingsWindow
 
-from utils.config import Config
+from utils.ip_config import IP_Config
 
 
 class SettingsWindow(QDialog, Ui_SettingsWindow):
@@ -15,8 +15,8 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
         self.setupUi(self)
         self.setWindowIcon(QIcon(os.path.join(parent.icon_path, "button_settings.png")))
 
-        # config data
-        self.config = Config()
+        # ip_config data
+        self.ip_config = IP_Config()
 
         # Parent Objects
         self.parent = parent            # parent            (gui_main.py)
@@ -27,7 +27,7 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
         self.btn_cancel.clicked.connect(self.btn_cancel_clicked)
         self.btn_apply.clicked.connect(self.btn_apply_clicked)
 
-        # Setup UI with config data
+        # Setup UI with ip_config data
         self.set_gui_from_config()
 
     def center_to_parent(self):
@@ -38,7 +38,7 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
         self.move(x, y)
 
     def set_gui_from_config(self):
-        config = self.config.get()
+        config = self.ip_config.get()
         # Interface combobox setting
         self.combo_iface.addItem(" ".join(config['interface']), config['interface'])
         # IP Settings
@@ -49,7 +49,7 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
                 edit_widget.setText(val)
 
     def save_config_data(self):
-        config_data = self.config.get()
+        config_data = self.ip_config.get()
         # Interface combobox setting
         config_data['interface'] = self.combo_iface.currentData()
         # IP Settings
@@ -58,7 +58,7 @@ class SettingsWindow(QDialog, Ui_SettingsWindow):
                 edit_widget = getattr(self, f'edit_{key}', None)
                 if edit_widget:
                     config_dict[key] = edit_widget.text()
-        self.config.update(config_data)
+        self.ip_config.update(config_data)
 
     def update_combobox_iface(self, event):
         # current text backup before reset

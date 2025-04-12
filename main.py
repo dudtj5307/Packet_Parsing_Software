@@ -16,7 +16,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 from GUI.gui_main import MainWindow
 
-from utils.config import Config
+from utils.ip_config import IP_Config
 from utils.parser.log import ParseHistoryLog
 
 
@@ -57,9 +57,9 @@ class PacketParser(QObject):
         # selected interface from settings combobox
         self.iface_selected = ["No", "Interface", "Selected"]
 
-        # Load Config Settings
-        self.config = Config()
-        self.iface_selected = self.config.get('interface')
+        # Load IP_Config Settings
+        self.ip_config = IP_Config()
+        self.iface_selected = self.ip_config.get('interface')
 
         # Saving raw packet number
         self.log = ParseHistoryLog()
@@ -125,7 +125,7 @@ class PacketParser(QObject):
 
     def start_sniffing(self):
         # Check validation of iface_selected
-        self.iface_selected = self.config.get('interface')
+        self.iface_selected = self.ip_config.get('interface')
 
         match_iface = list(filter(lambda x: x['name']==self.iface_selected[1], get_windows_if_list()))
         if not match_iface or self.iface_selected[0] not in match_iface[0]['ips']:

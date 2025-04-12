@@ -4,7 +4,6 @@ from shutil import rmtree
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from GUI.gui_progress import ProgressWindow
-from utils.config import Config
 from utils.monitor import ProgressMonitor
 from utils.generator.function_generator import ParsingFunctionGenerator
 from utils.parser.packet_parser import PacketParser
@@ -49,7 +48,6 @@ class ProgressBackend(QThread):
 
     def __init__(self, raw_file_paths):
         super().__init__(None)
-        self.config = Config()
         self.raw_file_paths = raw_file_paths
         self.csv_file_paths = raw_to_csv_paths(raw_file_paths)
         # Stopped from GUI

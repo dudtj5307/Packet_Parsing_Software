@@ -17,6 +17,7 @@ __pycache__/
 RAW/
 
 # IDL Folder #
+IDL/
 
 # GUI Folder #
 GUI/res/backup/
