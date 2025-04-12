@@ -11,7 +11,7 @@ DEFAULT_IP_CONFIG_DATA = {'interface': ["No ", "Interface ", "Selected"],
                                     'picc_ip1' : "", 'picc_ip2' : "", 'picc_ip3' : "", 'picc_ip4' : ""},
                           }
 
-CONFIG_FILE_NAME = 'ip_settings.conf'
+IP_CONFIG_FILE_NAME = 'ip_settings.conf'
 
 # Singleton Configuration
 class IP_Config:
@@ -40,7 +40,7 @@ class IP_Config:
 
     def load_config_file(self, path=None):
         try:
-            with open(path if path else CONFIG_FILE_NAME, "r") as file:
+            with open(path if path else IP_CONFIG_FILE_NAME, "r") as file:
                 self._settings = json.load(file)
                 if not self.same_keys_recursive(self._settings, DEFAULT_IP_CONFIG_DATA):
                     raise KeyError("[Error] Invalid Dictionary Keys")

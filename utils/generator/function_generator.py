@@ -6,6 +6,7 @@ import hashlib
 import struct
 
 from utils.monitor import ProgressMonitor
+from utils.idl_config import IDL_Config
 from utils.generator.ctype_map import KNOWN_CTYPE_MAP, add_fmt_padding
 
 STOPPED = False
@@ -34,6 +35,10 @@ class ParsingFunctionGenerator:
         self.KNOWN_CTYPE_MAP = KNOWN_CTYPE_MAP        #  OS defined structs
         self.IDL_CTYPE_MAP   = {}                    # IDL defined structs
         self.outputs = []
+
+        self.idl_config = IDL_Config()
+        self.IDL_STRING = self.idl_config.get('string')
+        self.IDL_GROUP = self.idl_config.get('group')
 
     def set_path(self, idl_path):
         # Initialize
@@ -84,18 +89,11 @@ class ParsingFunctionGenerator:
         else:
             return False
 
-    STRING =  {'EIE_0xD901' : ['result'],
-              'EIE_0xD903' : ['result'],}
-
-    BIT_GROUP = {'EIE_0xD001' : ['type1', 'type2'],
-                 }
-
-
     def parse_struct_recursive(self, struct_name, indent="", current_index=0):
         fmt = ""
         lines = []
-        string_fields = self.STRING.get(struct_name, [])
-        group_fields = self.BIT_GROUP.get(struct_name, [])
+        string_fields = self.IDL_STRING.get(struct_name, [])
+        group_fields = self.IDL_GROUP.get(struct_name, [])
         for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
             if ctype in self.KNOWN_CTYPE_MAP:
                 # String-type fields

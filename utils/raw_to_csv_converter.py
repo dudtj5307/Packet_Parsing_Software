@@ -9,6 +9,8 @@ from utils.generator.function_generator import ParsingFunctionGenerator
 from utils.parser.packet_parser import PacketParser
 from utils.creator.csv_creator import CsvCreator
 
+from utils.idl_config import IDL_Config
+
 COMPLETE, STOPPED = True, False
 
 
@@ -39,7 +41,14 @@ class RawToCSVConverter:
 
 
 def get_idl_files():
-    return [os.path.join('IDL', file) for file in os.listdir(os.path.join(os.getcwd(), 'IDL')) if file.endswith(('.idl', '.h'))]
+    idl_config = IDL_Config()
+    idl_paths = idl_config.get('idl_paths')
+
+    results = []
+    for path in idl_paths:
+        if os.path.exists(path): results.append(path)
+        else: print(f"[RUN_BACKEND] IDL file in '{path}' does not exist. Please edit 'idl_params.conf'")
+    return results
 
 
 class ProgressBackend(QThread):
@@ -53,6 +62,7 @@ class ProgressBackend(QThread):
         # Stopped from GUI
         self.stopped = False
         self.monitor = ProgressMonitor(backend=self)
+        self.idl_config = IDL_Config()
 
     def run(self):
         self.run_backend()
@@ -68,11 +78,11 @@ class ProgressBackend(QThread):
 
         # Generate functions from IDL files
         generator = ParsingFunctionGenerator()
-        idl_file_paths = get_idl_files()
 
+        idl_file_paths = get_idl_files()
         # TODO: what to do if no idl_paths
         if len(idl_file_paths) == 0:
-            print("No IDL parsing files generated!")
+            print("[RUN_BACKEND] No IDL parsing files generated!")
             return
 
         for idx, idl_file_path in enumerate(idl_file_paths):
