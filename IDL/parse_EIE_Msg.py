@@ -33,7 +33,7 @@ def parse_EIE_0xD001(endian, data):
     data = struct.unpack(fmt[endian], data)
     result = {
     'type1': data[0:38],
-    'type2': data[1:5],
+    'type2': data[38:42],
     }
     return result
 

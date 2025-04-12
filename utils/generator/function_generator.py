@@ -102,13 +102,12 @@ class ParsingFunctionGenerator:
                 if field_name in string_fields and array_size >= 1:
                     fmt += f'{array_size}s'
                     lines.append(f"{indent}'{field_name}': data[{current_index}].decode(),")
-                    print(fmt)
-                    current_index += 1
+                    current_index += array_size
                 # GroupBit-type fields
                 elif field_name in group_fields and array_size >= 1:
                     fmt += f'{array_size}{self.KNOWN_CTYPE_MAP[ctype]}'
                     lines.append(f"{indent}'{field_name}': data[{current_index}:{current_index+array_size}],")
-                    current_index += 1
+                    current_index += array_size
                 else:
                     fmt += self.KNOWN_CTYPE_MAP[ctype] * array_size
                     for i in range(array_size):
@@ -126,7 +125,7 @@ class ParsingFunctionGenerator:
                     lines.append(f"{indent}}},")
                     current_index = next_index
             else:
-                print(f"[parse_struct_recursive] Struct({struct_name})-Field({field_name}) Unknown ctype: {ctype}")
+                print(f"[Generator] Struct({struct_name})-Field({field_name}) Unknown ctype: {ctype}")
                 lines.append(f"{indent}# Unknown type {ctype} for field {field_name}")
 
         return fmt, lines, current_index
