@@ -133,14 +133,17 @@ DEFAULT_IDL_CONFIG_DATA = {
         'EIE_0xF130' : ['MFR_IffAvailArea']
     },
 
-    'convert': {
-        'trkNo' : [('MDIL', 'MDIL'), ('TDIL_B', 'TDIL_B'), ('TDIL_J', 'TDIL_J')],
-        'strHeader'  : [('type',     '04X')],
-        'EIE_0x70F1' : [('errCode',  '04X')],
-        'EIE_0x70F3' : [('statusId', '04X')],
-        'EIE_0x9271' : [('sourceTN', '05o')],
+    'convert_common': {
+        'trkNo' : [['trkNo_MDIL', 'MDIL'], ['trkNo_TDIL_B', 'TDIL_B'], ['trkNo_TDIL_J', 'TDIL_J']],
+        'strHeader'  : [['type', '04X']],
+    },
 
-        'IEM_SYS_005' : [('CBIT_RESULT', '016b')],
+    'convert_custom': {
+        'EIE_0x70F1' : [['errCode',  '04X']],
+        'EIE_0x70F3' : [['statusId', '04X']],
+        'EIE_0x9271' : [['sourceTN', '05o']],
+
+        'IEM_SYS_005' : [['CBIT_RESULT', '016b']],
     },
 }
 
