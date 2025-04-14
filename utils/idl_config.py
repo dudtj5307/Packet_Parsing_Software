@@ -144,9 +144,10 @@ DEFAULT_IDL_CONFIG_DATA = {
         # ↑ ===== Check DAS ===== ↑ #
     },
 
-    'convert_common': {
-        'strHeader'  : [['type', '04X']],
+    'common_struct': {
+        'strHeader' : [['type', '04X']],
         'trkNo' : [['trkNo_MDIL', 'MDIL'], ['trkNo_TDIL_B', 'TDIL_B'], ['trkNo_TDIL_J', 'TDIL_J']],
+        'TN_PAIR' : []  # TODO
     },
 
     'convert_custom': {
@@ -154,7 +155,101 @@ DEFAULT_IDL_CONFIG_DATA = {
         'EIE_0x70F3' : [['statusId', '04X']],
         'EIE_0x9271' : [['sourceTN', '05o']],
 
+        'IEM_SYS_004' : [['SITE_NUMBER', 'TDIL_J']],
         'IEM_SYS_005' : [['CBIT_RESULT', '016b']],
+        'IEM_SYS_012' : [['FIRE_SEC1', 'TN_PAIR'], ['FIRE_SEC2', 'TN_PAIR']],   # How to deal with TN_PAIR
+
+        'IEM_SURV_101' : [['OWN_TN', 'TN_PAIR']],
+        'IEM_SURV_102' : [['TN_ARRAY', 'TN_TYPE']],							                                # Dynamic 1    / no ['STN_ARRAY[19]', '05o'],
+        'IEM_SURV_103' : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE']],	# Dynamic 2, 3 / no ['STN_ARRAY', '05o'],
+        'IEM_SURV_104' : [['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE']],				                # Dynamic 1
+
+        'IEM_SURV_106'  : [['TN_ARRAY', 'TN_TYPE'], ['TN_ARRAY2', 'TN_TYPE']],					            # Dynamic 1, 2
+        'IEM_SURV_107'  : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE']],	# Dynamic 1, 2
+        'IEM_SURV_108'  : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE']],	# Dynamic 1, 2
+        'IEM_SURV_109'  : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE']],	# Dynamic 1, 2
+        'IEM_SURV_110'  : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE']],	# Dynamic 1, 2
+        'IEM_SURV_112'  : [['TN_ARRAY2', 'TN_TYPE']],								                        # Dynamic 1
+        'IEM_SURV_113'  : [['TN_ARRAY2', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE']],	# Dynamic 1, 2
+        'IEM_SURV_114'  : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE']],	# Dynamic 1, 2
+
+        'IEM_EW_201'  : [['TN_ARRAY', 'TN_TYPE']],								                            # Dynamic 1
+        'IEM_EW_202'  : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE'], ['TN_ORIGIN_VALUE', 'TN_ORIGIN_TYPE']],	# Dynamic 1, 2, 3
+
+        'IEM_CMD_301' : [['ADDRESSEE_TN_ARRAY', 'ADDRESSEE_TN_TYPE'], ['ORIGINATOR_TN_VALUE', 'ORIGINATOR_TN_TYPE'], ['OBJECTIVE_TN_ARRAY', 'OBJECTIVE_TN_TYPE']],	# Dynamic 1, 2, 3
+        'IEM_CMD_302' : [['FWS_TN_ARRAY', 'FWS_TN_TYPE'], ['TARGET_TN_ARRAY', 'TARGET_TN_TYPE']],		# Dynamic 1, 2
+        'IEM_CMD_303' : [['FWS_TN_ARRAY', 'FWS_TN_TYPE'], ['TN_VALUE_SOURCE', 'TN_TYPE_SOURCE']],		# Dynamic 1, 2
+        'IEM_CMD_304' : [['TN_VALUE', 'TN_TYPE'], ['TN_VALUE_SOURCE', 'TN_TYPE_SOURCE']],			    # Dynamic 1, 2
+        'IEM_CMD_305' : [['TN_VALUE', 'TN_TYPE'], ['OBJECTIVE_TN_VALUE', 'OBJECTIVE_TN_TYPE']],			# Dynamic 1, 2
+
+        'IEM_INFO_401' : [['TN_ARRAY', 'TN_TYPE']],								# Dynamic 1
+        'IEM_INFO_402' : [['TN_VALUE', 'TN_TYPE']],								# Dynamic 1
+        'IEM_INFO_403' : [['TN_ARRAY', 'TN_TYPE'], ['TN_ARRAY2', 'TN_TYPE']], 	# Dynamic 1, 2
+        'IEM_INFO_404' : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE'], ['TN_ARRAY2', 'TN_TYPE']],		# Dynamic 1, 2, 3
+        'IEM_INFO_405' : [['TN_ARRAY', 'TN_TYPE'], ['REPORTING_SRC_TN_VALUE', 'REPORTING_SRC_TN_TYPE'], ['TN_ARRAY2', 'TN_TYPE']],		# Dynamic 1, 2, 3
+        'IEM_INFO_406' : [['SUBJECT_TN_ARRAY', 'SUBJECT_TN_TYPE'], ['TARGET_TN_ARRAY', 'TARGET_TN_TYPE'],                               # TARGET_TN_TYPE : list
+                          ['TARGET_TN_J_ARRAY',  'TARGET_TN_J_TYPE'],		                                                            # TARGET_TN_J_TYPE : list
+                          ['SUBJECT_TN_ARRAY2',  'SUBJECT_TN_TYPE'],                                                                    # TARGET_TN_TYPE : list
+                          ['TARGET_TN_J_ARRAY2', 'TARGET_TN_J_TYPE2']],	                                                                # TARGET_TN_J_TYPE2 : list
+        'IEM_INFO_407' : [['TN_ORIG_VALUE', 'TN_ORIG_TYPE'], ['TN_ADDR1_ARRAY', 'TN_ADDR1_TYPE'], ['TN_ADDR2_VALUE', 'TN_ADDR2_TYPE'], 		# Dynamic
+                          ['TN_ADDR3_VALUE', 'TN_ADDR3_TYPE'], ['TN_ADDR4_VALUE', 'TN_ADDR4_TYPE'], ['TN_ADDR5_VALUE', 'TN_ADDR5_TYPE']],
+        'IEM_INFO_408' : [['TN_ARRAY_SUBJ', 'TN_TYPE_SUBJ'], ['TN_ARRAY_ASSOC', 'TN_TYPE_ASSOC'], ['TN_VALUE_ORIG', 'TN_TYPE_ORIG']],		# Dynamic
+        'IEM_INFO_409' : [['DUR_TN_ARRAY', 'DUR_TN_TYPE'], ['TN_ADDR_VALUE', 'TN_ADDR_TYPE'], ['DUR_TN_ARRAY2', 'DUR_TN_TYPE']],			# Dynamic
+        'IEM_INFO_410' : [['TN_ARRAY', 'TN_TYPE'], ['TN_ARRAY2', 'TN_TYPE']],									                            # Dynamic
+        'IEM_INFO_411' : [['RETAINED_TN_VALUE', 'RETAINED_TN_TYPE'], ['DROPPED_TN_VALUE', 'DROPPED_TN_TYPE']],				                # Dynamic
+        'IEM_INFO_413' : [['TN_ARRAY', 'TN_TYPE']],												                                            # Dynamic
+        'IEM_INFO_414' : [['DROPPED_TN_VALUE', 'DROPPED_TN_TYPE'], ['RETAINED_TN_VALUE', 'RETAINED_TN_TYPE']],				                # Dynamic
+
+        'IEM_EXT_501' : [['RELAY_SITE_NUMBER', 'RELAY_SITE_TYPE'], ['SITE_NUMBER', 'SITE_TYPE']],							                # Dynamic
+        'IEM_EXT_502' : [['REMOTE_SITE_VALUE', 'REMOTE_SITE_TYPE']],                                                                        # Dynamic
+        'IEM_EXT_503' : [['SITE_NUMBER', 'SITE_TYPE']],                                                                                     # Dynamic
+        'IEM_EXT_504' : [['SITE_NUMBER', 'SITE_TYPE']],                                                                                     # Dynamic
+        #'IEM_EXT_505' : [['SITE_NUMBER', 'TDIL_J']], FCC1_SITE_NUMBER; FCC2_SITE_NUMBER; FCC3_SITE_NUMBER; FCC4_SITE_NUMBER; FCC5_SITE_NUMBER; FCC6_SITE_NUMBER; AECS_SITE_NUMBER; ECS_SITE_NUMBER; AFCC_SITE_NUMBER; MCRC_SITE_NUMBER;
+        #'IEM_EXT_506' : KICC_SITE_NUMBER; AEW_SITE1_NUMBER; AEW_SITE2_NUMBER; AEW_SITE3_NUMBER; AEW_SITE4_NUMBER; AEW_SITE5_NUMBER; AEW_SITE6_NUMBER; AEW_SITE7_NUMBER; AEW_SITE8_NUMBER;
+        'IEM_EXT_509' : [['ICC_SITE_NUMBER', 'TDIL_J'], ['AECS_SITE_NUMBER', 'TDIL_J']],
+        'IEM_EXT_510' : [['SITE_NUMBER', 'TDIL_J']],
+        'IEM_EXT_511' : [['SITE_NUMBER', 'TDIL_J']],
+        'IEM_EXT_512' : [['SITE_NUMBER', 'TDIL_J']],
+        'IEM_EXT_513' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_EXT_514' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_EXT_515' : [['SITE_NUMBER', 'TDIL_J']],
+
+        'IEM_FILT_603' : [['ADDRESSEE_TN_VALUE', 'TDIL_J']],
+        'IEM_FILT_604' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_605' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_606' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_607' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_608' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_609' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_610' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_611' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J'], ['STN_ARR_TO_FILTER', '05o']],
+        'IEM_FILT_612' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_613' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_614' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_615' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_616' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+        'IEM_FILT_617' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_DEST_VALUE', 'TDIL_J']],
+
+        'IEM_PTXT_801' : [['TN_ORIG_VALUE', 'TDIL_J'], ['TN_ADDR_ARRAY', 'TDIL_J']],
+        'IEM_PTXT_802' : [['SITE_NUMBER', 'TDIL_J']],
+        'IEM_MISC_901' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_902' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_903' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_904' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_905' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_906' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_907' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_908' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_909' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J'], ['MSL_TN_VALUE', 'TDIL_J'], ['TARGET_TN_VALUE', 'TDIL_J']],
+        'IEM_MISC_910' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_911' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_912' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_913' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_914' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_915' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_916' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+        'IEM_MISC_917' : [['SITE_NUMBER', 'TDIL_J'], ['TN_ORIG_VALUE', 'TDIL_J']],
+
     },
 }
 
