@@ -9,8 +9,9 @@ CONVERT_COMMON_FUNCS = {
 for fmt in ['04X', '05X', '05o', '08b', '016b']:
     CONVERT_COMMON_FUNCS[fmt] = (lambda f: lambda x: format(int(x), f))(fmt)
 
-
 MDIL_ALPHABETS = 'ABCDEFGHIJKLMNPQ'
+TDIL_J_ALPHABETS = '01234567ABCDEFGHJKLMNPQRSTUVWXYZ'
+
 def get_MDIL_STR(num):
     if type(num) != int: return f"ErrorType({num}({type(num)})";
     if num > 65535: return f"ErrorNum({num})"
@@ -25,7 +26,6 @@ def get_TDIL_B_STR(num):
     if num > 4095: return f"ErrorNum({num})"
     return f"{num:04o}"
 
-TDIL_J_ALPHABETS = '01234567ABCDEFGHJKLMNPQRSTUVWXYZ'
 def get_TDIL_J_STR(num):
     if type(num) != int: return f"ErrorType({num}({type(num)})";
     if num > 524287: return f"ErrorNum({num})"

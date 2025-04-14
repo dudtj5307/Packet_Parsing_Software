@@ -44,7 +44,7 @@ class IDL_Config:
         os.makedirs('IDL', exist_ok=True)
         json_str = json.dumps(self._settings)
         json_str = json_str.replace(': {', ': {\n        ').replace('}, ', '\n    },\n    ').replace('"], "' , '"],\n        "')
-        json_str = json_str.replace('{"', '{\n    "')#.replace('", "', '",\n        "')
+        json_str = json_str.replace('{"', '{\n    "').replace('"]], "', '"]],\n        "').replace('"]]}}', '"]]\n    }\n}')
         with open("IDL/idl_params.conf", "w") as file:
             file.write(json_str)
             # json.dump(self._settings, file, indent=4, separators=(',', ':'))
@@ -70,6 +70,7 @@ DEFAULT_IDL_CONFIG_DATA = {
     },
 
     'string': {
+        # EIE MSG
         'fileEntry' : ['filename', 'fileDescription'],
         'iffMode2Code' : ['codeInfo'],
         'EIE_0x0045' : ['voiceCallSign'],
@@ -88,16 +89,28 @@ DEFAULT_IDL_CONFIG_DATA = {
         'EIE_0x70F3' : ['statusString'],
         'EIE_0x81C0' : ['textMsg'],
         'EIE_0x81C3' : ['textMsg'],
-        'EIE_0x81D1': ['textMsg'],
+        'EIE_0x81D1' : ['textMsg'],
         'EIE_0xE020' : ['scenarioCtrl'],
         'EIE_0xE021' : ['scenarioCtrl'],
         'EIE_0xEFA0' : ['rawData'],
         'EIE_0xEFA1' : ['rawData'],
         'EIE_0xF133' : ['data'],
         'EIE_0xF156' : ['etc'],
+
+        # TIE MSG
+        'IEM_SYS_011' : ['VERSION'],
+        'IEM_SYS_014' : ['ERR_MSG_KOR', 'ERR_MSG_ENG'],
+        'IEM_SYS_015' : ['SEND_DATA', 'RECV_DATA'],
+        'IEM_SYS_016' : ['SEND_DATA', 'RECV_DATA'],
+        'IEM_CMD_304' : ['VOICE_CALL_SIGN'],
+        'IEM_INFO_407' : ['POINTER_TEXT'],
+        'IEM_EXT_513'  : ['ASCII_TEXT'], # octet	decode('ascii', errors='replace')
+        'IEM_PTXT_801' : ['FREE_TEXT'], # octet..?	decode('ascii', errors='replace')
+        'IEM_MISC_914' : ['FREE_TEXT'], # octet..?	decode('ascii', errors='replace')
     },
 
     'group': {
+        # EIE MSG
         'EIE_0x9220' : ['j3_2_Air', 'j3_3_Surface', 'j3_4_Subsurface', 'j3_5_Land', 'j3_6_Space', 'j3_7_Ewpi'],
         'EIE_0x9221' : ['j3_2_Air', 'j3_3_Surface', 'j3_4_Subsurface', 'j3_5_Land', 'j3_6_Space', 'j3_7_Ewpi'],
         'EIE_0x9230' : ['j2_x_filter', 'j3_x_filter', 'j7_x_filter', 'j9_x_filter', 'j10_x_filter', 'j13_x_filter', 'j28_x_filter'],
@@ -108,11 +121,8 @@ DEFAULT_IDL_CONFIG_DATA = {
         'EIE_0x9261' : ['j3_2_Air[7]',	'j3_3_Surface[7]', 'j3_4_Subsurface[7]',	 'j3_5_Land[7]', 'j3_6_Space[7]', 'j3_7_Ewpi[7]', 'j2_x_ppli[4]'],
         'EIE_0x92A0' : ['j2_x_ageLimit[8]', 'j3_x_ageLimit[8]', 'j7_x_ageLimit[8]', 'j9_x_ageLimit[8]', 'j10_x_ageLimit[8]', 'j13_x_ageLimit[8]', 'j28_x_ageLimit[8]'],
         'EIE_0x92A1' : ['j2_x_ageLimit[8]', 'j3_x_ageLimit[8]', 'j7_x_ageLimit[8]', 'j9_x_ageLimit[8]', 'j10_x_ageLimit[8]', 'j13_x_ageLimit[8]', 'j28_x_ageLimit[8]'],
-
         'EIE_0xD001' : ['BIT_Result_DLU', 'BIT_Result_WCC', 'BIT_Result_IPUCP', 'BIT_Result_PCP', 'BIT_Result_DPU', 'BIT_Result_GPS', 'BIT_Result_ADOC1', 'BIT_Result_ADOC2', 'BIT_Result_CCC1', 'BIT_Result_CCC2', 'BIT_Result_CCC3', 'BIT_Result_CCC4', 'BIT_Result_CCC5', 'BIT_Result_reserved2', 'BIT_Result_reserved3'],
-
         'EIE_0xD901' : ['result'],
-
         'EIE_0xEF00' : ['Data'],
         'EIE_0xEF01' : ['Data'],
         'EIE_0xEF02' : ['Data'],
@@ -122,7 +132,7 @@ DEFAULT_IDL_CONFIG_DATA = {
         'EIE_0xEF06' : ['Data'],
         'EIE_0xEF07' : ['Data'],
         'EIE_0xEF10' : ['Data'],
-
+        # ↓ ===== Check DAS ===== ↓ #
         'EIE_0xF113' : ['mmr'],
         'EIE_0xF114' : ['nfz'],
         'EIE_0xF115' : ['kob'],
@@ -130,12 +140,13 @@ DEFAULT_IDL_CONFIG_DATA = {
         'EIE_0xF12A' : ['TM_IdParam'],
         'EIE_0xF12B' : ['TM_ClassParam'],
         'EIE_0xF12C' : ['TM_TrackingParam'],
-        'EIE_0xF130' : ['MFR_IffAvailArea']
+        'EIE_0xF130' : ['MFR_IffAvailArea'],
+        # ↑ ===== Check DAS ===== ↑ #
     },
 
     'convert_common': {
-        'trkNo' : [['trkNo_MDIL', 'MDIL'], ['trkNo_TDIL_B', 'TDIL_B'], ['trkNo_TDIL_J', 'TDIL_J']],
         'strHeader'  : [['type', '04X']],
+        'trkNo' : [['trkNo_MDIL', 'MDIL'], ['trkNo_TDIL_B', 'TDIL_B'], ['trkNo_TDIL_J', 'TDIL_J']],
     },
 
     'convert_custom': {

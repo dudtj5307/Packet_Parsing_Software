@@ -96,12 +96,12 @@ class ParsingFunctionGenerator:
         group_fields = self.IDL_GROUP.get(struct_name, [])
         for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
             if ctype in self.KNOWN_CTYPE_MAP:
-                # String-type fields
+                # ['string'] fields
                 if field_name in string_fields and array_size >= 1:
                     fmt += f'{array_size}s'
-                    lines.append(f"{indent}'{field_name}': data[{current_index}].decode(),")
-                    current_index += array_size
-                # GroupBit-type fields
+                    lines.append(f"{indent}'{field_name}': data[{current_index}].decode('ascii', errors='replace'),")   # TODO: check if ascii is correct
+                    current_index += 1
+                # ['group'] fields
                 elif field_name in group_fields and array_size >= 1:
                     fmt += f'{array_size}{self.KNOWN_CTYPE_MAP[ctype]}'
                     lines.append(f"{indent}'{field_name}': data[{current_index}:{current_index+array_size}],")

@@ -17,11 +17,6 @@ def dict_key_flatten(dictionary, keys):
     return new_dict
 
 
-
-
-
-print("dict", convert_recursive({}, ""))
-
 class CsvCreator:
     def __init__(self):
         self.monitor = ProgressMonitor()
@@ -105,7 +100,7 @@ class CsvCreator:
                 # Convert custom fields
                 self.run_convert_custom(info['MSG_NAME'])
 
-            except Error as e:
+            except Exception as e:
                 print(f"[Creator] {e}")
                 continue
 
