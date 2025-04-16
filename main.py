@@ -25,20 +25,8 @@ LAST_UPDATE, VERSION = "2025.03.20", "v0.0"
 
 Ether, IP, TCP, UDP, ICMP, ARP = scapy.Ether, scapy.IP, scapy.TCP, scapy.UDP, scapy.ICMP, scapy.ARP
 
-def same_dict_keys_recursive(dict1, dict2):
-    if set(dict1.keys()) != set(dict2.keys()):
-        return False
-    for key, dict1_val in dict1.items():
-        dict2_val = dict2[key]
-        if type(dict1_val) != type(dict2_val):
-            return False
-        if isinstance(dict1_val, dict) and isinstance(dict2_val, dict):
-            if not same_dict_keys_recursive(dict1_val, dict2_val):
-                return False
-    return True
 
-
-class PacketParser(QObject):
+class PacketSniffer(QObject):
     tcp_num_set = pyqtSignal(str, name="tcp_num_set")
     udp_num_set = pyqtSignal(str, name="udp_num_set")
 
@@ -77,6 +65,13 @@ class PacketParser(QObject):
         self.tcp_num_set.connect(self.main_window.tcp_num_set)
         self.udp_num_set.connect(self.main_window.udp_num_set)
 
+        # Disable start button if 'pcap' is not installed
+        if not scapy.conf.use_pcap:
+            messagebox.showerror("Error", "\"Npcap\" is not installed."
+                                          "\nPlease install \"Npcap\" with 'Winpcap API-compatible mode'")
+            self.main_window.btn_start.setDisabled(True)
+
+
     def packet_callback(self, packet):
         if not self.is_sniffing:
             return
@@ -91,8 +86,8 @@ class PacketParser(QObject):
             self.udp_num_set.emit(str(self.pkt_udp_num))
         else:
             return
+
         self.pcap_writer.write(packet)
-        # print(packet[IP].src, packet[IP].dst)
 
     def sniff_packets(self, interface=None):
         # Raw file name
@@ -159,17 +154,12 @@ class PacketParser(QObject):
 
 
 if __name__ == "__main__":
-    # Check if scapy is available
-    if not scapy.conf.use_pcap:
-        messagebox.showerror("Error", "\"Npcap\" is not installed."
-                             "\nPlease install \"Npcap\" with 'Winpcap API-compatible mode'"); exit(1)
-
     # Process Priority Elevation
     main_pid = psutil.Process(os.getpid())
     main_pid.nice(psutil.HIGH_PRIORITY_CLASS)
 
     app = QApplication(sys.argv)
 
-    pss = PacketParser()
+    pss = PacketSniffer()
     pss.main_window.show()
     app.exec()
