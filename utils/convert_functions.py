@@ -1,19 +1,3 @@
-
-# Convert functions
-CONVERT_COMMON_FUNCS = {'MDIL'  : lambda: get_string_MDIL,
-                        'TDIL_B': lambda: get_string_TDIL_B,
-                        'TDIL_J': lambda: get_string_TDIL_J,}
-
-# Returns string of func name (used in generator)
-CONVERT_COMMON_FUNCS_STR = {'MDIL'  : "get_string_MDIL",
-                            'TDIL_B': "get_string_TDIL_B",
-                            'TDIL_J': "get_string_TDIL_J",}
-
-# format strings
-for fmt in ['04X', '05X', '05o', '08b', '016b']:
-    CONVERT_COMMON_FUNCS[fmt] = (lambda f: lambda x: format(int(x), f))(fmt)
-    CONVERT_COMMON_FUNCS_STR[fmt] = f"get_string_FMT_{fmt}"
-
 MDIL_ALPHABETS = 'ABCDEFGHIJKLMNPQ'
 TDIL_J_ALPHABETS = '01234567ABCDEFGHJKLMNPQRSTUVWXYZ'
 
@@ -56,6 +40,27 @@ def get_string_TDIL_J(num):
     alpha, octet = divmod(num, 512)
     alpha1, alpha2 = divmod(alpha, 32)
     return f"{TDIL_J_ALPHABETS[alpha1]}{TDIL_J_ALPHABETS[alpha2]}{octet:03o}"
+
+# TN_TYPE Values
+MDIL   = 4
+TDIL_B = 5
+TDIL_J = 6
+
+# Convert functions
+CONVERT_TN_FUNCS = {'MDIL'  : get_string_MDIL,   MDIL  : get_string_MDIL,
+                    'TDIL_B': get_string_TDIL_B, TDIL_B: get_string_TDIL_B,
+                    'TDIL_J': get_string_TDIL_J, TDIL_J: get_string_TDIL_J,}
+
+# Returns string of func name (used in generator)
+CONVERT_TN_FUNCS_STR = {'MDIL'  : "get_string_MDIL",
+                        'TDIL_B': "get_string_TDIL_B",
+                        'TDIL_J': "get_string_TDIL_J",}
+
+# format strings
+for fmt in ['04X', '05X', '05o', '08b', '016b']:
+    CONVERT_TN_FUNCS[fmt] = (lambda f: lambda x: format(int(x), f))(fmt)
+    CONVERT_TN_FUNCS_STR[fmt] = f"get_string_FMT_{fmt}"
+
 
 if __name__ == "__main__":
     print(get_string_MDIL('65535'))
