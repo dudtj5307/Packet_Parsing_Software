@@ -8,6 +8,7 @@ import struct
 from utils.monitor import ProgressMonitor
 from utils.idl_config import IDL_Config
 from utils.generator.ctype_map import KNOWN_CTYPE_MAP, add_fmt_padding
+from utils.convert_functions import CONVERT_COMMON_FUNCS_STR
 
 STOPPED = False
 
@@ -39,6 +40,7 @@ class ParsingFunctionGenerator:
         self.idl_config = IDL_Config()
         self.IDL_STRING = self.idl_config.get('string')
         self.IDL_GROUP = self.idl_config.get('group')
+        self.IDL_CONVERT = self.idl_config.get('struct_convert')
 
     def set_path(self, idl_path):
         # Initialize
@@ -60,7 +62,7 @@ class ParsingFunctionGenerator:
     def run(self, idl_path):
         # Reset attributes before running
         self.set_path(idl_path)
-        if self.is_up_to_date(): return
+        # if self.is_up_to_date(): return   # TODO: disable update skipping
         if self.find_idl_structs() == STOPPED: return
         if self.generate_code()  == STOPPED: return
 
@@ -94,6 +96,7 @@ class ParsingFunctionGenerator:
         lines = []
         string_fields = self.IDL_STRING.get(struct_name, [])
         group_fields = self.IDL_GROUP.get(struct_name, [])
+        convert_fields = self.IDL_CONVERT.get(struct_name, [])
         for ctype, field_name, comment, array_size in self.IDL_CTYPE_MAP.get(struct_name, []):
             if ctype in self.KNOWN_CTYPE_MAP:
                 # ['string'] fields
@@ -110,7 +113,10 @@ class ParsingFunctionGenerator:
                     fmt += self.KNOWN_CTYPE_MAP[ctype] * array_size
                     for i in range(array_size):
                         key = f'{field_name}[{i}]' if array_size > 1 else field_name
-                        lines.append(f"{indent}'{key}': data[{current_index}],")
+                        # ['struct_convert'] fields
+                        data = f"{CONVERT_COMMON_FUNCS_STR[convert_fields[field_name]]}(data[{current_index}])" \
+                                if field_name in convert_fields else f"data[{current_index}]"
+                        lines.append(f"{indent}'{key}': {data},")
                         current_index += 1
 
             elif ctype in self.IDL_CTYPE_MAP:
@@ -146,10 +152,9 @@ class ParsingFunctionGenerator:
                 struct_name = struct_match.group(1)     # struct name
             else:
                 struct_name = struct_match.group(3)     # typedef struct name
-            # struct body
             struct_body = struct_match.group(2)
 
-            # Parse by each line
+            # parse by each line
             fields = []
             for line in struct_body.splitlines():
                 line = line.strip()
@@ -194,7 +199,8 @@ class ParsingFunctionGenerator:
     def generate_code(self):
         generated_code  = f"# {self.idl_name} : {calculate_hash(self.idl_path)}\n"
         generated_code += f"# Auto-generated parsing function\n\n"
-        generated_code += "import struct\n\n"
+        generated_code += "import struct\n"
+        generated_code += "from utils.convert_functions import *\n\n"
         # Auto-generate code by struct name
         for idx, struct_name in enumerate(self.IDL_CTYPE_MAP):
             # Update monitoring and Check if Stopped
