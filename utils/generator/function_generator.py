@@ -8,7 +8,7 @@ import struct
 from utils.monitor import ProgressMonitor
 from utils.idl_config import IDL_Config
 from utils.generator.ctype_map import KNOWN_CTYPE_MAP, add_fmt_padding
-from utils.convert_functions import CONVERT_COMMON_FUNCS_STR
+from utils.convert_functions import CONVERT_TN_FUNCS_STR
 
 STOPPED = False
 
@@ -114,7 +114,7 @@ class ParsingFunctionGenerator:
                     for i in range(array_size):
                         key = f'{field_name}[{i}]' if array_size > 1 else field_name
                         # ['struct_convert'] fields
-                        data = f"{CONVERT_COMMON_FUNCS_STR[convert_fields[field_name]]}(data[{current_index}])" \
+                        data = f"{CONVERT_TN_FUNCS_STR[convert_fields[field_name]]}(data[{current_index}])" \
                                 if field_name in convert_fields else f"data[{current_index}]"
                         lines.append(f"{indent}'{key}': {data},")
                         current_index += 1

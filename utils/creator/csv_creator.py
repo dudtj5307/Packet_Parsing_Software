@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from utils.monitor import ProgressMonitor
 from utils.idl_config import IDL_Config
-from utils.creator.convert_functions import *
+from utils.convert_functions import CONVERT_TN_FUNCS
 
 
 def dict_key_flatten(dictionary, keys):
@@ -25,10 +25,10 @@ class CsvCreator:
         self.csv_file_path = ""
         self.outputs = []
 
+        # Get dynamic convert fields
         self.idl_config = IDL_Config()
-
-        self.convert_common = defaultdict(lambda: [])
-        self.convert_custom = defaultdict(lambda: [])
+        self.dynamic_convert = defaultdict(lambda: {})
+        self.dynamic_convert.update(self.idl_config.get('dynamic_convert'))
 
 
     def run(self, packet_infos, csv_file_path):
@@ -48,63 +48,57 @@ class CsvCreator:
         # Create CSV - by each MSG_NAMES
         self.make_csv_separate()
 
-
-    def run_convert_custom(self, msg_name):
-        field_list = self.convert_custom[msg_name]
-        for field_name, field_format in field_list:
-            if field_name in info['DATA'].keys():
-                origin_val = info['DATA'][field_name]
-                # If str, change to int
-                if isinstance(origin_val, str):
-                    origin_val = int(origin_val)
-
-                val_list = list(origin_val) if isinstance(origin_val, (list, tuple)) else [origin_val]
-
-                if field_format in CONVERT_FUNCS:
-                    converted = [CONVERT_FUNCS[field_format](v) for v in val_list]
-                else:
-                    converted = [format(int(v), field_format) for v in val_list]
-
-                if isinstance(origin_val, tuple):
-                    info['DATA'][field_name] = tuple(converted)
-                elif isinstance(origin_val, list):
-                    info['DATA'][field_name] = converted
-                else:
-                    info['DATA'][field_name] = converted[0]
-
-    # TODO: How to change convert_commons
-    def run_convert_common(self, dictionary, find):
-        for key, val in dictionary.items():
-            if key in self.convert_common:
-                for field_name, field_format in self.convert_common[key]:
-                    pass
-
-            if type(val) == dict:
-                convert_recursive(val, find)
-            else:
-                if key in find:
-                    val_dict[key] = find[key](val_dict[key])
-
-
-    # Converts certain field formats (based on the idl_params.conf)
     def run_converting(self):
-        # Get convert info
-        self.convert_common.update(self.idl_config.get('convert_common'))
-        self.convert_custom.update(self.idl_config.get('convert_custom'))
-
         for info in self.packet_infos:
             try:
-                # Convert common fields
-                self.run_convert_common(info)
-
-                # Convert custom fields
-                self.run_convert_custom(info['MSG_NAME'])
+                # Convert dynamic fields
+                self.run_dynamic_convert(info)
 
             except Exception as e:
                 print(f"[Creator] {e}")
                 continue
 
+    # "idl_params.conf" - 'dynamic_convert'
+    def run_dynamic_convert(self, info):
+        msg_name = info['MSG_NAME']
+        dynamic_field = self.dynamic_convert[msg_name]
 
+        # Only exception for 'IEM_INFO_406'
+        if msg_name == "IEM_INFO_406":
+            self.convert_IEM_INFO_406(info)
+            return
+        for field_name, field_values in info['DATA'].items():
+            field_name_front = field_name.split('[')[0]
+            if field_name_front not in dynamic_field:
+                continue
+            # Get TN_TYPE FIELD_NAME
+            tn_type_field = dynamic_field[field_name_front]
+            if tn_type_field not in info['DATA']:
+                continue
+            # Get dynamic TN_TYPE
+            tn_type = info['DATA'][tn_type_field]
+            info['DATA'][field_name] = CONVERT_TN_FUNCS[tn_type](field_values)
+
+    # TODO: check if right
+    def convert_IEM_INFO_406(self, info):
+        for i in range(19):
+            # 'SUBJECT_TN_ARRAY'
+            subject_tn_type = info['DATA']['SUBJECT_TN_TYPE']
+            info['DATA'][f'SUBJECT_TN_ARRAY[i]']  = CONVERT_TN_FUNCS[subject_tn_type](info['DATA'][f'SUBJECT_TN_ARRAY[i]'])
+            info['DATA'][f'SUBJECT_TN_ARRAY2[i]'] = CONVERT_TN_FUNCS[subject_tn_type](info['DATA'][f'SUBJECT_TN_ARRAY2[i]'])
+            # 'TARGET_TN_ARRAY'
+            target_tn_type = info['DATA']['TARGET_TN_TYPE[i]']
+            info['DATA'][f'TARGET_TN_ARRAY[i]'] = CONVERT_TN_FUNCS[target_tn_type](info['DATA'][f'TARGET_TN_ARRAY[i]'])
+            # 'TARGET_TN_J_ARRAY'
+            target_tn_j_type = info['DATA']['TARGET_TN_J_TYPE[i]']
+            info['DATA'][f'TARGET_TN_J_ARRAY[i]'] = CONVERT_TN_FUNCS[target_tn_j_type](info['DATA'][f'TARGET_TN_J_ARRAY[i]'])
+            # 'TARGET_TN_J_ARRAY2'
+            target_tn_j_type2 = info['DATA']['TARGET_TN_J_TYPE2[i]']
+            info['DATA'][f'TARGET_TN_J_ARRAY2[i]'] = CONVERT_TN_FUNCS[target_tn_j_type2](info['DATA'][f'TARGET_TN_J_ARRAY2[i]'])
+
+
+
+        pass
 
     def get_unique_value(self, colname):
         return set(map(lambda info: info[colname], self.packet_infos))
@@ -133,3 +127,21 @@ class CsvCreator:
                 writer.writerows(packet_filtered)   # Write Data
 
             if self.monitor.update_check_stop('csv', task_idx=idx, task_total=len(uniq_msg_names), prior_status=0.6): return
+
+
+if __name__ == "__main__":
+    a = "strHeader[0]"
+    b = "strHeader"
+    print(a.split("["))
+    print(b.split("0"))
+
+
+    d = {'MSG_NAME': "IEM_SURV_103",
+         'DATA': {
+             'TN_ARRAY[0]': 1000, 'TN_ARRAY[1]': 2000, 'TN_ARRAY[2]': 3000, 'TN_ARRAY[3]': 4000, 'TN_TYPE': 4,
+             'REPORTING_SRC_TN_VALUE': 1000, 'REPORTING_SRC_TN_TYPE': 4}
+         }
+
+    c = CsvCreator()
+    c.run_dynamic_convert(d)
+    print(d)

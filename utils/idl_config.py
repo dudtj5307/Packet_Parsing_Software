@@ -71,7 +71,7 @@ DEFAULT_IDL_CONFIG_DATA = {
         'J_Msg'     : "",
         'X_Msg'     : "",
     },
-
+    # Generator
     'string': {
         # EIE MSG
         'fileEntry' : ['filename', 'fileDescription'],
@@ -159,7 +159,6 @@ DEFAULT_IDL_CONFIG_DATA = {
         'EIE_0x70F3': {'statusId': '04X'},
         'EIE_0x9271': {'sourceTN': '05o'},
 
-
         # TIE MSG
         'TN_PAIR' : {'ATDL_TN_VALUE'  : 'MDIL',
                      'TADIL_TN_VALUE' : 'TDIL_B',
@@ -168,16 +167,15 @@ DEFAULT_IDL_CONFIG_DATA = {
         'IEM_SYS_004': {'SITE_NUMBER': 'TDIL_J'},
         'IEM_SYS_005': {'CBIT_RESULT': '016b'},
         'IEM_FILT_611': {'STN_ARR_TO_FILTER': '05o'},
-
     },
 
     'dynamic_convert': {
         # TIE MSG
         'IEM_SURV_102': {'TN_ARRAY': 'TN_TYPE'},
-        'IEM_SURV_103': {'TN_ARRAY': 'TN_TYPE', 'REPORTING_SRC_TN_VALUE' : 'REPORTING_SRC_TN_TYPE'},
-        'IEM_SURV_104': {'REPORTING_SRC_TN_VALUE' : 'REPORTING_SRC_TN_TYPE'},
+        'IEM_SURV_103': {'TN_ARRAY': 'TN_TYPE', 'REPORTING_SRC_TN_VALUE': 'REPORTING_SRC_TN_TYPE'},
+        'IEM_SURV_104': {'REPORTING_SRC_TN_VALUE': 'REPORTING_SRC_TN_TYPE'},
 
-        'IEM_SURV_106': {'TN_ARRAY' : 'TN_TYPE', 'TN_ARRAY2' : 'TN_TYPE'},
+        'IEM_SURV_106': {'TN_ARRAY' : 'TN_TYPE', 'TN_ARRAY2': 'TN_TYPE'},
         'IEM_SURV_107': {'TN_ARRAY' : 'TN_TYPE', 'REPORTING_SRC_TN_VALUE': 'REPORTING_SRC_TN_TYPE'},
         'IEM_SURV_108': {'TN_ARRAY' : 'TN_TYPE', 'REPORTING_SRC_TN_VALUE': 'REPORTING_SRC_TN_TYPE'},
         'IEM_SURV_109': {'TN_ARRAY' : 'TN_TYPE', 'REPORTING_SRC_TN_VALUE': 'REPORTING_SRC_TN_TYPE'},
