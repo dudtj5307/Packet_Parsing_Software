@@ -65,40 +65,30 @@ class CsvCreator:
 
         # Only exception for 'IEM_INFO_406'
         if msg_name == "IEM_INFO_406":
-            self.convert_IEM_INFO_406(info)
+            self.convert_IEM_INFO_406_DATA(info['DATA'])
             return
-        for field_name, field_values in info['DATA'].items():
-            field_name_front = field_name.split('[')[0]
-            if field_name_front not in dynamic_field:
+
+        for field_name_array, field_values in info['DATA'].items():
+            field_name = field_name_array.split('[')[0]
+            if field_name not in dynamic_field:
                 continue
             # Get TN_TYPE FIELD_NAME
-            tn_type_field = dynamic_field[field_name_front]
+            tn_type_field = dynamic_field[field_name]
             if tn_type_field not in info['DATA']:
                 continue
             # Get dynamic TN_TYPE
             tn_type = info['DATA'][tn_type_field]
-            info['DATA'][field_name] = CONVERT_TN_FUNCS[tn_type](field_values)
+            info['DATA'][field_name_array] = CONVERT_TN_FUNCS[tn_type](field_values)
 
     # TODO: check if right
-    def convert_IEM_INFO_406(self, info):
+    def convert_IEM_INFO_406_DATA(self, data):
+        sub_tn_type = data['SUBJECT_TN_TYPE']
         for i in range(19):
-            # 'SUBJECT_TN_ARRAY'
-            subject_tn_type = info['DATA']['SUBJECT_TN_TYPE']
-            info['DATA'][f'SUBJECT_TN_ARRAY[i]']  = CONVERT_TN_FUNCS[subject_tn_type](info['DATA'][f'SUBJECT_TN_ARRAY[i]'])
-            info['DATA'][f'SUBJECT_TN_ARRAY2[i]'] = CONVERT_TN_FUNCS[subject_tn_type](info['DATA'][f'SUBJECT_TN_ARRAY2[i]'])
-            # 'TARGET_TN_ARRAY'
-            target_tn_type = info['DATA']['TARGET_TN_TYPE[i]']
-            info['DATA'][f'TARGET_TN_ARRAY[i]'] = CONVERT_TN_FUNCS[target_tn_type](info['DATA'][f'TARGET_TN_ARRAY[i]'])
-            # 'TARGET_TN_J_ARRAY'
-            target_tn_j_type = info['DATA']['TARGET_TN_J_TYPE[i]']
-            info['DATA'][f'TARGET_TN_J_ARRAY[i]'] = CONVERT_TN_FUNCS[target_tn_j_type](info['DATA'][f'TARGET_TN_J_ARRAY[i]'])
-            # 'TARGET_TN_J_ARRAY2'
-            target_tn_j_type2 = info['DATA']['TARGET_TN_J_TYPE2[i]']
-            info['DATA'][f'TARGET_TN_J_ARRAY2[i]'] = CONVERT_TN_FUNCS[target_tn_j_type2](info['DATA'][f'TARGET_TN_J_ARRAY2[i]'])
-
-
-
-        pass
+            data[f'SUBJECT_TN_ARRAY[{i}]']   = CONVERT_TN_FUNCS[sub_tn_type](data[f'SUBJECT_TN_ARRAY[{i}]'])      # 'SUBJECT_TN_ARRAY'
+            data[f'SUBJECT_TN_ARRAY2[{i}]']  = CONVERT_TN_FUNCS[sub_tn_type](data[f'SUBJECT_TN_ARRAY2[{i}]'])     # 'SUBJECT_TN_ARRAY2'
+            data[f'TARGET_TN_ARRAY[{i}]']    = CONVERT_TN_FUNCS[data[f'TARGET_TN_TYPE[{i}]']](data[f'TARGET_TN_ARRAY[{i}]'])        # 'TARGET_TN_ARRAY'
+            data[f'TARGET_TN_J_ARRAY[{i}]']  = CONVERT_TN_FUNCS[data[f'TARGET_TN_J_TYPE[{i}]']](data[f'TARGET_TN_J_ARRAY[{i}]'])    # 'TARGET_TN_J_ARRAY'
+            data[f'TARGET_TN_J_ARRAY2[{i}]'] = CONVERT_TN_FUNCS[data[f'TARGET_TN_J_TYPE2[{i}]']](data[f'TARGET_TN_J_ARRAY2[{i}]'])  # 'TARGET_TN_J_ARRAY2'
 
     def get_unique_value(self, colname):
         return set(map(lambda info: info[colname], self.packet_infos))
