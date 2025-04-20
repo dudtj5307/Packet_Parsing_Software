@@ -149,7 +149,7 @@ class Ui_SettingsWindow(object):
         self.edit_dlu_label.setReadOnly(True)
         self.edit_dlu_label.setObjectName("edit_dlu_label")
         self.edit_adoc_ip3 = QtWidgets.QLineEdit(parent=self.frame_1_1)
-        self.edit_adoc_ip3.setGeometry(QtCore.QRect(175, 10, 45, 25))
+        self.edit_adoc_ip3.setGeometry(QtCore.QRect(200, 10, 36, 25))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -161,7 +161,14 @@ class Ui_SettingsWindow(object):
         self.edit_adoc_ip3.setFont(font)
         self.edit_adoc_ip3.setStyleSheet("border: 1px solid black;\n"
 "border-radius: 5px;\n"
-"")
+"\n"
+"\n"
+"QLineEdit {\n"
+"    font-size: 9pt; /* 일반 입력 텍스트 폰트 크기 */\n"
+"}\n"
+"QLineEdit:placeholder {\n"
+"    font-size: 7pt; /* placeholder 텍스트 폰트 크기 */\n"
+"}")
         self.edit_adoc_ip3.setText("")
         self.edit_adoc_ip3.setMaxLength(3)
         self.edit_adoc_ip3.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -1210,7 +1217,7 @@ class Ui_SettingsWindow(object):
         self.edit_adoc_label.setText(_translate("SettingsWindow", "ADOC"))
         self.edit_wcc_label.setText(_translate("SettingsWindow", "WCC"))
         self.edit_dlu_label.setText(_translate("SettingsWindow", "DLU"))
-        self.edit_adoc_ip3.setPlaceholderText(_translate("SettingsWindow", "NDDS"))
+        self.edit_adoc_ip3.setPlaceholderText(_translate("SettingsWindow", "ndds"))
         self.edit_wcc_ip3.setText(_translate("SettingsWindow", "11"))
         self.edit_wcc_ip2.setText(_translate("SettingsWindow", "10"))
         self.edit_wcc_ip1.setText(_translate("SettingsWindow", "8"))
