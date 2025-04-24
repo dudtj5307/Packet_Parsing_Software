@@ -80,14 +80,14 @@ class CsvCreator:
             tn_type = info['DATA'][tn_type_field]
             info['DATA'][field_name_array] = CONVERT_TN_FUNCS[tn_type](field_values)
 
-    # TODO: check if right
     def convert_IEM_INFO_406_DATA(self, data):
         sub_tn_type = data['SUBJECT_TN_TYPE']
         for i in range(19):
-            data[f'SUBJECT_TN_ARRAY[{i}]']   = CONVERT_TN_FUNCS[sub_tn_type](data[f'SUBJECT_TN_ARRAY[{i}]'])      # 'SUBJECT_TN_ARRAY'
-            data[f'SUBJECT_TN_ARRAY2[{i}]']  = CONVERT_TN_FUNCS[sub_tn_type](data[f'SUBJECT_TN_ARRAY2[{i}]'])     # 'SUBJECT_TN_ARRAY2'
-            data[f'TARGET_TN_ARRAY[{i}]']    = CONVERT_TN_FUNCS[data[f'TARGET_TN_TYPE[{i}]']](data[f'TARGET_TN_ARRAY[{i}]'])        # 'TARGET_TN_ARRAY'
-            data[f'TARGET_TN_J_ARRAY[{i}]']  = CONVERT_TN_FUNCS[data[f'TARGET_TN_J_TYPE[{i}]']](data[f'TARGET_TN_J_ARRAY[{i}]'])    # 'TARGET_TN_J_ARRAY'
+            data[f'SUBJECT_TN_ARRAY[{i}]']  = CONVERT_TN_FUNCS[sub_tn_type](data[f'SUBJECT_TN_ARRAY[{i}]'])                     # 'SUBJECT_TN_ARRAY'
+            data[f'TARGET_TN_ARRAY[{i}]']   = CONVERT_TN_FUNCS[data[f'TARGET_TN_TYPE[{i}]']](data[f'TARGET_TN_ARRAY[{i}]'])     # 'TARGET_TN_ARRAY'
+            data[f'TARGET_TN_J_ARRAY[{i}]'] = CONVERT_TN_FUNCS[data[f'TARGET_TN_J_TYPE[{i}]']](data[f'TARGET_TN_J_ARRAY[{i}]']) # 'TARGET_TN_J_ARRAY'
+        for i in range(8):
+            data[f'SUBJECT_TN_ARRAY2[{i}]']  = CONVERT_TN_FUNCS[sub_tn_type](data[f'SUBJECT_TN_ARRAY2[{i}]'])                       # 'SUBJECT_TN_ARRAY2'
             data[f'TARGET_TN_J_ARRAY2[{i}]'] = CONVERT_TN_FUNCS[data[f'TARGET_TN_J_TYPE2[{i}]']](data[f'TARGET_TN_J_ARRAY2[{i}]'])  # 'TARGET_TN_J_ARRAY2'
 
     def get_unique_value(self, colname):

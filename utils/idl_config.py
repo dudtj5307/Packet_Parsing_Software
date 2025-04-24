@@ -268,11 +268,6 @@ DEFAULT_IDL_CONFIG_DATA = {
 # Special Case #
 #'EIE_0x7010' : 너무많음.... 30개 세트로 묶기?
 
-	# 'IEM_INFO_406': 
-	# 'TARGET_TN_ARRAY'   : 'TARGET_TN_TYPE'     -> list : list
-	# 'TARGET_TN_J_ARRAY' : 'TARGET_TN_J_TYPE'   -> list : list
-	# 'TARGET_TN_J_ARRAY2': 'TARGET_TN_J_TYPE2' -> list : list
-
 '''
 
 
