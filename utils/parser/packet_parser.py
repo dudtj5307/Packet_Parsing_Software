@@ -118,7 +118,14 @@ class PacketParser:
                 try:
                     if packet.haslayer(UDP) and packet.haslayer(NDDS):
                         results = self.parse_RTPS(msg_type, raw_data)
-                    else:   # TODO: [TCP] MDIL, J-Msg, X-Msg, JREAP case
+
+                    elif packet.haslayer(TCP):
+                        if msg_type == "MDIL":
+                            results = self.parse_MDIL(raw_data)
+
+                        # elif TODO: [TCP] MDIL, J-Msg, X-Msg, JREAP case
+
+                    else:
                         continue
 
                     for msg_name, data in results:
@@ -208,8 +215,18 @@ class PacketParser:
             print(f"[parse_TIE] Can not find TIE name '{TIE_name}'")
             return None, None
 
+    # Parse MDIL Messages
     def parse_MDIL(self, data):
         mdil_type = struct.unpack('H', data[0:2])[0]
+
+    # Parse JREAP Messages
+    def parse_XMsg(self, data):
+        xMsg_type = struct.unpack('H', data[0:2])[0]
+
+    # Parse LINK-16 Messages
+    def parse_JMsg(self, data):
+        jMsg_type = struct.unpack('H', data[0:2])[0]
+
 
 
 
