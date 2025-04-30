@@ -217,15 +217,15 @@ class PacketParser:
 
     # Parse MDIL Messages
     def parse_MDIL(self, data):
-        mdil_type = struct.unpack('H', data[0:2])[0]
+        mdil_type = struct.unpack('H', data[0:2])[0]    # TODO: Check header type
 
     # Parse JREAP Messages
     def parse_XMsg(self, data):
-        xMsg_type = struct.unpack('H', data[0:2])[0]
+        xMsg_type = struct.unpack('H', data[0:2])[0]    # TODO: Check header type
 
     # Parse LINK-16 Messages
     def parse_JMsg(self, data):
-        jMsg_type = struct.unpack('H', data[0:2])[0]
+        jMsg_type = struct.unpack('H', data[0:2])[0]    # TODO: Check header type
 
 
 
